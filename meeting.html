@@ -19,6 +19,60 @@
     <script src="https://npmcdn.com/flatpickr/dist/l10n/zh-tw.js"></script>
     
     <style>
+        /* 所有樣式保持不變，只修改錯誤訊息的樣式 */
+        .no-group-message {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--muted);
+            background: #f8fcfc;
+            border-radius: 12px;
+        }
+        
+        .no-group-message p {
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+        
+        .no-group-message .icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.7;
+        }
+        
+        .create-group-link {
+            display: inline-block;
+            padding: 10px 20px;
+            background: var(--accent);
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .create-group-link:hover {
+            background: #28b5b2;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(44, 197, 194, 0.3);
+        }
+        
+        .error-message {
+            text-align: center;
+            padding: 40px;
+            color: #ff5a5f;
+        }
+
+        .retry-btn {
+            margin-top: 15px;
+            padding: 8px 20px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -381,7 +435,7 @@
         .map-container {
             flex: 1;
             position: relative;
-            background: #e6eef0; /* 地圖載入前的背景色 */
+            background: #e6eef0;
             min-height: 300px;
         }
 
@@ -1068,73 +1122,9 @@
         }
 
         // ==================== 處理選擇的地點 ====================
-// ==================== 處理選擇的地點 ====================
-function handlePlaceSelected(place) {
-    const lat = place.geometry.location.lat();
-    const lng = place.geometry.location.lng();
-    
-    map.setCenter({ lat, lng });
-    map.setZoom(17);
-    
-    if (searchMarker) {
-        searchMarker.setMap(null);
-    }
-    
-    searchMarker = new google.maps.Marker({
-        map: map,
-        position: { lat, lng },
-        title: place.name,
-        animation: google.maps.Animation.DROP
-    });
-    
-    const address = place.formatted_address || place.name;
-    
-    const infoWindow = new google.maps.InfoWindow({
-        content: `
-            <div class="info-window">
-                <div class="info-window-title">${place.name}</div>
-                <div class="info-window-address">${address}</div>
-                <button class="info-window-btn" onclick="selectSearchResult(${lat}, ${lng}, '${place.name.replace(/'/g, "\\'")}', '${address.replace(/'/g, "\\'")}')">
-                    設為會合點
-                </button>
-            </div>
-        `
-    });
-    
-    infoWindow.open(map, searchMarker);
-    
-    window.selectSearchResult = function(lat, lng, name, address) {
-        selectLocation(lat, lng);
-        selectedAddress = address;
-        document.getElementById('selectedAddress').textContent = `📍 ${selectedAddress}`;
-        
-        const panel = document.getElementById('locationInfoPanel');
-        panel.classList.add('active');
-        document.getElementById('panelLocationDetail').innerHTML = `
-            <div class="location-address">📍 ${selectedAddress}</div>
-        `;
-        
-        infoWindow.close();
-    };
-}
-
-        // ==================== 搜尋地點 ====================
-// ==================== 搜尋地點 ====================
-window.searchPlace = function() {
-    const query = document.getElementById('searchInput').value.trim();
-    if (!query) return;
-
-    const request = {
-        query: query,
-        fields: ['name', 'geometry', 'formatted_address']
-    };
-
-    placesService.findPlaceFromQuery(request, (results, status) => {
-        if (status === google.maps.places.PlacesServiceStatus.OK && results.length > 0) {
-            const place = results[0];
+        function handlePlaceSelected(place) {
             const lat = place.geometry.location.lat();
             const lng = place.geometry.location.lng();
-            const address = place.formatted_address || place.name;
             
             map.setCenter({ lat, lng });
             map.setZoom(17);
@@ -1150,6 +1140,8 @@ window.searchPlace = function() {
                 animation: google.maps.Animation.DROP
             });
             
+            const address = place.formatted_address || place.name;
+            
             const infoWindow = new google.maps.InfoWindow({
                 content: `
                     <div class="info-window">
@@ -1163,11 +1155,71 @@ window.searchPlace = function() {
             });
             
             infoWindow.open(map, searchMarker);
-        } else {
-            alert('找不到該地點，請嘗試其他關鍵字');
+            
+            window.selectSearchResult = function(lat, lng, name, address) {
+                selectLocation(lat, lng);
+                selectedAddress = address;
+                document.getElementById('selectedAddress').textContent = `📍 ${selectedAddress}`;
+                
+                const panel = document.getElementById('locationInfoPanel');
+                panel.classList.add('active');
+                document.getElementById('panelLocationDetail').innerHTML = `
+                    <div class="location-address">📍 ${selectedAddress}</div>
+                `;
+                
+                infoWindow.close();
+            };
         }
-    });
-};
+
+        // ==================== 搜尋地點 ====================
+        window.searchPlace = function() {
+            const query = document.getElementById('searchInput').value.trim();
+            if (!query) return;
+
+            const request = {
+                query: query,
+                fields: ['name', 'geometry', 'formatted_address']
+            };
+
+            placesService.findPlaceFromQuery(request, (results, status) => {
+                if (status === google.maps.places.PlacesServiceStatus.OK && results.length > 0) {
+                    const place = results[0];
+                    const lat = place.geometry.location.lat();
+                    const lng = place.geometry.location.lng();
+                    const address = place.formatted_address || place.name;
+                    
+                    map.setCenter({ lat, lng });
+                    map.setZoom(17);
+                    
+                    if (searchMarker) {
+                        searchMarker.setMap(null);
+                    }
+                    
+                    searchMarker = new google.maps.Marker({
+                        map: map,
+                        position: { lat, lng },
+                        title: place.name,
+                        animation: google.maps.Animation.DROP
+                    });
+                    
+                    const infoWindow = new google.maps.InfoWindow({
+                        content: `
+                            <div class="info-window">
+                                <div class="info-window-title">${place.name}</div>
+                                <div class="info-window-address">${address}</div>
+                                <button class="info-window-btn" onclick="selectSearchResult(${lat}, ${lng}, '${place.name.replace(/'/g, "\\'")}', '${address.replace(/'/g, "\\'")}')">
+                                    設為會合點
+                                </button>
+                            </div>
+                        `
+                    });
+                    
+                    infoWindow.open(map, searchMarker);
+                } else {
+                    alert('找不到該地點，請嘗試其他關鍵字');
+                }
+            });
+        };
 
         // ==================== 地圖控制 ====================
         function centerToCurrentLocation() {
@@ -1236,15 +1288,31 @@ window.searchPlace = function() {
                 const userDoc = await db.collection('users').doc(user.uid).get();
                 
                 if (!userDoc.exists) {
-                    groupList.innerHTML = '<div class="error-message">尚無群組資料</div>';
+                    // 🔴 用戶文件不存在，顯示「還沒有加入任何群組」
+                    groupList.innerHTML = `
+                        <div class="no-group-message">
+                            <div class="icon">📭</div>
+                            <p>還沒有加入任何群組</p>
+                            <a href="createJoin.html" class="create-group-link">＋ 建立或加入群組</a>
+                        </div>
+                    `;
+                    nextBtn.disabled = true;
                     return;
                 }
 
                 const userData = userDoc.data();
                 groups = userData.groups || [];
                 
+                // 🔴 檢查 groups 是否為空
                 if (groups.length === 0) {
-                    groupList.innerHTML = '<div class="error-message">您還沒有加入任何群組</div>';
+                    groupList.innerHTML = `
+                        <div class="no-group-message">
+                            <div class="icon">📭</div>
+                            <p>還沒有加入任何群組</p>
+                            <a href="createJoin.html" class="create-group-link">＋ 建立或加入群組</a>
+                        </div>
+                    `;
+                    nextBtn.disabled = true;
                     return;
                 }
 
@@ -1278,21 +1346,30 @@ window.searchPlace = function() {
                 }
                 
                 if (loadedCount === 0) {
-                    groupList.innerHTML = '<div class="error-message">無法載入群組資訊</div>';
+                    groupList.innerHTML = `
+                        <div class="no-group-message">
+                            <div class="icon">📭</div>
+                            <p>還沒有加入任何群組</p>
+                            <a href="createJoin.html" class="create-group-link">＋ 建立或加入群組</a>
+                        </div>
+                    `;
+                    nextBtn.disabled = true;
                 } else {
                     groupList.innerHTML = html;
-                    // 如果有群組，啟用下一步按鈕（但需要選擇後才能真正啟用）
                     nextBtn.disabled = false;
                 }
 
             } catch (error) {
                 console.error('載入群組錯誤:', error);
+                // 🔴 錯誤時也顯示友好提示
                 groupList.innerHTML = `
-                    <div class="error-message">
-                        <p>載入失敗：${error.message}</p>
-                        <button class="retry-btn" onclick="loadUserGroups()">重試</button>
+                    <div class="no-group-message">
+                        <div class="icon">📭</div>
+                        <p>還沒有加入任何群組</p>
+                        <a href="createJoin.html" class="create-group-link">＋ 建立或加入群組</a>
                     </div>
                 `;
+                nextBtn.disabled = true;
             }
         }
 
@@ -1434,91 +1511,86 @@ window.searchPlace = function() {
         };
 
         // ==================== 選擇地點 ====================
-// 選擇地點
-// ==================== 選擇地點 ====================
-async function selectLocation(lat, lng) {
-    selectedLocation = { lat, lng };
+        async function selectLocation(lat, lng) {
+            selectedLocation = { lat, lng };
 
-    if (meetingMarker) {
-        meetingMarker.setMap(null);
-    }
+            if (meetingMarker) {
+                meetingMarker.setMap(null);
+            }
 
-    meetingMarker = new google.maps.Marker({
-        map: map,
-        position: { lat, lng },
-        title: '會合點',
-        icon: {
-            path: google.maps.SymbolPath.CIRCLE,
-            scale: 12,
-            fillColor: '#FF4444',
-            fillOpacity: 1,
-            strokeColor: 'white',
-            strokeWeight: 3
-        },
-        animation: google.maps.Animation.DROP
-    });
-
-    // 改進反向地理編碼，確保取得地址
-    try {
-        // 使用 Google Geocoder 取得地址（更準確）
-        const response = await new Promise((resolve, reject) => {
-            geocoder.geocode({ location: { lat, lng } }, (results, status) => {
-                if (status === 'OK' && results.length > 0) {
-                    resolve(results[0]);
-                } else {
-                    reject(new Error('無法取得地址'));
-                }
+            meetingMarker = new google.maps.Marker({
+                map: map,
+                position: { lat, lng },
+                title: '會合點',
+                icon: {
+                    path: google.maps.SymbolPath.CIRCLE,
+                    scale: 12,
+                    fillColor: '#FF4444',
+                    fillOpacity: 1,
+                    strokeColor: 'white',
+                    strokeWeight: 3
+                },
+                animation: google.maps.Animation.DROP
             });
-        });
-        
-        selectedAddress = response.formatted_address;
-        console.log('取得地址:', selectedAddress);
-        
-    } catch (error) {
-        console.error('Geocoder 錯誤:', error);
-        // 如果 Google Geocoder 失敗，改用 Nominatim 備用
-        try {
-            const nominatimResponse = await fetch(
-                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=zh`
-            );
-            const data = await nominatimResponse.json();
-            selectedAddress = data.display_name || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-        } catch (nominatimError) {
-            console.error('Nominatim 錯誤:', nominatimError);
-            selectedAddress = '無法取得地址';
+
+            // 改進反向地理編碼，確保取得地址
+            try {
+                // 使用 Google Geocoder 取得地址（更準確）
+                const response = await new Promise((resolve, reject) => {
+                    geocoder.geocode({ location: { lat, lng } }, (results, status) => {
+                        if (status === 'OK' && results.length > 0) {
+                            resolve(results[0]);
+                        } else {
+                            reject(new Error('無法取得地址'));
+                        }
+                    });
+                });
+                
+                selectedAddress = response.formatted_address;
+                console.log('取得地址:', selectedAddress);
+                
+            } catch (error) {
+                console.error('Geocoder 錯誤:', error);
+                // 如果 Google Geocoder 失敗，改用 Nominatim 備用
+                try {
+                    const nominatimResponse = await fetch(
+                        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=zh`
+                    );
+                    const data = await nominatimResponse.json();
+                    selectedAddress = data.display_name || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+                } catch (nominatimError) {
+                    console.error('Nominatim 錯誤:', nominatimError);
+                    selectedAddress = '無法取得地址';
+                }
+            }
+
+            document.getElementById('selectedLocation').style.display = 'block';
+            document.getElementById('selectedAddress').textContent = `📍 ${selectedAddress}`;
+
+            const panel = document.getElementById('locationInfoPanel');
+            panel.classList.add('active');
+            document.getElementById('panelLocationDetail').innerHTML = `
+                <div class="location-address">📍 ${selectedAddress}</div>
+            `;
+            
+            if (searchMarker) {
+                searchMarker.setMap(null);
+                searchMarker = null;
+            }
         }
-    }
 
-    document.getElementById('selectedLocation').style.display = 'block';
-    document.getElementById('selectedAddress').textContent = `📍 ${selectedAddress}`;
+        function showSelectedLocation() {
+            if (selectedLocation) {
+                document.getElementById('selectedLocation').style.display = 'block';
+                document.getElementById('selectedAddress').textContent = `📍 ${selectedAddress}`;
 
-    const panel = document.getElementById('locationInfoPanel');
-    panel.classList.add('active');
-    document.getElementById('panelLocationDetail').innerHTML = `
-        <div class="location-address">📍 ${selectedAddress}</div>
-    `;
-    
-    if (searchMarker) {
-        searchMarker.setMap(null);
-        searchMarker = null;
-    }
-}
-
-function showSelectedLocation() {
-    if (selectedLocation) {
-        document.getElementById('selectedLocation').style.display = 'block';
-        document.getElementById('selectedAddress').textContent = `📍 ${selectedAddress}`;
-        // 移除座標顯示
-        // document.getElementById('selectedCoords').textContent = 
-        //     `緯度: ${selectedLocation.lat.toFixed(6)} 經度: ${selectedLocation.lng.toFixed(6)}`;
-
-        const panel = document.getElementById('locationInfoPanel');
-        panel.classList.add('active');
-        document.getElementById('panelLocationDetail').innerHTML = `
-            <div class="location-address">📍 ${selectedAddress}</div>
-        `;
-    }
-}
+                const panel = document.getElementById('locationInfoPanel');
+                panel.classList.add('active');
+                document.getElementById('panelLocationDetail').innerHTML = `
+                    <div class="location-address">📍 ${selectedAddress}</div>
+                `;
+            }
+        }
 
         window.clearSelectedLocation = function() {
             if (meetingMarker) {
@@ -1538,41 +1610,40 @@ function showSelectedLocation() {
             }
         };
 
-function updateMeetingDetails() {
-    const notes = document.getElementById('meetingNotes').value;
-    
-    const formattedDate = selectedDateTime.toLocaleDateString('zh-TW', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-    
-    document.getElementById('meetingDetails').innerHTML = `
-        <div style="background: #f0f8f8; padding: 15px; border-radius: 12px;">
-            <div style="margin-bottom: 10px;">
-                <div style="color: var(--muted); font-size: 13px;">群組</div>
-                <div style="color: var(--accent-dark); font-weight: 500;">${selectedGroupName}</div>
-            </div>
-            <div style="margin-bottom: 10px;">
-                <div style="color: var(--muted); font-size: 13px;">會合時間</div>
-                <div style="color: var(--accent-dark); font-weight: 500;">${formattedDate}</div>
-            </div>
-            <div style="margin-bottom: 10px;">
-                <div style="color: var(--muted); font-size: 13px;">地點</div>
-                <div style="color: var(--accent-dark); font-weight: 500; word-break: break-all;">${selectedAddress}</div>
-            </div>
-            <!-- 移除座標顯示 -->
-            ${notes ? `
-            <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #d0e8e8;">
-                <div style="color: var(--muted); font-size: 13px;">備註</div>
-                <div style="color: var(--accent-dark);">${notes}</div>
-            </div>
-            ` : ''}
-        </div>
-    `;
-}
+        function updateMeetingDetails() {
+            const notes = document.getElementById('meetingNotes').value;
+            
+            const formattedDate = selectedDateTime.toLocaleDateString('zh-TW', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            document.getElementById('meetingDetails').innerHTML = `
+                <div style="background: #f0f8f8; padding: 15px; border-radius: 12px;">
+                    <div style="margin-bottom: 10px;">
+                        <div style="color: var(--muted); font-size: 13px;">群組</div>
+                        <div style="color: var(--accent-dark); font-weight: 500;">${selectedGroupName}</div>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <div style="color: var(--muted); font-size: 13px;">會合時間</div>
+                        <div style="color: var(--accent-dark); font-weight: 500;">${formattedDate}</div>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <div style="color: var(--muted); font-size: 13px;">地點</div>
+                        <div style="color: var(--accent-dark); font-weight: 500; word-break: break-all;">${selectedAddress}</div>
+                    </div>
+                    ${notes ? `
+                    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #d0e8e8;">
+                        <div style="color: var(--muted); font-size: 13px;">備註</div>
+                        <div style="color: var(--accent-dark);">${notes}</div>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+        }
 
         window.sendMeetingPoint = async function() {
             if (!selectedGroupId || !selectedLocation || !selectedDateTime) return;

@@ -34,7 +34,6 @@
             padding: 20px 20px 20px 100px;
         }
 
-        /* ==================== 側邊導航 ==================== */
         .side-nav {
             position: fixed;
             left: 20px;
@@ -168,7 +167,6 @@
             margin-bottom: 30px;
         }
 
-        /* ==================== 頭像容器 - 修正編輯圖示位置 ==================== */
         .avatar-container {
             position: relative;
             width: 120px;
@@ -204,7 +202,6 @@
             object-fit: cover;
         }
 
-        /* 編輯圖示 - 固定在右下角 */
         .avatar-edit-icon {
             position: absolute;
             bottom: 5px;
@@ -239,16 +236,7 @@
 
         .profile-email {
             color: var(--muted);
-            margin-bottom: 5px;
-        }
-
-        .profile-id {
-            font-size: 12px;
-            color: var(--muted);
-            background: #f5f5f5;
-            padding: 5px 10px;
-            border-radius: 20px;
-            display: inline-block;
+            margin-bottom: 15px;
         }
 
         .info-section {
@@ -370,7 +358,6 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* 登出確認對話框 */
         .logout-confirm-overlay {
             position: fixed;
             top: 0;
@@ -504,7 +491,6 @@
             animation: spin 0.8s linear infinite;
         }
 
-        /* 圖片上傳進度條 */
         .upload-progress {
             position: fixed;
             top: 20px;
@@ -667,19 +653,17 @@
 
             <div id="profileSection" style="display: none;">
                 <div class="profile-header">
-                    <!-- 頭像容器 - 包含頭像和編輯圖示 -->
                     <div class="avatar-container" onclick="openImagePicker()">
                         <div class="profile-avatar">
                             <div id="avatarLetter">?</div>
                             <img id="avatarImage" style="display: none;" alt="profile">
                         </div>
-                        <!-- 編輯圖示固定在右下角 -->
                         <div class="avatar-edit-icon">✏️</div>
                     </div>
                     
                     <div class="profile-name" id="userName"></div>
                     <div class="profile-email" id="userEmail"></div>
-                    <div class="profile-id" id="userId"></div>
+                    <!-- ID 已移除 -->
                 </div>
 
                 <div class="username-input-group">
@@ -703,292 +687,379 @@
         </div>
     </div>
 
-    <!-- 隱藏的檔案輸入框 -->
     <input type="file" id="imagePicker" accept="image/*" style="display: none;">
 
-    <script>
-        // Firebase 配置
-        const firebaseConfig = {
-            apiKey: "AIzaSyBhvbTPl-hGv1MWtrua55LuvIUpdabqy4M",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            projectId: "project-221c4",
-            storageBucket: "project-221c4.firebasestorage.app",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyBhvbTPl-hGv1MWtrua55LuvIUpdabqy4M",
+        authDomain: "YOUR_AUTH_DOMAIN",
+        projectId: "project-221c4",
+        storageBucket: "project-221c4.firebasestorage.app",
+        messagingSenderId: "YOUR_SENDER_ID",
+        appId: "YOUR_APP_ID"
+    };
 
-        // 初始化 Firebase
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-        const storage = firebase.storage();
-        const storageRef = storage.ref();
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const storage = firebase.storage();
+    const storageRef = storage.ref();
 
-        let selectedImageFile = null;
-        let currentUid = null;
+    let selectedImageFile = null;
+    let currentUid = null;
 
-        // ==================== 開啟圖片選擇器 ====================
-        window.openImagePicker = function() {
-            document.getElementById('imagePicker').click();
-        };
+    window.openImagePicker = function() {
+        document.getElementById('imagePicker').click();
+    };
 
-        // ==================== 初始化圖片選擇器 ====================
-        function initImagePicker() {
-            const picker = document.getElementById('imagePicker');
-            picker.addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    selectedImageFile = file;
-                    
-                    // 預覽圖片
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const avatarLetter = document.getElementById('avatarLetter');
-                        const avatarImage = document.getElementById('avatarImage');
-                        avatarLetter.style.display = 'none';
-                        avatarImage.style.display = 'block';
-                        avatarImage.src = e.target.result;
-                    };
-                    reader.readAsDataURL(file);
-                    
-                    // 上傳圖片
-                    uploadProfileImage(file);
-                }
-            });
-        }
-
-        // ==================== 上傳頭像 ====================
-        async function uploadProfileImage(file) {
-            if (!currentUid || !file) return;
-
-            const progressDiv = document.getElementById('uploadProgress');
-            const progressFill = document.getElementById('progressFill');
-            
-            progressDiv.classList.add('show');
-            progressFill.style.width = '0%';
-
-            try {
-                // 建立檔案參考
-                const imageRef = storageRef.child(`profile_images/${currentUid}.jpg`);
+    function initImagePicker() {
+        const picker = document.getElementById('imagePicker');
+        picker.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                selectedImageFile = file;
                 
-                // 上傳檔案
-                const uploadTask = imageRef.put(file);
-                
-                uploadTask.on('state_changed',
-                    (snapshot) => {
-                        // 上傳進度
-                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                        progressFill.style.width = progress + '%';
-                    },
-                    (error) => {
-                        console.error('上傳錯誤:', error);
-                        progressDiv.classList.remove('show');
-                        showToast('上傳失敗：' + error.message);
-                    },
-                    async () => {
-                        // 上傳完成，取得下載 URL
-                        const downloadURL = await imageRef.getDownloadURL();
-                        
-                        // 更新 Firestore
-                        await db.collection('users').doc(currentUid).update({
-                            profileImageUrl: downloadURL
-                        });
-                        
-                        progressDiv.classList.remove('show');
-                        showToast('頭像更新成功！');
-                    }
-                );
-                
-            } catch (error) {
-                console.error('上傳錯誤:', error);
-                progressDiv.classList.remove('show');
-                showToast('上傳失敗：' + error.message);
-            }
-        }
-
-        // ==================== 載入用戶資料 ====================
-        async function loadUserProfile() {
-            const user = auth.currentUser;
-            
-            if (!user) {
-                window.location.href = 'loginPage.html';
-                return;
-            }
-
-            currentUid = user.uid;
-
-            try {
-                const userDoc = await db.collection('users').doc(user.uid).get();
-                
-                document.getElementById('loadingSection').style.display = 'none';
-                document.getElementById('profileSection').style.display = 'block';
-
-                // 決定顯示名稱
-                let displayName = user.displayName;
-                
-                if (!displayName && userDoc.exists) {
-                    displayName = userDoc.data().username;
-                }
-                
-                if (!displayName && user.email) {
-                    displayName = user.email.split('@')[0];
-                }
-                
-                displayName = displayName || '用戶';
-
-                // 設定頭像
-                const avatarLetter = document.getElementById('avatarLetter');
-                const avatarImage = document.getElementById('avatarImage');
-                
-                if (userDoc.exists && userDoc.data().profileImageUrl) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const avatarLetter = document.getElementById('avatarLetter');
+                    const avatarImage = document.getElementById('avatarImage');
                     avatarLetter.style.display = 'none';
                     avatarImage.style.display = 'block';
-                    avatarImage.src = userDoc.data().profileImageUrl;
-                } else {
-                    avatarLetter.style.display = 'flex';
-                    avatarImage.style.display = 'none';
-                    avatarLetter.textContent = displayName.charAt(0).toUpperCase();
-                }
-
-                // 設定用戶名稱輸入框
-                document.getElementById('usernameInput').value = displayName;
-
-                // 顯示用戶資訊
-                document.getElementById('userName').textContent = displayName;
-                document.getElementById('userEmail').textContent = user.email || '無電子郵件';
-                document.getElementById('userId').textContent = 'ID: ' + user.uid.substring(0, 8) + '...';
-
-                // 顯示註冊時間
-                if (userDoc.exists && userDoc.data().createdAt) {
-                    const createdAt = userDoc.data().createdAt.toDate();
-                    document.getElementById('createdAt').textContent = createdAt.toLocaleDateString('zh-TW', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                    });
-                } else {
-                    const creationTime = user.metadata.creationTime;
-                    if (creationTime) {
-                        document.getElementById('createdAt').textContent = new Date(creationTime).toLocaleDateString('zh-TW');
-                    } else {
-                        document.getElementById('createdAt').textContent = '未知';
-                    }
-                }
-
-                // 顯示目前群組
-                if (userDoc.exists && userDoc.data().currentGroupId) {
-                    const groupId = userDoc.data().currentGroupId;
-                    try {
-                        const groupDoc = await db.collection('groups').doc(groupId).get();
-                        if (groupDoc.exists) {
-                            document.getElementById('currentGroup').textContent = groupDoc.data().name || groupId;
-                        } else {
-                            document.getElementById('currentGroup').textContent = groupId;
-                        }
-                    } catch (error) {
-                        console.error('載入群組資訊錯誤:', error);
-                        document.getElementById('currentGroup').textContent = '載入失敗';
-                    }
-                } else {
-                    document.getElementById('currentGroup').textContent = '尚未加入群組';
-                }
-
-            } catch (error) {
-                console.error('載入用戶資料錯誤:', error);
-                showToast('載入失敗：' + error.message);
+                    avatarImage.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+                
+                uploadProfileImage(file);
             }
+        });
+    }
+
+    async function uploadProfileImage(file) {
+        if (!currentUid || !file) return;
+
+        const progressDiv = document.getElementById('uploadProgress');
+        const progressFill = document.getElementById('progressFill');
+        
+        progressDiv.classList.add('show');
+        progressFill.style.width = '0%';
+
+        try {
+            const imageRef = storageRef.child(`profile_images/${currentUid}.jpg`);
+            const uploadTask = imageRef.put(file);
+            
+            uploadTask.on('state_changed',
+                (snapshot) => {
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    progressFill.style.width = progress + '%';
+                },
+                (error) => {
+                    console.error('上傳錯誤:', error);
+                    progressDiv.classList.remove('show');
+                    showToast('上傳失敗：' + error.message);
+                },
+                async () => {
+                    const downloadURL = await imageRef.getDownloadURL();
+                    
+                    // 🔴 修正：先檢查用戶文件是否存在
+                    const userRef = db.collection('users').doc(currentUid);
+                    const userDoc = await userRef.get();
+                    
+                    if (userDoc.exists) {
+                        await userRef.update({
+                            profileImageUrl: downloadURL
+                        });
+                    } else {
+                        // 如果文件不存在，建立新文件
+                        await userRef.set({
+                            profileImageUrl: downloadURL,
+                            username: auth.currentUser.displayName || '用戶',
+                            email: auth.currentUser.email,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                    }
+                    
+                    progressDiv.classList.remove('show');
+                    showToast('頭像更新成功！');
+                }
+            );
+            
+        } catch (error) {
+            console.error('上傳錯誤:', error);
+            progressDiv.classList.remove('show');
+            showToast('上傳失敗：' + error.message);
+        }
+    }
+
+    function formatDate(dateValue) {
+        if (!dateValue) return '未知';
+        
+        try {
+            if (dateValue.toDate && typeof dateValue.toDate === 'function') {
+                return dateValue.toDate().toLocaleDateString('zh-TW', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+            
+            if (typeof dateValue === 'string') {
+                return new Date(dateValue).toLocaleDateString('zh-TW');
+            }
+            
+            if (typeof dateValue === 'number') {
+                return new Date(dateValue).toLocaleDateString('zh-TW');
+            }
+            
+            if (dateValue instanceof Date) {
+                return dateValue.toLocaleDateString('zh-TW');
+            }
+            
+            return '未知格式';
+        } catch (error) {
+            console.error('日期格式化錯誤:', error);
+            return '日期錯誤';
+        }
+    }
+
+    async function loadUserProfile() {
+        const user = auth.currentUser;
+        
+        if (!user) {
+            window.location.href = 'loginPage.html';
+            return;
         }
 
-        // ==================== 儲存用戶名稱 ====================
-        document.getElementById('saveUsernameBtn').addEventListener('click', async function() {
-            const newUsername = document.getElementById('usernameInput').value.trim();
-            if (!newUsername) {
-                showToast('用戶名稱不能為空');
-                return;
+        currentUid = user.uid;
+
+        try {
+            const userRef = db.collection('users').doc(user.uid);
+            let userDoc = await userRef.get();
+            
+            // 🔴 修正：如果用戶文件不存在，自動建立
+            if (!userDoc.exists) {
+                const userData = {
+                    username: user.displayName || user.email.split('@')[0] || '用戶',
+                    email: user.email || '',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    groups: {},
+                    currentGroupId: null
+                };
+                
+                await userRef.set(userData);
+                userDoc = await userRef.get(); // 重新讀取
+                console.log('已為新用戶建立文件');
+            }
+            
+            document.getElementById('loadingSection').style.display = 'none';
+            document.getElementById('profileSection').style.display = 'block';
+
+            let displayName = user.displayName;
+            
+            if (!displayName && userDoc.exists) {
+                displayName = userDoc.data().username;
+            }
+            
+            if (!displayName && user.email) {
+                displayName = user.email.split('@')[0];
+            }
+            
+            displayName = displayName || '用戶';
+
+            const avatarLetter = document.getElementById('avatarLetter');
+            const avatarImage = document.getElementById('avatarImage');
+            
+            if (userDoc.exists && userDoc.data().profileImageUrl) {
+                avatarLetter.style.display = 'none';
+                avatarImage.style.display = 'block';
+                avatarImage.src = userDoc.data().profileImageUrl;
+            } else {
+                avatarLetter.style.display = 'flex';
+                avatarImage.style.display = 'none';
+                avatarLetter.textContent = displayName.charAt(0).toUpperCase();
             }
 
-            if (!currentUid) return;
+            document.getElementById('usernameInput').value = displayName;
+            document.getElementById('userName').textContent = displayName;
+            document.getElementById('userEmail').textContent = user.email || '無電子郵件';
 
-            const btn = this;
-            btn.disabled = true;
-            btn.innerHTML = '<div class="spinner small" style="margin: 0;"></div>';
+            if (userDoc.exists && userDoc.data().createdAt) {
+                document.getElementById('createdAt').textContent = formatDate(userDoc.data().createdAt);
+            } else {
+                const creationTime = user.metadata.creationTime;
+                if (creationTime) {
+                    document.getElementById('createdAt').textContent = formatDate(creationTime);
+                } else {
+                    document.getElementById('createdAt').textContent = '未知';
+                }
+            }
 
-            try {
-                await db.collection('users').doc(currentUid).update({
+            if (userDoc.exists && userDoc.data().currentGroupId) {
+                const groupId = userDoc.data().currentGroupId;
+                try {
+                    const groupDoc = await db.collection('groups').doc(groupId).get();
+                    if (groupDoc.exists) {
+                        document.getElementById('currentGroup').textContent = groupDoc.data().name || groupId;
+                    } else {
+                        document.getElementById('currentGroup').textContent = groupId;
+                    }
+                } catch (error) {
+                    console.error('載入群組資訊錯誤:', error);
+                    document.getElementById('currentGroup').textContent = '載入失敗';
+                }
+            } else {
+                document.getElementById('currentGroup').textContent = '尚未加入群組';
+            }
+
+        } catch (error) {
+            console.error('載入用戶資料錯誤:', error);
+            showToast('載入失敗：' + error.message);
+        }
+    }
+
+    // 🔴 修正：儲存用戶名稱時，如果文件不存在就建立
+    document.getElementById('saveUsernameBtn').addEventListener('click', async function() {
+        const newUsername = document.getElementById('usernameInput').value.trim();
+        if (!newUsername) {
+            showToast('用戶名稱不能為空');
+            return;
+        }
+
+        if (!currentUid) return;
+
+        const btn = this;
+        btn.disabled = true;
+        btn.innerHTML = '<div class="spinner small" style="margin: 0;"></div>';
+
+        try {
+            const userRef = db.collection('users').doc(currentUid);
+            const userDoc = await userRef.get();
+            
+            if (userDoc.exists) {
+                // 文件存在，更新
+                await userRef.update({
                     username: newUsername
                 });
+            } else {
+                // 文件不存在，建立新文件
+                await userRef.set({
+                    username: newUsername,
+                    email: auth.currentUser.email || '',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    groups: {},
+                    currentGroupId: null
+                });
+            }
 
-                document.getElementById('userName').textContent = newUsername;
-                
-                // 更新頭像字母
-                const avatarLetter = document.getElementById('avatarLetter');
-                const avatarImage = document.getElementById('avatarImage');
-                if (avatarImage.style.display === 'none') {
-                    avatarLetter.textContent = newUsername.charAt(0).toUpperCase();
+            document.getElementById('userName').textContent = newUsername;
+            
+            const avatarLetter = document.getElementById('avatarLetter');
+            const avatarImage = document.getElementById('avatarImage');
+            if (avatarImage.style.display === 'none') {
+                avatarLetter.textContent = newUsername.charAt(0).toUpperCase();
+            }
+
+            showToast('用戶名稱已更新');
+        } catch (error) {
+            console.error('更新名稱錯誤:', error);
+            showToast('更新失敗：' + error.message);
+        } finally {
+            btn.disabled = false;
+            btn.textContent = '儲存';
+        }
+    });
+
+    function showToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'toast-message';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            toast.style.animation = 'slideUp 0.3s ease reverse';
+            setTimeout(() => {
+                if (document.body.contains(toast)) {
+                    document.body.removeChild(toast);
                 }
+            }, 300);
+        }, 3000);
+    }
 
-                showToast('用戶名稱已更新');
+    window.showLogoutConfirm = function() {
+        if (document.querySelector('.logout-confirm-overlay')) {
+            return;
+        }
+
+        const overlay = document.createElement('div');
+        overlay.className = 'logout-confirm-overlay';
+
+        const dialog = document.createElement('div');
+        dialog.className = 'logout-confirm-dialog';
+
+        dialog.innerHTML = `
+            <div class="logout-icon">👋</div>
+            <h3>準備離開？</h3>
+            <p>登出後將無法接收即時訊息<br>確定要登出嗎？</p>
+            <div class="logout-button-group">
+                <button class="logout-btn cancel" id="cancelLogout">
+                    ✕ 取消
+                </button>
+                <button class="logout-btn confirm" id="confirmLogout">
+                    ✓ 確認登出
+                </button>
+            </div>
+        `;
+
+        overlay.appendChild(dialog);
+        document.body.appendChild(overlay);
+
+        const cancelBtn = document.getElementById('cancelLogout');
+        cancelBtn.addEventListener('click', () => {
+            overlay.style.animation = 'fadeIn 0.2s ease reverse';
+            dialog.style.animation = 'slideUp 0.2s ease reverse';
+            
+            setTimeout(() => {
+                if (document.body.contains(overlay)) {
+                    document.body.removeChild(overlay);
+                }
+            }, 200);
+        });
+
+        const confirmBtn = document.getElementById('confirmLogout');
+        confirmBtn.addEventListener('click', async () => {
+            confirmBtn.classList.add('loading');
+            confirmBtn.textContent = '';
+            cancelBtn.disabled = true;
+            
+            try {
+                await auth.signOut();
+                
+                dialog.innerHTML = `
+                    <div class="logout-icon" style="animation: none;">✅</div>
+                    <h3>登出成功！</h3>
+                    <p>感謝您的使用，期待再相見</p>
+                `;
+                
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1500);
+                
             } catch (error) {
-                console.error('更新名稱錯誤:', error);
-                showToast('更新失敗：' + error.message);
-            } finally {
-                btn.disabled = false;
-                btn.textContent = '儲存';
+                console.error('登出錯誤:', error);
+                
+                confirmBtn.classList.remove('loading');
+                confirmBtn.innerHTML = '✓ 確認登出';
+                cancelBtn.disabled = false;
+                
+                showToast('登出失敗：' + error.message);
             }
         });
 
-        // ==================== 顯示提示訊息 ====================
-        function showToast(message) {
-            const toast = document.createElement('div');
-            toast.className = 'toast-message';
-            toast.textContent = message;
-            document.body.appendChild(toast);
-
-            setTimeout(() => {
-                toast.style.animation = 'slideUp 0.3s ease reverse';
-                setTimeout(() => {
-                    if (document.body.contains(toast)) {
-                        document.body.removeChild(toast);
-                    }
-                }, 300);
-            }, 3000);
-        }
-
-        // ==================== 登出確認對話框 ====================
-        window.showLogoutConfirm = function() {
-            if (document.querySelector('.logout-confirm-overlay')) {
-                return;
-            }
-
-            const overlay = document.createElement('div');
-            overlay.className = 'logout-confirm-overlay';
-
-            const dialog = document.createElement('div');
-            dialog.className = 'logout-confirm-dialog';
-
-            dialog.innerHTML = `
-                <div class="logout-icon">👋</div>
-                <h3>準備離開？</h3>
-                <p>登出後將無法接收即時訊息<br>確定要登出嗎？</p>
-                <div class="logout-button-group">
-                    <button class="logout-btn cancel" id="cancelLogout">
-                        ✕ 取消
-                    </button>
-                    <button class="logout-btn confirm" id="confirmLogout">
-                        ✓ 確認登出
-                    </button>
-                </div>
-            `;
-
-            overlay.appendChild(dialog);
-            document.body.appendChild(overlay);
-
-            const cancelBtn = document.getElementById('cancelLogout');
-            cancelBtn.addEventListener('click', () => {
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
                 overlay.style.animation = 'fadeIn 0.2s ease reverse';
                 dialog.style.animation = 'slideUp 0.2s ease reverse';
                 
@@ -997,79 +1068,35 @@
                         document.body.removeChild(overlay);
                     }
                 }, 200);
-            });
-
-            const confirmBtn = document.getElementById('confirmLogout');
-            confirmBtn.addEventListener('click', async () => {
-                confirmBtn.classList.add('loading');
-                confirmBtn.textContent = '';
-                cancelBtn.disabled = true;
-                
-                try {
-                    await auth.signOut();
-                    
-                    dialog.innerHTML = `
-                        <div class="logout-icon" style="animation: none;">✅</div>
-                        <h3>登出成功！</h3>
-                        <p>感謝您的使用，期待再相見</p>
-                    `;
-                    
-                    setTimeout(() => {
-                        window.location.href = 'index.html';
-                    }, 1500);
-                    
-                } catch (error) {
-                    console.error('登出錯誤:', error);
-                    
-                    confirmBtn.classList.remove('loading');
-                    confirmBtn.innerHTML = '✓ 確認登出';
-                    cancelBtn.disabled = false;
-                    
-                    showToast('登出失敗：' + error.message);
-                }
-            });
-
-            overlay.addEventListener('click', (e) => {
-                if (e.target === overlay) {
-                    overlay.style.animation = 'fadeIn 0.2s ease reverse';
-                    dialog.style.animation = 'slideUp 0.2s ease reverse';
-                    
-                    setTimeout(() => {
-                        if (document.body.contains(overlay)) {
-                            document.body.removeChild(overlay);
-                        }
-                    }, 200);
-                }
-            });
-
-            const escHandler = (e) => {
-                if (e.key === 'Escape') {
-                    document.removeEventListener('keydown', escHandler);
-                    
-                    overlay.style.animation = 'fadeIn 0.2s ease reverse';
-                    dialog.style.animation = 'slideUp 0.2s ease reverse';
-                    
-                    setTimeout(() => {
-                        if (document.body.contains(overlay)) {
-                            document.body.removeChild(overlay);
-                        }
-                    }, 200);
-                }
-            };
-            document.addEventListener('keydown', escHandler);
-        };
-
-        // 初始化
-        initImagePicker();
-
-        // 監聽登入狀態
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                loadUserProfile();
-            } else {
-                window.location.href = 'loginPage.html';
             }
         });
-    </script>
+
+        const escHandler = (e) => {
+            if (e.key === 'Escape') {
+                document.removeEventListener('keydown', escHandler);
+                
+                overlay.style.animation = 'fadeIn 0.2s ease reverse';
+                dialog.style.animation = 'slideUp 0.2s ease reverse';
+                
+                setTimeout(() => {
+                    if (document.body.contains(overlay)) {
+                        document.body.removeChild(overlay);
+                    }
+                }, 200);
+            }
+        };
+        document.addEventListener('keydown', escHandler);
+    };
+
+    initImagePicker();
+
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            loadUserProfile();
+        } else {
+            window.location.href = 'loginPage.html';
+        }
+    });
+</script>
 </body>
 </html>

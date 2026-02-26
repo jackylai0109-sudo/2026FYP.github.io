@@ -11,6 +11,33 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     
     <style>
+        /* 樣式保持不變，只新增一個自動修復的提示 */
+        .auto-fix-notice {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--accent-dark);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 14px;
+            z-index: 2000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -30,7 +57,7 @@
             font-family: 'Noto Sans', 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #f2fbfb 0%, #ebf8f8 100%);
             min-height: 100vh;
-            padding: 20px 20px 20px 100px; /* 左側留白給導航 */
+            padding: 20px 20px 20px 100px;
         }
 
         /* ==================== 側邊導航 ==================== */
@@ -125,15 +152,15 @@
             opacity: 1;
         }
 
-        /* 標頭樣式 */
         .header {
             display: flex;
             align-items: center;
             gap: 20px;
             margin-bottom: 30px;
-            max-width: 1000px;
+            max-width: 1200px;
             margin-left: auto;
             margin-right: auto;
+            flex-wrap: wrap;
         }
 
         .back-btn {
@@ -152,13 +179,13 @@
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
         }
 
         .groups-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
             gap: 20px;
             margin-top: 20px;
         }
@@ -213,6 +240,9 @@
             font-weight: 700;
             color: var(--accent-dark);
             margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .group-meta {
@@ -245,20 +275,37 @@
             color: white;
             padding: 4px 8px;
             border-radius: 12px;
-            font-size: 12px;
-            margin-left: 8px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge.admin {
+            background: var(--accent-dark);
+        }
+
+        .badge.warning {
+            background: #ffc107;
+            color: #333;
         }
 
         .empty-state {
             text-align: center;
-            padding: 60px;
+            padding: 60px 20px;
             background: var(--card);
             border-radius: var(--radius);
+            grid-column: 1/-1;
+        }
+
+        .empty-state .icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+            opacity: 0.7;
         }
 
         .empty-state p {
             color: var(--muted);
             margin-bottom: 20px;
+            font-size: 16px;
         }
 
         .btn {
@@ -272,10 +319,13 @@
             cursor: pointer;
             text-decoration: none;
             display: inline-block;
+            transition: all 0.3s ease;
         }
 
         .btn:hover {
             background: #28b5b2;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(44, 197, 194, 0.3);
         }
 
         .btn.small {
@@ -283,9 +333,28 @@
             font-size: 14px;
         }
 
+        .btn.secondary {
+            background: white;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+        }
+
+        .btn.secondary:hover {
+            background: #f0fcfc;
+        }
+
+        .btn.debug {
+            background: var(--accent-dark);
+            margin-left: 10px;
+        }
+
+        .btn.debug:hover {
+            background: #1a3f4d;
+        }
+
         .loading {
             text-align: center;
-            padding: 40px;
+            padding: 60px;
         }
 
         .spinner {
@@ -303,19 +372,20 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* 修復進度提示 */
-        .fix-progress {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--accent-dark);
+        .error-message {
+            text-align: center;
+            padding: 60px;
+            color: #ff5a5f;
+        }
+
+        .retry-btn {
+            margin-top: 15px;
+            padding: 8px 20px;
+            background: var(--accent);
             color: white;
-            padding: 10px 20px;
-            border-radius: 30px;
-            font-size: 14px;
-            z-index: 1000;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            display: none;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
         }
 
         /* 除錯面板 */
@@ -326,58 +396,77 @@
             background: white;
             border-radius: 10px;
             padding: 20px;
-            max-width: 400px;
+            max-width: 500px;
+            width: 90%;
             max-height: 80vh;
             overflow-y: auto;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             z-index: 2000;
-            display: none;
             font-size: 12px;
             border-left: 4px solid var(--accent);
+            display: none;
         }
 
         .debug-panel h3 {
             color: var(--accent-dark);
             margin-bottom: 10px;
-            font-size: 14px;
+            font-size: 16px;
         }
 
         .debug-log {
-            background: #f5f5f5;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            font-family: monospace;
+            background: #1e1e1e;
+            color: #f0f0f0;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-family: 'Courier New', monospace;
             white-space: pre-wrap;
             word-break: break-word;
-            max-height: 500px;
+            max-height: 400px;
             overflow-y: auto;
-        }
-
-        .debug-error {
-            color: #ff5a5f;
-        }
-
-        .debug-success {
-            color: #28a745;
-        }
-
-        .debug-info {
-            color: #17a2b8;
-        }
-
-        .debug-warning {
-            color: #ffc107;
+            font-size: 12px;
         }
 
         .debug-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
         }
 
-        /* 響應式設計 */
+        .debug-error {
+            color: #ff6b6b;
+        }
+
+        .debug-success {
+            color: #69db7e;
+        }
+
+        .debug-info {
+            color: #4dabf7;
+        }
+
+        .debug-warning {
+            color: #ffd43b;
+        }
+
+        .debug-timestamp {
+            color: #868e96;
+            margin-right: 8px;
+        }
+
+        .debug-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--muted);
+        }
+
+        .debug-close:hover {
+            color: var(--accent-dark);
+        }
+
         @media (max-width: 768px) {
             body {
                 padding-left: 80px;
@@ -398,6 +487,21 @@
             
             .groups-grid {
                 grid-template-columns: 1fr;
+            }
+            
+            .group-card {
+                padding: 15px;
+            }
+            
+            .group-avatar {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+            
+            .btn.small {
+                padding: 6px 12px;
+                font-size: 12px;
             }
         }
     </style>
@@ -429,23 +533,33 @@
         </div>
     </div>
 
+    <!-- 自動修復提示 -->
+    <div class="auto-fix-notice" id="autoFixNotice">
+        🔄 正在自動修復群組資料...
+    </div>
+
     <div class="header">
         <a href="index.html" class="back-btn">← 返回</a>
         <h1>我的群組</h1>
-        <a href="createJoin.html" class="btn" style="margin-left: auto;">＋ 加入新群組</a>
+        <div style="display: flex; gap: 10px; margin-left: auto;">
+            <button class="btn small debug" onclick="showDebugPanel()">🔍 除錯日誌</button>
+            <a href="createJoin.html" class="btn small">＋ 加入群組</a>
+        </div>
     </div>
 
-    <!-- 修復進度提示 -->
-    <div class="fix-progress" id="fixProgress">正在修復群組資料...</div>
-
-    <!-- 除錯面板（可按快捷鍵開啟） -->
+    <!-- 除錯面板 -->
     <div class="debug-panel" id="debugPanel">
         <div class="debug-header">
-            <h3>🔍 除錯資訊</h3>
-            <button class="btn small" onclick="document.getElementById('debugPanel').style.display='none'">關閉</button>
+            <h3>📋 除錯日誌</h3>
+            <button class="debug-close" onclick="hideDebugPanel()">✕</button>
         </div>
-        <div id="debugLog" class="debug-log"></div>
-        <button class="btn small" style="width:100%; margin-top:5px;" onclick="clearDebugLogs()">清除紀錄</button>
+        <div class="debug-log" id="debugLog">
+            點擊「重新載入」按鈕查看日誌...
+        </div>
+        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+            <button class="btn small secondary" onclick="clearDebugLogs()">清除紀錄</button>
+            <button class="btn small" onclick="reloadWithDebug()">重新載入</button>
+        </div>
     </div>
 
     <div class="container">
@@ -477,216 +591,147 @@
 
         // ==================== 除錯日誌 ====================
         let debugLogs = [];
+        let debugEnabled = false;
 
-        function addDebugLog(message, type = 'info') {
-            const timestamp = new Date().toLocaleTimeString();
-            debugLogs.push({ message, type, timestamp });
-            
-            console.log(`[${type}]`, message);
-            
-            const debugLogEl = document.getElementById('debugLog');
-            if (debugLogEl) {
-                const logsHtml = debugLogs.map(log => 
-                    `<div class="debug-${log.type}">${log.timestamp} - ${log.message}</div>`
-                ).join('');
-                debugLogEl.innerHTML = logsHtml;
-                debugLogEl.scrollTop = debugLogEl.scrollHeight;
-            }
-        }
+        // 顯示除錯面板
+        window.showDebugPanel = function() {
+            document.getElementById('debugPanel').style.display = 'block';
+            renderDebugLogs();
+        };
 
-        function clearDebugLogs() {
+        // 隱藏除錯面板
+        window.hideDebugPanel = function() {
+            document.getElementById('debugPanel').style.display = 'none';
+        };
+
+        // 清除日誌
+        window.clearDebugLogs = function() {
             debugLogs = [];
-            document.getElementById('debugLog').innerHTML = '';
+            renderDebugLogs();
+        };
+
+        // 重新載入並啟用除錯
+        window.reloadWithDebug = function() {
+            debugEnabled = true;
+            location.reload();
+        };
+
+        // 加入除錯日誌
+        function addDebugLog(message, type = 'info', data = null) {
+            const timestamp = new Date().toLocaleTimeString();
+            const log = { 
+                timestamp, 
+                message, 
+                type,
+                data: data ? JSON.stringify(data, null, 2) : null
+            };
+            debugLogs.push(log);
+            
+            // 同時輸出到控制台
+            console.log(`[${type}] ${message}`, data || '');
+            
+            // 即時更新顯示
+            if (document.getElementById('debugPanel').style.display === 'block') {
+                renderDebugLogs();
+            }
         }
 
-        // 快捷鍵開啟除錯面板 (Ctrl+Shift+D)
-        document.addEventListener('keydown', (e) => {
-            if (e.ctrlKey && e.shiftKey && e.key === 'D') {
-                document.getElementById('debugPanel').style.display = 'block';
-                addDebugLog('🔧 除錯面板已開啟', 'info');
+        // 渲染除錯日誌
+        function renderDebugLogs() {
+            const logEl = document.getElementById('debugLog');
+            if (debugLogs.length === 0) {
+                logEl.innerHTML = '尚無日誌紀錄...';
+                return;
             }
-        });
 
-        // ==================== 優化版自動修復 ====================
-        async function autoFixUserGroups(force = false) {
+            logEl.innerHTML = debugLogs.map(log => {
+                let colorClass = 'debug-info';
+                if (log.type === 'error') colorClass = 'debug-error';
+                else if (log.type === 'success') colorClass = 'debug-success';
+                else if (log.type === 'warning') colorClass = 'debug-warning';
+                
+                let html = `<div><span class="debug-timestamp">${log.timestamp}</span> `;
+                html += `<span class="${colorClass}">[${log.type}]</span> ${log.message}</div>`;
+                
+                if (log.data) {
+                    html += `<pre style="margin-left: 20px; margin-bottom: 10px; color: #adb5bd;">${log.data}</pre>`;
+                }
+                
+                return html;
+            }).join('');
+            
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        // ==================== 自動修復群組資料 ====================
+        async function autoFixGroups() {
             const user = auth.currentUser;
             if (!user) return false;
 
-            const fixProgress = document.getElementById('fixProgress');
-            fixProgress.style.display = 'block';
-            fixProgress.textContent = '檢查群組資料...';
+            const notice = document.getElementById('autoFixNotice');
+            notice.style.display = 'block';
+            notice.textContent = '🔄 正在掃描群組...';
+
+            addDebugLog('開始自動修復群組資料', 'warning');
 
             try {
-                const userRef = db.collection('users').doc(user.uid);
-                const userDoc = await userRef.get();
-                
-                // 情況1: 用戶文件不存在
-                if (!userDoc.exists) {
-                    addDebugLog('⚠️ 用戶文件不存在，開始重建...', 'warning');
-                    fixProgress.textContent = '重建用戶資料...';
-                    await rebuildUserGroups(user.uid);
-                    fixProgress.style.display = 'none';
-                    return true;
-                }
-
-                const userData = userDoc.data();
-                
-                // 情況2: 已經有 groups 陣列且不為空，且不需強制修復
-                if (!force && userData.groups && userData.groups.length > 0) {
-                    addDebugLog('✅ 用戶群組資料正常，無需修復', 'success');
-                    fixProgress.style.display = 'none';
-                    return true;
-                }
-                
-                // 情況3: 有 currentGroupId，先檢查這個群組
-                if (userData.currentGroupId) {
-                    addDebugLog('🔍 檢查 currentGroupId 對應的群組...', 'info');
-                    fixProgress.textContent = '檢查當前群組...';
-                    
-                    const groupId = userData.currentGroupId;
-                    const groupDoc = await db.collection('groups').doc(groupId).get();
-                    
-                    if (groupDoc.exists) {
-                        const memberDoc = await db.collection('groups')
-                            .doc(groupId)
-                            .collection('members')
-                            .doc(user.uid)
-                            .get();
-                        
-                        if (memberDoc.exists) {
-                            const groups = [{
-                                groupId: groupId,
-                                groupName: groupDoc.data().name || '未命名群組',
-                                joinedAt: memberDoc.data().joinedAt || new Date(),
-                                lastRead: new Date(),
-                                role: memberDoc.data().role || 'member'
-                            }];
-                            
-                            await userRef.update({
-                                groups: groups
-                            });
-                            
-                            addDebugLog(`✅ 已修復，加入群組: ${groupDoc.data().name}`, 'success');
-                            fixProgress.style.display = 'none';
-                            return true;
-                        }
-                    }
-                }
-                
-                // 情況4: 掃描所有群組
-                addDebugLog('🔍 掃描所有群組中...', 'info');
-                fixProgress.textContent = '掃描群組中...';
-                
+                // 掃描所有群組
                 const groupsSnapshot = await db.collection('groups').get();
-                addDebugLog(`📊 總共有 ${groupsSnapshot.size} 個群組`, 'info');
-                
-                const groups = [];
-                const now = new Date();
-                let checkedCount = 0;
-                
+                const groupsObj = {};
+                let foundCount = 0;
+
                 for (const groupDoc of groupsSnapshot.docs) {
-                    checkedCount++;
-                    if (checkedCount % 10 === 0) {
-                        fixProgress.textContent = `掃描群組中... ${checkedCount}/${groupsSnapshot.size}`;
-                    }
-                    
-                    const groupId = groupDoc.id;
                     const memberDoc = await db.collection('groups')
-                        .doc(groupId)
+                        .doc(groupDoc.id)
                         .collection('members')
                         .doc(user.uid)
                         .get();
-                    
+
                     if (memberDoc.exists) {
-                        groups.push({
-                            groupId: groupId,
-                            groupName: groupDoc.data().name || '未命名群組',
-                            joinedAt: memberDoc.data().joinedAt || now,
-                            lastRead: now,
-                            role: memberDoc.data().role || 'member'
-                        });
-                        
-                        addDebugLog(`✅ 找到群組: ${groupDoc.data().name || groupId}`, 'success');
+                        foundCount++;
+                        const groupData = groupDoc.data();
+                        const memberData = memberDoc.data();
+
+                        groupsObj[groupDoc.id] = {
+                            groupId: groupDoc.id,
+                            groupName: groupData.name || '未命名群組',
+                            joinedAt: memberData.joinedAt || new Date(),
+                            lastRead: new Date(),
+                            role: memberData.role || 'member'
+                        };
+
+                        addDebugLog(`✅ 找到群組: ${groupData.name || groupDoc.id}`, 'success');
                     }
                 }
-                
-                if (groups.length > 0) {
-                    const updateData = {
-                        groups: groups
-                    };
-                    
-                    // 如果沒有 currentGroupId，設定第一個
-                    if (!userData.currentGroupId) {
-                        updateData.currentGroupId = groups[0].groupId;
-                    }
-                    
-                    await userRef.update(updateData);
-                    
-                    addDebugLog(`✅ 修復完成，加入了 ${groups.length} 個群組`, 'success');
-                    fixProgress.textContent = `✅ 完成！`;
+
+                addDebugLog(`📊 您是 ${foundCount} 個群組的成員`, 'info');
+
+                if (foundCount > 0) {
+                    // 更新 users 文件
+                    await db.collection('users').doc(user.uid).update({
+                        groups: groupsObj
+                    });
+
+                    notice.textContent = `✅ 修復完成！已更新 ${foundCount} 個群組`;
+                    addDebugLog('✅ 自動修復完成', 'success');
+
                     setTimeout(() => {
-                        fixProgress.style.display = 'none';
-                    }, 1500);
+                        notice.style.display = 'none';
+                    }, 3000);
+
                     return true;
                 } else {
-                    addDebugLog('ℹ️ 找不到任何群組成員記錄', 'info');
-                    fixProgress.style.display = 'none';
+                    notice.style.display = 'none';
                     return false;
                 }
-                
-            } catch (error) {
-                addDebugLog(`❌ 修復錯誤: ${error.message}`, 'error');
-                fixProgress.textContent = '❌ 修復失敗';
-                setTimeout(() => {
-                    fixProgress.style.display = 'none';
-                }, 2000);
-                return false;
-            }
-        }
 
-        // ==================== 重建用戶群組 ====================
-        async function rebuildUserGroups(uid) {
-            try {
-                addDebugLog('開始重建用戶文件...', 'info');
-                
-                const groupsSnapshot = await db.collection('groups').get();
-                const groups = [];
-                const now = new Date();
-                
-                for (const groupDoc of groupsSnapshot.docs) {
-                    const groupId = groupDoc.id;
-                    const memberDoc = await db.collection('groups')
-                        .doc(groupId)
-                        .collection('members')
-                        .doc(uid)
-                        .get();
-                    
-                    if (memberDoc.exists) {
-                        groups.push({
-                            groupId: groupId,
-                            groupName: groupDoc.data().name || '未命名群組',
-                            joinedAt: memberDoc.data().joinedAt || now,
-                            lastRead: now,
-                            role: memberDoc.data().role || 'member'
-                        });
-                    }
-                }
-                
-                const user = auth.currentUser;
-                const userData = {
-                    username: user.displayName || '用戶',
-                    email: user.email,
-                    createdAt: new Date(),
-                    groups: groups,
-                    currentGroupId: groups.length > 0 ? groups[0].groupId : null
-                };
-                
-                await db.collection('users').doc(uid).set(userData);
-                
-                addDebugLog(`✅ 已重建用戶文件，加入了 ${groups.length} 個群組`, 'success');
-                
             } catch (error) {
-                addDebugLog(`❌ 重建錯誤: ${error.message}`, 'error');
+                addDebugLog('❌ 自動修復失敗: ' + error.message, 'error');
+                notice.textContent = '❌ 修復失敗';
+                setTimeout(() => {
+                    notice.style.display = 'none';
+                }, 3000);
+                return false;
             }
         }
 
@@ -698,10 +743,15 @@
                 return;
             }
 
+            addDebugLog('開始載入群組', 'info', { userId: user.uid });
+
             try {
+                // 從 users 文件讀取群組
+                addDebugLog('讀取 users 文件...', 'info');
                 const userDoc = await db.collection('users').doc(user.uid).get();
                 
                 if (!userDoc.exists) {
+                    addDebugLog('users 文件不存在', 'warning');
                     document.getElementById('loadingSection').style.display = 'none';
                     document.getElementById('groupsSection').style.display = 'block';
                     showEmptyState();
@@ -709,51 +759,68 @@
                 }
 
                 const userData = userDoc.data();
-                const groups = userData.groups || [];
+                addDebugLog('users 文件讀取成功', 'success', userData);
+                
+                // 取得群組列表
+                let groups = [];
+                if (Array.isArray(userData.groups)) {
+                    groups = userData.groups;
+                    addDebugLog(`groups 是陣列，長度: ${groups.length}`, 'info');
+                } else if (userData.groups && typeof userData.groups === 'object') {
+                    groups = Object.values(userData.groups);
+                    addDebugLog(`groups 是物件，轉換為陣列長度: ${groups.length}`, 'warning');
+                } else {
+                    addDebugLog('groups 格式錯誤', 'error', userData.groups);
+                }
                 
                 if (groups.length === 0) {
-                    document.getElementById('loadingSection').style.display = 'none';
-                    document.getElementById('groupsSection').style.display = 'block';
-                    showEmptyState();
-                    return;
+                    addDebugLog('groups 為空', 'warning');
+                    
+                    // 🔴 自動修復：嘗試掃描所有群組
+                    addDebugLog('嘗試自動修復...', 'warning');
+                    const fixed = await autoFixGroups();
+                    
+                    if (fixed) {
+                        // 修復成功，重新載入頁面
+                        location.reload();
+                        return;
+                    } else {
+                        document.getElementById('loadingSection').style.display = 'none';
+                        document.getElementById('groupsSection').style.display = 'block';
+                        showEmptyState();
+                        return;
+                    }
                 }
 
+                addDebugLog(`開始載入 ${groups.length} 個群組詳細資訊`, 'info', groups);
+
                 // 獲取每個群組的最新資訊
-                const groupPromises = groups.map(async (group) => {
+                const groupPromises = groups.map(async (group, index) => {
                     try {
+                        if (!group || !group.groupId) {
+                            addDebugLog(`第 ${index + 1} 個群組格式錯誤`, 'error', group);
+                            return null;
+                        }
+                        
+                        addDebugLog(`讀取群組 ${group.groupId}`, 'info');
                         const groupDoc = await db.collection('groups').doc(group.groupId).get();
+                        
                         if (groupDoc.exists) {
                             const groupData = groupDoc.data();
-                            
-                            // 獲取成員數量
-                            const membersSnapshot = await db.collection('groups')
-                                .doc(group.groupId)
-                                .collection('members')
-                                .get();
-                            
-                            // 獲取未讀訊息數量
-                            let unreadCount = 0;
-                            try {
-                                const messagesSnapshot = await db.collection('groups')
-                                    .doc(group.groupId)
-                                    .collection('messages')
-                                    .where('timestamp', '>', group.lastRead || new Date(0))
-                                    .get();
-                                unreadCount = messagesSnapshot.size;
-                            } catch (e) {
-                                // 忽略未讀訊息錯誤
-                            }
+                            addDebugLog(`群組 ${group.groupId} 讀取成功`, 'success', groupData);
                             
                             return {
-                                ...group,
-                                name: groupData.name,
-                                memberCount: membersSnapshot.size,
-                                unreadCount: unreadCount,
+                                groupId: group.groupId,
+                                groupName: groupData.name || '未命名群組',
+                                role: group.role || 'member',
+                                joinedAt: group.joinedAt,
                                 isCurrent: group.groupId === userData.currentGroupId
                             };
+                        } else {
+                            addDebugLog(`群組 ${group.groupId} 不存在`, 'warning');
                         }
                     } catch (e) {
-                        addDebugLog(`讀取群組失敗: ${group.groupId}`, 'error');
+                        addDebugLog(`讀取群組失敗: ${group?.groupId}`, 'error', e.message);
                     }
                     return null;
                 });
@@ -761,10 +828,12 @@
                 const groupsWithDetails = (await Promise.all(groupPromises))
                     .filter(g => g !== null);
 
-                renderGroups(groupsWithDetails);
+                addDebugLog(`成功載入 ${groupsWithDetails.length} 個群組`, 'success');
+
+                renderGroups(groupsWithDetails, userData.currentGroupId);
 
             } catch (error) {
-                addDebugLog(`載入群組錯誤: ${error.message}`, 'error');
+                addDebugLog('載入群組錯誤', 'error', error.message);
                 document.getElementById('loadingSection').style.display = 'none';
                 document.getElementById('groupsSection').style.display = 'block';
                 showEmptyState();
@@ -772,7 +841,7 @@
         }
 
         // ==================== 渲染群組列表 ====================
-        function renderGroups(groups) {
+        function renderGroups(groups, currentGroupId) {
             document.getElementById('loadingSection').style.display = 'none';
             document.getElementById('groupsSection').style.display = 'block';
 
@@ -783,61 +852,82 @@
                 return;
             }
 
+            addDebugLog('開始渲染群組列表', 'info', { count: groups.length });
+
+            // 依加入時間排序（最新的在前）
+            groups.sort((a, b) => {
+                const timeA = a.joinedAt ? new Date(a.joinedAt).getTime() : 0;
+                const timeB = b.joinedAt ? new Date(b.joinedAt).getTime() : 0;
+                return timeB - timeA;
+            });
+
             grid.innerHTML = groups.map(group => {
                 let joinDate = '未知';
                 try {
-                    if (group.joinedAt && group.joinedAt.toDate) {
-                        joinDate = group.joinedAt.toDate().toLocaleDateString();
-                    } else if (group.joinedAt instanceof Date) {
-                        joinDate = group.joinedAt.toLocaleDateString();
+                    if (group.joinedAt) {
+                        if (group.joinedAt.toDate) {
+                            joinDate = group.joinedAt.toDate().toLocaleDateString('zh-TW', {
+                                year: 'numeric',
+                                month: '2-digit',
+                                day: '2-digit'
+                            });
+                        } else {
+                            joinDate = new Date(group.joinedAt).toLocaleDateString('zh-TW');
+                        }
                     }
                 } catch (e) {}
 
                 return `
-                <div class="group-card ${group.isCurrent ? 'active' : ''}" 
-                     onclick="switchToGroupChat('${group.groupId}')">
-                    <div class="group-header">
-                        <div class="group-avatar">
-                            ${group.name ? group.name.charAt(0).toUpperCase() : 'G'}
-                        </div>
-                        <div class="group-info">
-                            <div class="group-name">
-                                ${group.name || '未命名群組'}
-                                ${group.role === 'admin' ? '<span class="badge">管理員</span>' : ''}
+                    <div class="group-card ${group.groupId === currentGroupId ? 'active' : ''}" 
+                         onclick="switchToGroupChat('${group.groupId}')">
+                        <div class="group-header">
+                            <div class="group-avatar">
+                                ${group.groupName ? group.groupName.charAt(0).toUpperCase() : 'G'}
                             </div>
-                            <div class="group-meta">
-                                加入於 ${joinDate}
+                            <div class="group-info">
+                                <div class="group-name">
+                                    ${group.groupName || '未命名群組'}
+                                    ${group.role === 'admin' ? '<span class="badge admin">管理員</span>' : ''}
+                                </div>
+                                <div class="group-meta">
+                                    加入於 ${joinDate}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="group-stats">
-                        <div class="stat">
-                            <i>👥</i> ${group.memberCount || 1} 位成員
+                        <div class="group-stats">
+                            <div class="stat">
+                                <i>👥</i> 成員
+                            </div>
+                            <div class="stat">
+                                <i>👤</i> ${group.role || 'member'}
+                            </div>
                         </div>
-                        <div class="stat">
-                            <i>💬</i> ${group.unreadCount || 0} 則未讀
-                        </div>
+                        ${group.groupId === currentGroupId ? '<div style="color: var(--accent); font-size: 12px; margin-top: 10px; text-align: right;">✓ 目前所在群組</div>' : ''}
                     </div>
-                    ${group.isCurrent ? '<div style="color: var(--accent); font-size: 12px; margin-top: 10px;">✓ 目前所在群組</div>' : ''}
-                </div>
-            `}).join('');
+                `;
+            }).join('');
+
+            addDebugLog('群組列表渲染完成', 'success');
         }
 
         // ==================== 顯示空狀態 ====================
         function showEmptyState() {
             const grid = document.getElementById('groupsGrid');
             grid.innerHTML = `
-                <div class="empty-state" style="grid-column: 1/-1;">
+                <div class="empty-state">
+                    <div class="icon">📭</div>
                     <p>您還沒有加入任何群組</p>
-                    <a href="createJoin.html" class="btn">建立或加入群組</a>
+                    <a href="createJoin.html" class="btn">＋ 建立或加入群組</a>
                 </div>
             `;
         }
 
-        // ==================== 切換到群組聊天室（直接進入，無需確認）====================
-        async function switchToGroupChat(groupId) {
+        // ==================== 切換到群組聊天室 ====================
+        window.switchToGroupChat = async function(groupId) {
             const user = auth.currentUser;
             if (!user) return;
+
+            addDebugLog(`切換到群組: ${groupId}`, 'info');
 
             try {
                 // 更新用戶的 currentGroupId
@@ -845,27 +935,21 @@
                     currentGroupId: groupId
                 });
                 
-                addDebugLog(`🔄 切換到群組: ${groupId}`, 'info');
+                addDebugLog('更新 currentGroupId 成功', 'success');
                 
-                // 直接跳轉到聊天室，無需確認
+                // 跳轉到聊天室
                 window.location.href = `ChatMessage.html?groupId=${groupId}`;
                 
             } catch (error) {
-                addDebugLog(`❌ 切換群組錯誤: ${error.message}`, 'error');
+                addDebugLog('切換群組錯誤', 'error', error.message);
                 alert('切換失敗：' + error.message);
             }
-        }
+        };
 
-        // ==================== 主流程 ====================
-        auth.onAuthStateChanged(async (user) => {
+        // ==================== 監聽登入狀態 ====================
+        auth.onAuthStateChanged((user) => {
             if (user) {
-                addDebugLog('✅ 用戶已登入', 'success');
-                
-                // 自動執行修復
-                await autoFixUserGroups();
-                
-                // 載入群組
-                await loadUserGroups();
+                loadUserGroups();
             } else {
                 window.location.href = 'loginPage.html';
             }

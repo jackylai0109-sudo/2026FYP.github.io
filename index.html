@@ -1,1698 +1,1651 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>TravelSync · 主頁</title>
-  
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-  
-  <!-- 連結外部 CSS -->
-  <link rel="stylesheet" href="styles.css">
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    :root {
-      --accent: #2CC5C2;
-      --accent-dark: #0C344E;
-      --bg: #f5fbfb;
-      --card: #ffffff;
-      --muted: #6b7b86;
-      --radius: 14px;
-    }
-
-    body {
-      font-family: 'Noto Sans', 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #f2fbfb 0%, #ebf8f8 100%);
-      color: #0b2b2b;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* ==================== 側邊導航 ==================== */
-    .side-nav {
-      position: fixed;
-      left: 20px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.98));
-      width: 80px;
-      border-radius: 40px;
-      box-shadow: 0 10px 30px rgba(12,52,78,0.08);
-      z-index: 100;
-      padding: 20px 0;
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(44, 197, 194, 0.2);
-      transition: all 0.3s ease;
-    }
-
-    .side-nav:hover {
-      width: 200px;
-      box-shadow: 0 15px 40px rgba(44, 197, 194, 0.15);
-    }
-
-    .nav-items {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 15px;
-    }
-
-    .side-nav:hover .nav-items {
-      align-items: flex-start;
-      padding-left: 20px;
-    }
-
-    .nav-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 0;
-      width: 100%;
-      color: var(--muted);
-      text-decoration: none;
-      transition: all 0.3s ease;
-      border-radius: 30px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .side-nav:not(:hover) .nav-item {
-      justify-content: center;
-    }
-
-    .nav-item:hover {
-      color: var(--accent-dark);
-      background: rgba(44, 197, 194, 0.1);
-    }
-
-    .nav-item.active {
-      color: var(--accent-dark);
-      font-weight: 600;
-    }
-
-    .nav-item.active::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 4px;
-      height: 20px;
-      background: var(--accent);
-      border-radius: 0 4px 4px 0;
-    }
-
-    .nav-icon {
-      font-size: 20px;
-      min-width: 40px;
-      text-align: center;
-    }
-
-    .nav-label {
-      font-size: 14px;
-      font-weight: 500;
-      white-space: nowrap;
-      opacity: 0;
-      transition: opacity 0.2s ease 0.1s;
-    }
-
-    .side-nav:hover .nav-label {
-      opacity: 1;
-    }
-
-    /* 下載按鈕樣式 */
-    .download-btn {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-      color: white;
-      border: none;
-      border-radius: 30px;
-      padding: 8px 16px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      margin-left: 15px;
-      box-shadow: 0 4px 12px rgba(44, 197, 194, 0.3);
-    }
-
-    .download-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(44, 197, 194, 0.4);
-    }
-
-    .download-btn:active {
-      transform: translateY(0);
-    }
-
-    .download-btn i {
-      font-size: 18px;
-    }
-
-    /* 地理位置載入提示 */
-    .location-loading {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      padding: 20px 30px;
-      border-radius: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-      z-index: 2000;
-      display: none;
-      text-align: center;
-    }
-
-    .location-loading .spinner {
-      border: 3px solid #f3f3f3;
-      border-top: 3px solid var(--accent);
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 15px;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    /* 成功提示 */
-    .success-toast {
-      position: fixed;
-      bottom: 100px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--accent-dark);
-      color: white;
-      padding: 12px 24px;
-      border-radius: 30px;
-      font-size: 14px;
-      z-index: 2001;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      animation: slideUp 0.3s ease;
-      display: none;
-    }
-
-    @keyframes slideUp {
-      from {
-        opacity: 0;
-        transform: translate(-50%, 20px);
-      }
-      to {
-        opacity: 1;
-        transform: translate(-50%, 0);
-      }
-    }
-
-    /* 位置資訊顯示 */
-    .location-info {
-      position: fixed;
-      bottom: 160px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: white;
-      padding: 8px 16px;
-      border-radius: 30px;
-      font-size: 12px;
-      color: var(--accent-dark);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      z-index: 2001;
-      display: none;
-    }
-
-    /* App Bar */
-    header.appbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 18px 18px 18px 120px;
-      background: transparent;
-    }
-
-    .brand {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-    }
-
-    .logo {
-      width: 44px; height: 44px; border-radius: 10px;
-      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-      display: flex; align-items: center; justify-content: center;
-      color: white; font-weight: 700;
-      box-shadow: 0 6px 18px rgba(12, 52, 78, 0.12);
-    }
-
-    .brand h1 { margin: 0; font-size: 18px; }
-    .brand p { margin: 0; font-size: 12px; color: var(--muted); }
-
-    .muted-link {
-      color: var(--muted);
-      font-size: 13px;
-      text-decoration: underline;
-      cursor: pointer;
-      background: none;
-      border: 0;
-    }
-
-    /* 群組預覽卡片樣式 */
-    .group-preview-card {
-      background: linear-gradient(135deg, #f8fcfc, white);
-      border-radius: var(--radius);
-      padding: 15px;
-      margin-bottom: 15px;
-      box-shadow: 0 4px 12px rgba(6, 30, 38, 0.04);
-      cursor: pointer;
-      transition: all 0.3s ease;
-      border: 2px solid transparent;
-    }
-
-    .group-preview-card:hover {
-      transform: translateY(-3px);
-      border-color: var(--accent);
-      box-shadow: 0 8px 20px rgba(44, 197, 194, 0.1);
-    }
-
-    .group-preview-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 10px;
-    }
-
-    .group-preview-avatar {
-      width: 45px;
-      height: 45px;
-      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 18px;
-      font-weight: bold;
-    }
-
-    .group-preview-info {
-      flex: 1;
-    }
-
-    .group-preview-name {
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--accent-dark);
-      margin-bottom: 3px;
-    }
-
-    .group-preview-meta {
-      font-size: 11px;
-      color: var(--muted);
-      display: flex;
-      gap: 8px;
-    }
-
-    .preview-message {
-      background: #f0f8f8;
-      padding: 10px;
-      border-radius: 8px;
-      font-size: 12px;
-      color: var(--text-dark);
-    }
-
-    .preview-message-sender {
-      font-weight: 600;
-      color: var(--accent-dark);
-      margin-bottom: 2px;
-      font-size: 11px;
-    }
-
-    .preview-message-time {
-      font-size: 10px;
-      color: var(--muted);
-      margin-top: 3px;
-      text-align: right;
-    }
-
-    .badge {
-      background: var(--accent);
-      color: white;
-      padding: 2px 6px;
-      border-radius: 10px;
-      font-size: 10px;
-    }
-
-    .no-group-preview {
-      text-align: center;
-      padding: 25px;
-      color: var(--muted);
-      background: #f8fcfc;
-      border-radius: var(--radius);
-      margin-bottom: 15px;
-    }
-
-    .quick-actions {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 8px;
-    }
-
-    .quick-action-btn {
-      padding: 12px 8px;
-      background: white;
-      border: 1px solid #e6eef0;
-      border-radius: 12px;
-      color: var(--accent-dark);
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .quick-action-btn:hover {
-      background: var(--accent);
-      color: white;
-      border-color: var(--accent);
-      transform: translateY(-2px);
-    }
-
-    .quick-action-btn i {
-      font-size: 20px;
-    }
-
-    .section-title {
-      color: var(--accent-dark);
-      font-size: 16px;
-      font-weight: 600;
-      margin: 0 0 12px 0;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .view-all-link {
-      color: var(--accent);
-      font-size: 12px;
-      text-decoration: none;
-      margin-left: auto;
-    }
-
-    .view-all-link:hover {
-      text-decoration: underline;
-    }
-
-    /* 天氣浮層樣式 */
-    .weather-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(5px);
-      z-index: 3000;
-      display: none;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .weather-modal {
-      background: white;
-      border-radius: 24px;
-      padding: 30px;
-      max-width: 600px;
-      width: 90%;
-      max-height: 80vh;
-      overflow-y: auto;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-      animation: slideUp 0.4s ease;
-    }
-
-    .weather-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-
-    .weather-header h2 {
-      color: var(--accent-dark);
-      font-size: 24px;
-    }
-
-    .close-btn {
-      background: #f0f0f0;
-      border: none;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      font-size: 20px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .close-btn:hover {
-      background: #e0e0e0;
-      transform: rotate(90deg);
-    }
-
-    .location-name {
-      color: var(--muted);
-      margin-bottom: 20px;
-      font-size: 16px;
-    }
-
-    .weather-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 15px;
-      margin-bottom: 20px;
-    }
-
-    .weather-card {
-      background: linear-gradient(135deg, #f8fcfc, #f0f8f8);
-      border-radius: 16px;
-      padding: 15px;
-      text-align: center;
-      border: 1px solid #e6eef0;
-    }
-
-    .weather-day {
-      font-weight: 600;
-      color: var(--accent-dark);
-      margin-bottom: 10px;
-    }
-
-    .weather-icon {
-      font-size: 40px;
-      margin-bottom: 10px;
-    }
-
-    .weather-temp {
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--accent-dark);
-      margin-bottom: 5px;
-    }
-
-    .weather-desc {
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    .weather-loading {
-      text-align: center;
-      padding: 40px;
-    }
-
-    .weather-spinner {
-      border: 3px solid #f3f3f3;
-      border-top: 3px solid var(--accent);
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 15px;
-    }
-
-    /* 集合點選擇浮層樣式 */
-    .meeting-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(5px);
-      z-index: 4000;
-      display: none;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .meeting-modal {
-      background: white;
-      border-radius: 24px;
-      padding: 30px;
-      max-width: 500px;
-      width: 90%;
-      max-height: 80vh;
-      overflow-y: auto;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-      animation: slideUp 0.4s ease;
-    }
-
-    .meeting-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      padding-bottom: 15px;
-      border-bottom: 1px solid #eef2f2;
-    }
-
-    .meeting-header h2 {
-      color: var(--accent-dark);
-      font-size: 20px;
-      margin: 0;
-    }
-
-    .meeting-content {
-      margin-bottom: 20px;
-    }
-
-    .step {
-      margin-bottom: 20px;
-    }
-
-    .step h3 {
-      color: var(--accent-dark);
-      font-size: 16px;
-      margin-bottom: 15px;
-    }
-
-    .instruction {
-      color: var(--muted);
-      font-size: 13px;
-      margin-bottom: 15px;
-      line-height: 1.5;
-    }
-
-    .group-list {
-      max-height: 300px;
-      overflow-y: auto;
-      border: 1px solid #eef2f2;
-      border-radius: 12px;
-      padding: 10px;
-    }
-
-    .group-item {
-      display: flex;
-      align-items: center;
-      padding: 12px;
-      border-bottom: 1px solid #eef2f2;
-      cursor: pointer;
-      transition: background 0.3s ease;
-      border-radius: 8px;
-    }
-
-    .group-item:last-child {
-      border-bottom: none;
-    }
-
-    .group-item:hover {
-      background: #f0fcfc;
-    }
-
-    .group-item.selected {
-      background: #e0f5f5;
-      border-left: 4px solid var(--accent);
-    }
-
-    .group-avatar {
-      width: 40px;
-      height: 40px;
-      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-weight: bold;
-      margin-right: 12px;
-    }
-
-    .group-info {
-      flex: 1;
-    }
-
-    .group-name {
-      font-weight: 600;
-      color: var(--accent-dark);
-      margin-bottom: 3px;
-    }
-
-    .group-members {
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .loading-spinner {
-      text-align: center;
-      padding: 20px;
-      color: var(--muted);
-    }
-
-    .location-actions {
-      margin: 15px 0;
-    }
-
-    .selected-location {
-      background: #f0f8f8;
-      padding: 15px;
-      border-radius: 12px;
-      margin-top: 15px;
-    }
-
-    .location-detail {
-      font-size: 14px;
-      color: var(--accent-dark);
-      margin-bottom: 5px;
-    }
-
-    .location-coord {
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .meeting-details {
-      background: #f0f8f8;
-      padding: 15px;
-      border-radius: 12px;
-      margin-bottom: 15px;
-    }
-
-    .meeting-detail-item {
-      display: flex;
-      margin-bottom: 10px;
-    }
-
-    .detail-label {
-      width: 80px;
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .detail-value {
-      flex: 1;
-      color: var(--accent-dark);
-      font-weight: 500;
-      font-size: 13px;
-    }
-
-    .meeting-notes {
-      margin-top: 15px;
-    }
-
-    .meeting-notes label {
-      display: block;
-      color: var(--muted);
-      font-size: 13px;
-      margin-bottom: 5px;
-    }
-
-    .meeting-notes textarea {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #e6eef0;
-      border-radius: 10px;
-      font-size: 13px;
-      resize: vertical;
-    }
-
-    .meeting-notes textarea:focus {
-      outline: none;
-      border-color: var(--accent);
-    }
-
-    .step-navigation {
-      display: flex;
-      gap: 10px;
-      margin-top: 20px;
-      padding-top: 15px;
-      border-top: 1px solid #eef2f2;
-    }
-
-    .step-navigation .btn {
-      flex: 1;
-    }
-
-    .btn {
-      padding: 12px 24px;
-      background: var(--accent);
-      color: white;
-      border: none;
-      border-radius: 10px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .btn:hover {
-      background: #28b5b2;
-      transform: translateY(-2px);
-    }
-
-    .btn.secondary {
-      background: white;
-      border: 1px solid var(--accent);
-      color: var(--accent);
-    }
-
-    /* 主頁內容樣式 */
-    .hero-section {
-      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-      border-radius: var(--radius);
-      padding: 40px;
-      color: white;
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    .hero-section h1 {
-      font-size: 36px;
-      margin-bottom: 15px;
-    }
-
-    .hero-section p {
-      font-size: 18px;
-      opacity: 0.9;
-      margin-bottom: 25px;
-    }
-
-    .hero-buttons {
-      display: flex;
-      gap: 15px;
-      justify-content: center;
-    }
-
-    .hero-btn {
-      padding: 12px 30px;
-      background: white;
-      color: var(--accent-dark);
-      border: none;
-      border-radius: 30px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .hero-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(0,0,0,0.2);
-    }
-
-    /* 水平功能列 */
-    .features-row {
-      display: flex;
-      gap: 15px;
-      margin-bottom: 20px;
-      overflow-x: auto;
-      padding-bottom: 5px;
-    }
-
-    .feature-item {
-      flex: 1;
-      min-width: 150px;
-      background: var(--card);
-      border-radius: var(--radius);
-      padding: 20px 15px;
-      box-shadow: 0 6px 20px rgba(6, 30, 38, 0.06);
-      text-align: center;
-      transition: all 0.3s ease;
-    }
-
-    .feature-item:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 12px 30px rgba(44, 197, 194, 0.15);
-    }
-
-    .feature-icon {
-      font-size: 32px;
-      margin-bottom: 10px;
-    }
-
-    .feature-title {
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--accent-dark);
-      margin-bottom: 5px;
-    }
-
-    .feature-desc {
-      font-size: 12px;
-      color: var(--muted);
-      line-height: 1.5;
-    }
-
-    @media (max-width: 768px) {
-      .features-row {
-        flex-wrap: wrap;
-      }
-      
-      .feature-item {
-        min-width: calc(50% - 8px);
-      }
-    }
-
-    .container {
-      max-width: 1000px;
-      margin: 14px auto;
-      padding: 16px;
-      width: 100%;
-      padding-left: 100px;
-    }
-
-    .layout {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 18px;
-    }
-
-    .right-col {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 18px;
-    }
-
-    @media (max-width: 768px) {
-      .right-col {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    /* 卡片 */
-    .card {
-      background: var(--card);
-      border-radius: var(--radius);
-      padding: 14px;
-      box-shadow: 0 6px 20px rgba(6, 30, 38, 0.06);
-    }
-
-    /* 浮層 */
-    .overlay {
-      position: fixed; left: 50%; transform: translateX(-50%);
-      width: min(920px, 96%); z-index: 70; display: none;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TravelSync · 主頁</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <style>
+        /* 所有樣式保持不變 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --accent: #2CC5C2;
+            --accent-dark: #0C344E;
+            --bg: #f5fbfb;
+            --card: #ffffff;
+            --muted: #6b7b86;
+            --radius: 14px;
+        }
+
+        body {
+            font-family: 'Noto Sans', 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f2fbfb 0%, #ebf8f8 100%);
+            color: #0b2b2b;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ==================== 側邊導航 ==================== */
+        .side-nav {
+            position: fixed;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.98));
+            width: 80px;
+            border-radius: 40px;
+            box-shadow: 0 10px 30px rgba(12,52,78,0.08);
+            z-index: 100;
+            padding: 20px 0;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(44, 197, 194, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .side-nav:hover {
+            width: 200px;
+            box-shadow: 0 15px 40px rgba(44, 197, 194, 0.15);
+        }
+
+        .nav-items {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .side-nav:hover .nav-items {
+            align-items: flex-start;
+            padding-left: 20px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            width: 100%;
+            color: var(--muted);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-radius: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .side-nav:not(:hover) .nav-item {
+            justify-content: center;
+        }
+
+        .nav-item:hover {
+            color: var(--accent-dark);
+            background: rgba(44, 197, 194, 0.1);
+        }
+
+        .nav-item.active {
+            color: var(--accent-dark);
+            font-weight: 600;
+        }
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 20px;
+            background: var(--accent);
+            border-radius: 0 4px 4px 0;
+        }
+
+        .nav-icon {
+            font-size: 20px;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .nav-label {
+            font-size: 14px;
+            font-weight: 500;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.2s ease 0.1s;
+        }
+
+        .side-nav:hover .nav-label {
+            opacity: 1;
+        }
+
+        .download-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-left: 15px;
+            box-shadow: 0 4px 12px rgba(44, 197, 194, 0.3);
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(44, 197, 194, 0.4);
+        }
+
+        .download-btn:active {
+            transform: translateY(0);
+        }
+
+        .download-btn i {
+            font-size: 18px;
+        }
+
+        .location-loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            z-index: 2000;
+            display: none;
+            text-align: center;
+        }
+
+        .location-loading .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--accent);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .success-toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent-dark);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 14px;
+            z-index: 2001;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            animation: slideUp 0.3s ease;
+            display: none;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translate(-50%, 20px);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, 0);
+            }
+        }
+
+        .location-info {
+            position: fixed;
+            bottom: 160px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 12px;
+            color: var(--accent-dark);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            z-index: 2001;
+            display: none;
+        }
+
+        header.appbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 18px 18px 120px;
+            background: transparent;
+        }
+
+        .brand {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .logo {
+            width: 44px; height: 44px; border-radius: 10px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-weight: 700;
+            box-shadow: 0 6px 18px rgba(12, 52, 78, 0.12);
+        }
+
+        .brand h1 { margin: 0; font-size: 18px; }
+        .brand p { margin: 0; font-size: 12px; color: var(--muted); }
+
+        .muted-link {
+            color: var(--muted);
+            font-size: 13px;
+            text-decoration: underline;
+            cursor: pointer;
+            background: none;
+            border: 0;
+        }
+
+        .group-preview-card {
+            background: linear-gradient(135deg, #f8fcfc, white);
+            border-radius: var(--radius);
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 12px rgba(6, 30, 38, 0.04);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .group-preview-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--accent);
+            box-shadow: 0 8px 20px rgba(44, 197, 194, 0.1);
+        }
+
+        .group-preview-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .group-preview-avatar {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .group-preview-info {
+            flex: 1;
+        }
+
+        .group-preview-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--accent-dark);
+            margin-bottom: 3px;
+        }
+
+        .group-preview-meta {
+            font-size: 11px;
+            color: var(--muted);
+            display: flex;
+            gap: 8px;
+        }
+
+        .preview-message {
+            background: #f0f8f8;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            color: var(--text-dark);
+        }
+
+        .preview-message-sender {
+            font-weight: 600;
+            color: var(--accent-dark);
+            margin-bottom: 2px;
+            font-size: 11px;
+        }
+
+        .preview-message-time {
+            font-size: 10px;
+            color: var(--muted);
+            margin-top: 3px;
+            text-align: right;
+        }
+
+        .badge {
+            background: var(--accent);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 10px;
+        }
+
+        .no-group-preview {
+            text-align: center;
+            padding: 25px;
+            color: var(--muted);
+            background: #f8fcfc;
+            border-radius: var(--radius);
+            margin-bottom: 15px;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .quick-action-btn {
+            padding: 12px 8px;
+            background: white;
+            border: 1px solid #e6eef0;
+            border-radius: 12px;
+            color: var(--accent-dark);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .quick-action-btn:hover {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .quick-action-btn i {
+            font-size: 20px;
+        }
+
+        .section-title {
+            color: var(--accent-dark);
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0 0 12px 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .view-all-link {
+            color: var(--accent);
+            font-size: 12px;
+            text-decoration: none;
+            margin-left: auto;
+        }
+
+        .view-all-link:hover {
+            text-decoration: underline;
+        }
+
+        .weather-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 3000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .weather-modal {
+            background: white;
+            border-radius: 24px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            animation: slideUp 0.4s ease;
+        }
+
+        .weather-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .weather-header h2 {
+            color: var(--accent-dark);
+            font-size: 24px;
+        }
+
+        .close-btn {
+            background: #f0f0f0;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: #e0e0e0;
+            transform: rotate(90deg);
+        }
+
+        .location-name {
+            color: var(--muted);
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        .weather-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .weather-card {
+            background: linear-gradient(135deg, #f8fcfc, #f0f8f8);
+            border-radius: 16px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid #e6eef0;
+        }
+
+        .weather-day {
+            font-weight: 600;
+            color: var(--accent-dark);
+            margin-bottom: 10px;
+        }
+
+        .weather-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .weather-temp {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--accent-dark);
+            margin-bottom: 5px;
+        }
+
+        .weather-desc {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .weather-loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .weather-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--accent);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        .meeting-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 4000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .meeting-modal {
+            background: white;
+            border-radius: 24px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            animation: slideUp 0.4s ease;
+        }
+
+        .meeting-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eef2f2;
+        }
+
+        .meeting-header h2 {
+            color: var(--accent-dark);
+            font-size: 20px;
+            margin: 0;
+        }
+
+        .meeting-content {
+            margin-bottom: 20px;
+        }
+
+        .step {
+            margin-bottom: 20px;
+        }
+
+        .step h3 {
+            color: var(--accent-dark);
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .instruction {
+            color: var(--muted);
+            font-size: 13px;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .group-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #eef2f2;
+            border-radius: 12px;
+            padding: 10px;
+        }
+
+        .group-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #eef2f2;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            border-radius: 8px;
+        }
+
+        .group-item:last-child {
+            border-bottom: none;
+        }
+
+        .group-item:hover {
+            background: #f0fcfc;
+        }
+
+        .group-item.selected {
+            background: #e0f5f5;
+            border-left: 4px solid var(--accent);
+        }
+
+        .group-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 12px;
+        }
+
+        .group-info {
+            flex: 1;
+        }
+
+        .group-name {
+            font-weight: 600;
+            color: var(--accent-dark);
+            margin-bottom: 3px;
+        }
+
+        .group-members {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .loading-spinner {
+            text-align: center;
+            padding: 20px;
+            color: var(--muted);
+        }
+
+        .location-actions {
+            margin: 15px 0;
+        }
+
+        .selected-location {
+            background: #f0f8f8;
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 15px;
+        }
+
+        .location-detail {
+            font-size: 14px;
+            color: var(--accent-dark);
+            margin-bottom: 5px;
+        }
+
+        .location-coord {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .meeting-details {
+            background: #f0f8f8;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+
+        .meeting-detail-item {
+            display: flex;
+            margin-bottom: 10px;
+        }
+
+        .detail-label {
+            width: 80px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .detail-value {
+            flex: 1;
+            color: var(--accent-dark);
+            font-weight: 500;
+            font-size: 13px;
+        }
+
+        .meeting-notes {
+            margin-top: 15px;
+        }
+
+        .meeting-notes label {
+            display: block;
+            color: var(--muted);
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+
+        .meeting-notes textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e6eef0;
+            border-radius: 10px;
+            font-size: 13px;
+            resize: vertical;
+        }
+
+        .meeting-notes textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .step-navigation {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #eef2f2;
+        }
+
+        .step-navigation .btn {
+            flex: 1;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #28b5b2;
+            transform: translateY(-2px);
+        }
+
+        .btn.secondary {
+            background: white;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            border-radius: var(--radius);
+            padding: 40px;
+            color: white;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .hero-section h1 {
+            font-size: 36px;
+            margin-bottom: 15px;
+        }
+
+        .hero-section p {
+            font-size: 18px;
+            opacity: 0.9;
+            margin-bottom: 25px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .hero-btn {
+            padding: 12px 30px;
+            background: white;
+            color: var(--accent-dark);
+            border: none;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .hero-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        }
+
+        .features-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .feature-item {
+            flex: 1;
+            min-width: 150px;
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 20px 15px;
+            box-shadow: 0 6px 20px rgba(6, 30, 38, 0.06);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .feature-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(44, 197, 194, 0.15);
+        }
+
+        .feature-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .feature-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--accent-dark);
+            margin-bottom: 5px;
+        }
+
+        .feature-desc {
+            font-size: 12px;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .features-row {
+                flex-wrap: wrap;
+            }
+            
+            .feature-item {
+                min-width: calc(50% - 8px);
+            }
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 14px auto;
+            padding: 16px;
+            width: 100%;
+            padding-left: 100px;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 18px;
+        }
+
+        .right-col {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px;
+        }
+
+        @media (max-width: 768px) {
+            .right-col {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 14px;
+            box-shadow: 0 6px 20px rgba(6, 30, 38, 0.06);
+        }
+
+        .overlay {
+            position: fixed; left: 50%; transform: translateX(-50%);
+            width: min(920px, 96%); z-index: 70; display: none;
+        }
+    </style>
 </head>
 <body>
-  <!-- 側邊導航 -->
-  <div class="side-nav">
-    <div class="nav-items">
-      <a href="index.html" class="nav-item active">
-        <span class="nav-icon">🏠</span>
-        <span class="nav-label">主頁</span>
-      </a>
-      <a href="map.html" class="nav-item">
-        <span class="nav-icon">🗺️</span>
-        <span class="nav-label">地圖</span>
-      </a>
-      <a href="groups.html" class="nav-item">
-        <span class="nav-icon">👥</span>
-        <span class="nav-label">群組</span>
-      </a>
-      <a href="ChatMessage.html" class="nav-item">
-        <span class="nav-icon">💬</span>
-        <span class="nav-label">聊天</span>
-      </a>
-      <a href="profile.html" class="nav-item">
-        <span class="nav-icon">👤</span>
-        <span class="nav-label">帳號</span>
-      </a>
-    </div>
-  </div>
-
-  <header class="appbar">
-    <div class="brand">
-      <div class="logo">TS</div>
-      <div>
-        <h1>TravelSync</h1>
-        <p>Plan · Sync · Explore</p>
-      </div>
-    </div>
-    <button class="download-btn" onclick="window.location.href='download.html'">
-        <i>📱</i>
-        下載 App
-    </button>
-    <div style="display:flex; align-items:center; gap:10px">
-      <div id="userSection" style="display:flex; align-items:center; gap:10px;">
-        <button class="muted-link" id="authButton" onclick="handleAuthAction()">註冊 / 登入</button>
-        <button class="muted-link" id="logoutButton" style="display:none;" onclick="showLogoutConfirm()">登出</button>
-      </div>
-    </div>
-  </header>
-  
-  <!-- 地理位置載入提示 -->
-  <div class="location-loading" id="locationLoading">
-    <div class="spinner"></div>
-    <p>正在獲取您的位置...</p>
-    <p style="font-size: 12px; color: var(--muted); margin-top: 10px;">請允許瀏覽器存取位置</p>
-  </div>
-
-  <!-- 位置資訊顯示 -->
-  <div class="location-info" id="locationInfo"></div>
-
-  <!-- 成功提示 -->
-  <div class="success-toast" id="successToast">
-    ✅ 已獲取位置，正在開啟 Google Maps...
-  </div>
-
-  <!-- 天氣浮層 -->
-  <div class="weather-overlay" id="weatherOverlay">
-    <div class="weather-modal">
-      <div class="weather-header">
-        <h2>一週天氣預報</h2>
-        <button class="close-btn" onclick="closeWeather()">✕</button>
-      </div>
-      <div class="location-name" id="weatherLocation">載入中...</div>
-      <div id="weatherContent" class="weather-loading">
-        <div class="weather-spinner"></div>
-        <p>獲取天氣資訊中...</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- 集合點選擇浮層 -->
-  <div class="meeting-overlay" id="meetingOverlay">
-    <div class="meeting-modal">
-      <div class="meeting-header">
-        <h2>建立會合點</h2>
-        <button class="close-btn" onclick="closeMeetingSelector()">✕</button>
-      </div>
-      
-      <div class="meeting-content">
-        <!-- 步驟1: 選擇群組 -->
-        <div class="step" id="step1">
-          <h3>步驟1：選擇群組</h3>
-          <div class="group-list" id="groupList">
-            <div class="loading-spinner">載入群組中...</div>
-          </div>
+    <!-- 側邊導航 -->
+    <div class="side-nav">
+        <div class="nav-items">
+            <a href="index.html" class="nav-item active">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">主頁</span>
+            </a>
+            <a href="map.html" class="nav-item">
+                <span class="nav-icon">🗺️</span>
+                <span class="nav-label">地圖</span>
+            </a>
+            <a href="groups.html" class="nav-item">
+                <span class="nav-icon">👥</span>
+                <span class="nav-label">群組</span>
+            </a>
+            <a href="ChatMessage.html" class="nav-item">
+                <span class="nav-icon">💬</span>
+                <span class="nav-label">聊天</span>
+            </a>
+            <a href="profile.html" class="nav-item">
+                <span class="nav-icon">👤</span>
+                <span class="nav-label">帳號</span>
+            </a>
         </div>
-        
-        <!-- 步驟2: 在地圖上選擇地點 -->
-        <div class="step" id="step2" style="display: none;">
-          <h3>步驟2：在地圖上選擇地點</h3>
-          <p class="instruction">👆 <strong>點擊地圖上的任意位置</strong> 選擇會合點，或點擊下方按鈕使用目前位置</p>
-          <div class="location-actions">
-            <button class="btn" onclick="useCurrentLocation()">📍 使用我的位置</button>
-          </div>
-          <div class="selected-location" id="selectedLocation"></div>
-        </div>
-        
-        <!-- 步驟3: 確認並發送 -->
-        <div class="step" id="step3" style="display: none;">
-          <h3>步驟3：確認會合點</h3>
-          <div class="meeting-details" id="meetingDetails"></div>
-          <div class="meeting-notes">
-            <label for="meetingNotes">備註 (選填)：</label>
-            <textarea id="meetingNotes" rows="2" placeholder="例如：在正門等候、帶雨傘等..."></textarea>
-          </div>
-        </div>
-        
-        <!-- 導航按鈕 -->
-        <div class="step-navigation">
-          <button class="btn secondary" id="prevBtn" onclick="prevStep()" style="display: none;">上一步</button>
-          <button class="btn" id="nextBtn" onclick="nextStep()">下一步</button>
-          <button class="btn" id="sendBtn" onclick="sendMeetingPoint()" style="display: none;">發送到群組</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="container">
-    <!-- 英雄區塊 -->
-    <div class="hero-section">
-      <h1>與朋友一起探索世界</h1>
-      <p>即時位置共享、群組聊天、會合點設定，讓旅行更簡單</p>
-      <div class="hero-buttons">
-        <button class="hero-btn" onclick="window.location.href='map.html'">🗺️ 開始探索</button>
-        <button class="hero-btn" onclick="window.location.href='createJoin.html'">➕ 建立群組</button>
-      </div>
     </div>
 
-    <!-- 功能特色 - 一行顯示四個 -->
-    <div class="features-row">
-      <div class="feature-item">
-        <div class="feature-icon">🗺️</div>
-        <div class="feature-title">即時位置共享</div>
-        <div class="feature-desc">與群組成員即時分享位置，追蹤彼此動態</div>
-      </div>
-      <div class="feature-item">
-        <div class="feature-icon">💬</div>
-        <div class="feature-title">群組聊天</div>
-        <div class="feature-desc">建立群組聊天室，討論行程、分享照片</div>
-      </div>
-      <div class="feature-item">
-        <div class="feature-icon">🎯</div>
-        <div class="feature-title">會合點設定</div>
-        <div class="feature-desc">在地圖上設定會合點，一鍵發送給群組成員</div>
-      </div>
-      <div class="feature-item">
-        <div class="feature-icon">☀️</div>
-        <div class="feature-title">天氣查詢</div>
-        <div class="feature-desc">查詢各地天氣，規劃完美行程</div>
-      </div>
-    </div>
-
-    <!-- 群組預覽 + 快速操作 -->
-    <div class="right-col">
-      <!-- 群組預覽區塊 -->
-      <div class="card" style="padding:20px;">
-        <div class="section-title">
-          <span>📋 我的群組</span>
-          <a href="groups.html" class="view-all-link">查看全部 →</a>
-        </div>
-        <div id="groupPreviewContainer">
-          <!-- 群組預覽會由 JavaScript 動態載入 -->
-          <div class="loading-members" style="text-align:center; padding:20px;">載入群組資訊中...</div>
-        </div>
-      </div>
-
-      <!-- 快速操作區塊 -->
-      <div class="card" style="padding:20px;">
-        <div class="section-title">
-          <span>⚡ 快速操作</span>
-        </div>
-        <div class="quick-actions">
-          <button class="quick-action-btn" onclick="alert('定位分享 (演示)')">
-            <i>📍</i>
-            <span>定位分享</span>
-          </button>
-          <button class="quick-action-btn" onclick="window.location.href='meeting.html'">
-            <i>🎯</i>
-            <span>建立會合</span>
-          </button>
-          <button class="quick-action-btn" onclick="window.location.href='map.html'">
-            <i>🗺️</i>
-            <span>查看地圖</span>
-          </button>
-          <button class="quick-action-btn" onclick="window.location.href='weather.html'">
-            <i>☀️</i>
-            <span>天氣查詢</span>
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 其他浮層（簡化顯示） -->
-  <div id="chatScreen" class="overlay" style="bottom:100px; top:auto; display:none;"></div>
-  <div id="createJoin" class="overlay" style="top:80px; display:none;"></div>
-  <div id="auth" class="overlay" style="top:80px; display:none;"></div>
-  <div id="groupScreen" class="overlay" style="top:90px; display:none;"></div>
-
-  <script src="script.js"></script>
-  <script>
-    // ==================== 確保所有函數都在 window 物件上 ====================
-    (function() {
-      console.log('初始化全域函數...');
-      
-      // 集合點功能變數
-      let selectedGroupId = null;
-      let selectedGroupName = null;
-      let selectedLocation = null;
-      let selectedAddress = null;
-      let currentStep = 1;
-
-      // ==================== 載入群組預覽 ====================
-      async function loadGroupPreview() {
-        const user = firebase.auth().currentUser;
-        const container = document.getElementById('groupPreviewContainer');
-        
-        if (!user) {
-          container.innerHTML = `
-            <div class="no-group-preview">
-              <p>👤 請先登入</p>
-              <p style="font-size:12px; margin-top:8px;">登入後即可查看您的群組</p>
+    <header class="appbar">
+        <div class="brand">
+            <div class="logo">TS</div>
+            <div>
+                <h1>TravelSync</h1>
+                <p>Plan · Sync · Explore</p>
             </div>
-          `;
-          return;
-        }
-
-        try {
-          const userDoc = await db.collection('users').doc(user.uid).get();
-          
-          if (!userDoc.exists) {
-            container.innerHTML = `
-              <div class="no-group-preview">
-                <p>📭 尚無群組資料</p>
-              </div>
-            `;
-            return;
-          }
-
-          const userData = userDoc.data();
-          const groups = userData.groups || [];
-          
-          if (groups.length === 0) {
-            container.innerHTML = `
-              <div class="no-group-preview">
-                <p>📭 您還沒有加入任何群組</p>
-                <a href="createJoin.html" style="color:var(--accent); font-size:12px; text-decoration:none; margin-top:8px; display:inline-block;">＋ 加入群組</a>
-              </div>
-            `;
-            return;
-          }
-
-          // 只顯示最近的3個群組
-          const recentGroups = groups.slice(0, 3);
-          let previewHtml = '';
-
-          for (const group of recentGroups) {
-            try {
-              const groupDoc = await db.collection('groups').doc(group.groupId).get();
-              if (groupDoc.exists) {
-                const groupData = groupDoc.data();
-                
-                // 獲取最新訊息
-                let latestMessage = '暫無訊息';
-                let messageSender = '';
-                let messageTime = '';
-                
-                try {
-                  const messagesSnapshot = await db.collection('groups')
-                    .doc(group.groupId)
-                    .collection('messages')
-                    .orderBy('timestamp', 'desc')
-                    .limit(1)
-                    .get();
-                  
-                  if (!messagesSnapshot.empty) {
-                    const msg = messagesSnapshot.docs[0].data();
-                    latestMessage = msg.text || '發送了' + (msg.type || '訊息');
-                    messageSender = msg.senderName || '用戶';
-                    
-                    if (latestMessage.length > 25) {
-                      latestMessage = latestMessage.substring(0, 25) + '...';
-                    }
-                    
-                    if (msg.timestamp) {
-                      const date = msg.timestamp.toDate();
-                      const now = new Date();
-                      const diff = now - date;
-                      
-                      if (diff < 60000) messageTime = '剛剛';
-                      else if (diff < 3600000) messageTime = Math.floor(diff / 60000) + '分鐘前';
-                      else messageTime = date.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
-                    }
-                  }
-                } catch (e) {
-                  console.log('無法獲取最新訊息');
-                }
-
-                // 獲取成員數量
-                let memberCount = 1;
-                try {
-                  const membersSnapshot = await db.collection('groups')
-                    .doc(group.groupId)
-                    .collection('members')
-                    .get();
-                  memberCount = membersSnapshot.size;
-                } catch (e) {}
-                
-                previewHtml += `
-                  <div class="group-preview-card" onclick="window.location.href='ChatMessage.html?groupId=${group.groupId}'">
-                    <div class="group-preview-header">
-                      <div class="group-preview-avatar">
-                        ${groupData.name ? groupData.name.charAt(0).toUpperCase() : 'G'}
-                      </div>
-                      <div class="group-preview-info">
-                        <div class="group-preview-name">${groupData.name || '未命名群組'}</div>
-                        <div class="group-preview-meta">
-                          <span>👥 ${memberCount}</span>
-                          ${group.role === 'admin' ? '<span class="badge">管理員</span>' : ''}
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div class="preview-message">
-                      <div class="preview-message-sender">${messageSender}</div>
-                      <div>${latestMessage}</div>
-                      <div class="preview-message-time">${messageTime}</div>
-                    </div>
-                  </div>
-                `;
-              }
-            } catch (e) {
-              console.error('載入群組預覽錯誤:', e);
-            }
-          }
-
-          if (groups.length > 3) {
-            previewHtml += `
-              <div style="text-align:center; margin-top:5px; color:var(--muted); font-size:11px;">
-                還有 ${groups.length - 3} 個群組...
-              </div>
-            `;
-          }
-
-          container.innerHTML = previewHtml;
-
-        } catch (error) {
-          console.error('載入群組預覽錯誤:', error);
-          container.innerHTML = `
-            <div class="no-group-preview">
-              <p>❌ 載入失敗</p>
+        </div>
+        <button class="download-btn" onclick="window.location.href='download.html'">
+            <i>📱</i>
+            下載 App
+        </button>
+        <div style="display:flex; align-items:center; gap:10px">
+            <div id="userSection" style="display:flex; align-items:center; gap:10px;">
+                <button class="muted-link" id="authButton" onclick="handleAuthAction()">註冊 / 登入</button>
+                <button class="muted-link" id="logoutButton" style="display:none;" onclick="showLogoutConfirm()">登出</button>
             </div>
-          `;
-        }
-      }
+        </div>
+    </header>
+    
+    <!-- 地理位置載入提示 -->
+    <div class="location-loading" id="locationLoading">
+        <div class="spinner"></div>
+        <p>正在獲取您的位置...</p>
+        <p style="font-size: 12px; color: var(--muted); margin-top: 10px;">請允許瀏覽器存取位置</p>
+    </div>
 
-      // ==================== 天氣預報功能 ====================
-      window.getWeatherForecast = function() {
-        console.log('getWeatherForecast 函數被呼叫');
-        
-        if (!navigator.geolocation) {
-          alert('您的瀏覽器不支援地理位置功能');
-          return;
-        }
+    <!-- 位置資訊顯示 -->
+    <div class="location-info" id="locationInfo"></div>
 
-        // 顯示天氣浮層
-        const weatherOverlay = document.getElementById('weatherOverlay');
-        weatherOverlay.style.display = 'flex';
+    <!-- 成功提示 -->
+    <div class="success-toast" id="successToast">
+        ✅ 已獲取位置，正在開啟 Google Maps...
+    </div>
 
-        const loadingEl = document.getElementById('locationLoading');
-        const locationInfo = document.getElementById('locationInfo');
-        
-        if (loadingEl) loadingEl.style.display = 'block';
+    <!-- 天氣浮層 -->
+    <div class="weather-overlay" id="weatherOverlay">
+        <div class="weather-modal">
+            <div class="weather-header">
+                <h2>一週天氣預報</h2>
+                <button class="close-btn" onclick="closeWeather()">✕</button>
+            </div>
+            <div class="location-name" id="weatherLocation">載入中...</div>
+            <div id="weatherContent" class="weather-loading">
+                <div class="weather-spinner"></div>
+                <p>獲取天氣資訊中...</p>
+            </div>
+        </div>
+    </div>
 
-        const options = {
-          enableHighAccuracy: true,
-          timeout: 15000,
-          maximumAge: 0
+    <!-- 集合點選擇浮層 -->
+    <div class="meeting-overlay" id="meetingOverlay">
+        <div class="meeting-modal">
+            <div class="meeting-header">
+                <h2>建立會合點</h2>
+                <button class="close-btn" onclick="closeMeetingSelector()">✕</button>
+            </div>
+            
+            <div class="meeting-content">
+                <!-- 步驟1: 選擇群組 -->
+                <div class="step" id="step1">
+                    <h3>步驟1：選擇群組</h3>
+                    <div class="group-list" id="groupList">
+                        <div class="loading-spinner">載入群組中...</div>
+                    </div>
+                </div>
+                
+                <!-- 步驟2: 在地圖上選擇地點 -->
+                <div class="step" id="step2" style="display: none;">
+                    <h3>步驟2：在地圖上選擇地點</h3>
+                    <p class="instruction">👆 <strong>點擊地圖上的任意位置</strong> 選擇會合點，或點擊下方按鈕使用目前位置</p>
+                    <div class="location-actions">
+                        <button class="btn" onclick="useCurrentLocation()">📍 使用我的位置</button>
+                    </div>
+                    <div class="selected-location" id="selectedLocation"></div>
+                </div>
+                
+                <!-- 步驟3: 確認並發送 -->
+                <div class="step" id="step3" style="display: none;">
+                    <h3>步驟3：確認會合點</h3>
+                    <div class="meeting-details" id="meetingDetails"></div>
+                    <div class="meeting-notes">
+                        <label for="meetingNotes">備註 (選填)：</label>
+                        <textarea id="meetingNotes" rows="2" placeholder="例如：在正門等候、帶雨傘等..."></textarea>
+                    </div>
+                </div>
+                
+                <!-- 導航按鈕 -->
+                <div class="step-navigation">
+                    <button class="btn secondary" id="prevBtn" onclick="prevStep()" style="display: none;">上一步</button>
+                    <button class="btn" id="nextBtn" onclick="nextStep()">下一步</button>
+                    <button class="btn" id="sendBtn" onclick="sendMeetingPoint()" style="display: none;">發送到群組</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- 英雄區塊 -->
+        <div class="hero-section">
+            <h1>與朋友一起探索世界</h1>
+            <p>即時位置共享、群組聊天、會合點設定，讓旅行更簡單</p>
+            <div class="hero-buttons">
+                <button class="hero-btn" onclick="window.location.href='map.html'">🗺️ 開始探索</button>
+                <button class="hero-btn" onclick="window.location.href='createJoin.html'">➕ 建立群組</button>
+            </div>
+        </div>
+
+        <!-- 功能特色 -->
+        <div class="features-row">
+            <div class="feature-item">
+                <div class="feature-icon">🗺️</div>
+                <div class="feature-title">即時位置共享</div>
+                <div class="feature-desc">與群組成員即時分享位置，追蹤彼此動態</div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">💬</div>
+                <div class="feature-title">群組聊天</div>
+                <div class="feature-desc">建立群組聊天室，討論行程、分享照片</div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">🎯</div>
+                <div class="feature-title">會合點設定</div>
+                <div class="feature-desc">在地圖上設定會合點，一鍵發送給群組成員</div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">☀️</div>
+                <div class="feature-title">天氣查詢</div>
+                <div class="feature-desc">查詢各地天氣，規劃完美行程</div>
+            </div>
+        </div>
+
+        <!-- 群組預覽 + 快速操作 -->
+        <div class="right-col">
+            <!-- 群組預覽區塊 -->
+            <div class="card" style="padding:20px;">
+                <div class="section-title">
+                    <span>📋 我的群組</span>
+                    <a href="groups.html" class="view-all-link">查看全部 →</a>
+                </div>
+                <div id="groupPreviewContainer">
+                    <!-- 群組預覽會由 JavaScript 動態載入 -->
+                    <div class="loading-members" style="text-align:center; padding:20px;">載入群組資訊中...</div>
+                </div>
+            </div>
+
+            <!-- 快速操作區塊 -->
+            <div class="card" style="padding:20px;">
+                <div class="section-title">
+                    <span>⚡ 快速操作</span>
+                </div>
+                <div class="quick-actions">
+                    <button class="quick-action-btn" onclick="window.location.href='map.html'">
+                        <i>📍</i>
+                        <span>定位分享</span>
+                    </button>
+                    <button class="quick-action-btn" onclick="window.location.href='meeting.html'">
+                        <i>🎯</i>
+                        <span>建立會合</span>
+                    </button>
+                    <button class="quick-action-btn" onclick="window.location.href='map.html'">
+                        <i>🗺️</i>
+                        <span>查看地圖</span>
+                    </button>
+                    <button class="quick-action-btn" onclick="getWeatherForecast()">
+                        <i>☀️</i>
+                        <span>天氣查詢</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 其他浮層 -->
+    <div id="chatScreen" class="overlay" style="bottom:100px; top:auto; display:none;"></div>
+    <div id="createJoin" class="overlay" style="top:80px; display:none;"></div>
+    <div id="auth" class="overlay" style="top:80px; display:none;"></div>
+    <div id="groupScreen" class="overlay" style="top:90px; display:none;"></div>
+
+    <script>
+        // Firebase 配置
+        const firebaseConfig = {
+            apiKey: "AIzaSyBhvbTPl-hGv1MWtrua55LuvIUpdabqy4M",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "project-221c4",
+            storageBucket: "project-221c4.firebasestorage.app",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
         };
 
-        navigator.geolocation.getCurrentPosition(
-          function(position) {
-            const latitude = position.coords.latitude;
-            const longitude = position.coords.longitude;
-            const accuracy = position.coords.accuracy;
-            
-            if (locationInfo) {
-              locationInfo.textContent = `📍 位置精確度：約 ${Math.round(accuracy)} 公尺`;
-              locationInfo.style.display = 'block';
-              setTimeout(() => locationInfo.style.display = 'none', 5000);
-            }
-            
-            if (loadingEl) loadingEl.style.display = 'none';
-            
-            // 取得城市名稱
-            getCityName(latitude, longitude).then(cityName => {
-              document.getElementById('weatherLocation').textContent = cityName;
-              // 獲取天氣資料
-              fetchWeatherData(latitude, longitude);
-            });
-          },
-          
-          function(error) {
-            console.error('地理位置錯誤:', error);
-            if (loadingEl) loadingEl.style.display = 'none';
-            
-            let errorMessage = '無法獲取您的位置：\n';
-            switch(error.code) {
-              case error.PERMISSION_DENIED:
-                errorMessage += '您拒絕了位置存取權限。';
-                break;
-              case error.POSITION_UNAVAILABLE:
-                errorMessage += '位置資訊不可用。';
-                break;
-              case error.TIMEOUT:
-                errorMessage += '擷取位置超時。';
-                break;
-              default:
-                errorMessage += '未知錯誤。';
-            }
-            
-            document.getElementById('weatherContent').innerHTML = `
-              <div style="text-align:center; padding:20px; color:var(--error);">
-                <p>❌ ${errorMessage}</p>
-              </div>
-            `;
-          },
-          options
-        );
-      };
-
-      // 關閉天氣浮層
-      window.closeWeather = function() {
-        document.getElementById('weatherOverlay').style.display = 'none';
-      };
-
-      // 取得城市名稱
-      async function getCityName(lat, lng) {
-        try {
-          const response = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=zh`
-          );
-          const data = await response.json();
-          return data.address.city || data.address.town || data.address.village || '未知位置';
-        } catch (error) {
-          console.error('取得城市名稱錯誤:', error);
-          return '未知位置';
+        // 初始化 Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
         }
-      }
+        const auth = firebase.auth();
+        const db = firebase.firestore();
 
-      // 獲取天氣資料（使用 Open-Meteo API）
-      async function fetchWeatherData(lat, lng) {
-        try {
-          const response = await fetch(
-            `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=7`
-          );
-          const data = await response.json();
-          
-          const weatherContent = document.getElementById('weatherContent');
-          
-          let weatherHtml = '<div class="weather-grid">';
-          
-          const weekdays = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
-          
-          for (let i = 0; i < data.daily.time.length; i++) {
-            const date = new Date(data.daily.time[i]);
-            const weekday = weekdays[date.getDay()];
-            const dateStr = `${date.getMonth() + 1}/${date.getDate()}`;
+        // ==================== 載入群組預覽 (修正版) ====================
+        async function loadGroupPreview() {
+            const user = auth.currentUser;
+            const container = document.getElementById('groupPreviewContainer');
             
-            const weatherCode = data.daily.weathercode[i];
-            const weatherIcon = getWeatherIcon(weatherCode);
-            const weatherDesc = getWeatherDescription(weatherCode);
-            
-            const maxTemp = Math.round(data.daily.temperature_2m_max[i]);
-            const minTemp = Math.round(data.daily.temperature_2m_min[i]);
-            
-            weatherHtml += `
-              <div class="weather-card">
-                <div class="weather-day">${weekday} ${dateStr}</div>
-                <div class="weather-icon">${weatherIcon}</div>
-                <div class="weather-temp">${maxTemp}° / ${minTemp}°</div>
-                <div class="weather-desc">${weatherDesc}</div>
-              </div>
-            `;
-          }
-          
-          weatherHtml += '</div>';
-          
-          // 加入資料來源標示
-          weatherHtml += `
-            <div style="text-align:center; margin-top:15px; color:var(--muted); font-size:12px;">
-              天氣資料提供：Open-Meteo.com
-            </div>
-          `;
-          
-          weatherContent.innerHTML = weatherHtml;
-          
-        } catch (error) {
-          console.error('獲取天氣資料錯誤:', error);
-          document.getElementById('weatherContent').innerHTML = `
-            <div style="text-align:center; padding:20px; color:var(--error);">
-              <p>❌ 無法獲取天氣資料</p>
-            </div>
-          `;
-        }
-      }
-
-      // 根據天氣代碼取得圖示
-      function getWeatherIcon(code) {
-        if (code === 0) return '☀️';
-        if (code === 1) return '🌤️';
-        if (code === 2) return '⛅';
-        if (code === 3) return '☁️';
-        if (code >= 45 && code <= 49) return '🌫️';
-        if (code >= 51 && code <= 55) return '🌧️';
-        if (code >= 61 && code <= 65) return '🌧️';
-        if (code >= 71 && code <= 75) return '❄️';
-        if (code >= 80 && code <= 82) return '🌦️';
-        if (code >= 95 && code <= 99) return '⛈️';
-        return '☁️';
-      }
-
-      // 根據天氣代碼取得描述
-      function getWeatherDescription(code) {
-        if (code === 0) return '晴天';
-        if (code === 1) return '多雲時晴';
-        if (code === 2) return '多雲';
-        if (code === 3) return '陰天';
-        if (code >= 45 && code <= 49) return '有霧';
-        if (code >= 51 && code <= 55) return '毛毛雨';
-        if (code >= 61 && code <= 65) return '雨天';
-        if (code >= 71 && code <= 75) return '下雪';
-        if (code >= 80 && code <= 82) return '陣雨';
-        if (code >= 95 && code <= 99) return '雷雨';
-        return '未知';
-      }
-
-      // ==================== 集合點功能 ====================
-
-      // 開啟集合點選擇器
-      window.openMeetingPointSelector = function() {
-        const user = firebase.auth().currentUser;
-        if (!user) {
-          alert('請先登入');
-          return;
-        }
-        
-        // 重置狀態
-        selectedGroupId = null;
-        selectedGroupName = null;
-        selectedLocation = null;
-        selectedAddress = null;
-        currentStep = 1;
-        
-        // 顯示浮層
-        document.getElementById('meetingOverlay').style.display = 'flex';
-        
-        // 載入群組列表
-        loadUserGroupsForMeeting();
-        
-        // 更新步驟顯示
-        updateStepDisplay();
-      }
-
-      // 關閉集合點選擇器
-      window.closeMeetingSelector = function() {
-        document.getElementById('meetingOverlay').style.display = 'none';
-      }
-
-      // 載入用戶群組列表
-      async function loadUserGroupsForMeeting() {
-        const user = firebase.auth().currentUser;
-        if (!user) return;
-        
-        const groupList = document.getElementById('groupList');
-        groupList.innerHTML = '<div class="loading-spinner">載入群組中...</div>';
-        
-        try {
-          const userDoc = await db.collection('users').doc(user.uid).get();
-          
-          if (!userDoc.exists) {
-            groupList.innerHTML = '<div class="loading-spinner">尚無群組資料</div>';
-            return;
-          }
-          
-          const userData = userDoc.data();
-          const groups = userData.groups || [];
-          
-          if (groups.length === 0) {
-            groupList.innerHTML = '<div class="loading-spinner">您還沒有加入任何群組</div>';
-            return;
-          }
-          
-          let html = '';
-          for (const group of groups) {
-            try {
-              const groupDoc = await db.collection('groups').doc(group.groupId).get();
-              if (groupDoc.exists) {
-                const groupData = groupDoc.data();
-                
-                // 獲取成員數量
-                const membersSnapshot = await db.collection('groups')
-                  .doc(group.groupId)
-                  .collection('members')
-                  .get();
-                
-                html += `
-                  <div class="group-item" onclick="selectGroup('${group.groupId}', '${groupData.name.replace(/'/g, "\\'")}')">
-                    <div class="group-avatar">${groupData.name.charAt(0).toUpperCase()}</div>
-                    <div class="group-info">
-                      <div class="group-name">${groupData.name}</div>
-                      <div class="group-members">👥 ${membersSnapshot.size} 位成員</div>
+            if (!user) {
+                container.innerHTML = `
+                    <div class="no-group-preview">
+                        <p>👤 請先登入</p>
+                        <p style="font-size:12px; margin-top:8px;">登入後即可查看您的群組</p>
                     </div>
-                  </div>
                 `;
-              }
-            } catch (e) {
-              console.error('載入群組錯誤:', e);
+                return;
             }
-          }
-          
-          groupList.innerHTML = html;
-          
-        } catch (error) {
-          console.error('載入群組列表錯誤:', error);
-          groupList.innerHTML = '<div class="loading-spinner">載入失敗</div>';
-        }
-      }
 
-      // 選擇群組
-      window.selectGroup = function(groupId, groupName) {
-        selectedGroupId = groupId;
-        selectedGroupName = groupName;
+            try {
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                
+                if (!userDoc.exists) {
+                    // 🔴 用戶文件不存在，顯示「還沒有加入任何群組」
+                    container.innerHTML = `
+                        <div class="no-group-preview">
+                            <p>📭 還沒有加入任何群組</p>
+                            <a href="createJoin.html" style="color:var(--accent); font-size:12px; text-decoration:none; margin-top:8px; display:inline-block;">＋ 建立或加入群組</a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const userData = userDoc.data();
+                
+                // 🔴 檢查 groups 是否存在且為陣列
+                const groups = userData.groups || [];
+                
+                // 檢查 groups 是否為空
+                if (groups.length === 0) {
+                    container.innerHTML = `
+                        <div class="no-group-preview">
+                            <p>📭 還沒有加入任何群組</p>
+                            <a href="createJoin.html" style="color:var(--accent); font-size:12px; text-decoration:none; margin-top:8px; display:inline-block;">＋ 建立或加入群組</a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // 只顯示最近的3個群組
+                const recentGroups = groups.slice(0, 3);
+                let previewHtml = '';
+
+                for (const group of recentGroups) {
+                    try {
+                        // 確保 group 是物件且有 groupId
+                        if (!group || !group.groupId) continue;
+                        
+                        const groupDoc = await db.collection('groups').doc(group.groupId).get();
+                        if (groupDoc.exists) {
+                            const groupData = groupDoc.data();
+                            
+                            // 獲取最新訊息
+                            let latestMessage = '暫無訊息';
+                            let messageSender = '';
+                            let messageTime = '';
+                            
+                            try {
+                                const messagesSnapshot = await db.collection('groups')
+                                    .doc(group.groupId)
+                                    .collection('messages')
+                                    .orderBy('timestamp', 'desc')
+                                    .limit(1)
+                                    .get();
+                                
+                                if (!messagesSnapshot.empty) {
+                                    const msg = messagesSnapshot.docs[0].data();
+                                    latestMessage = msg.text || '發送了' + (msg.type || '訊息');
+                                    messageSender = msg.senderName || '用戶';
+                                    
+                                    if (latestMessage.length > 25) {
+                                        latestMessage = latestMessage.substring(0, 25) + '...';
+                                    }
+                                    
+                                    if (msg.timestamp && msg.timestamp.toDate) {
+                                        const date = msg.timestamp.toDate();
+                                        const now = new Date();
+                                        const diff = now - date;
+                                        
+                                        if (diff < 60000) messageTime = '剛剛';
+                                        else if (diff < 3600000) messageTime = Math.floor(diff / 60000) + '分鐘前';
+                                        else messageTime = date.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
+                                    }
+                                }
+                            } catch (e) {
+                                console.log('無法獲取最新訊息');
+                            }
+
+                            // 獲取成員數量
+                            let memberCount = 1;
+                            try {
+                                const membersSnapshot = await db.collection('groups')
+                                    .doc(group.groupId)
+                                    .collection('members')
+                                    .get();
+                                memberCount = membersSnapshot.size;
+                            } catch (e) {}
+                            
+                            previewHtml += `
+                                <div class="group-preview-card" onclick="window.location.href='ChatMessage.html?groupId=${group.groupId}'">
+                                    <div class="group-preview-header">
+                                        <div class="group-preview-avatar">
+                                            ${groupData.name ? groupData.name.charAt(0).toUpperCase() : 'G'}
+                                        </div>
+                                        <div class="group-preview-info">
+                                            <div class="group-preview-name">${groupData.name || '未命名群組'}</div>
+                                            <div class="group-preview-meta">
+                                                <span>👥 ${memberCount}</span>
+                                                ${group.role === 'admin' ? '<span class="badge">管理員</span>' : ''}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="preview-message">
+                                        <div class="preview-message-sender">${messageSender}</div>
+                                        <div>${latestMessage}</div>
+                                        <div class="preview-message-time">${messageTime}</div>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    } catch (e) {
+                        console.error('載入單一群組錯誤:', e);
+                        // 繼續載入下一個群組，不要讓整個功能失敗
+                    }
+                }
+
+                // 檢查是否有成功載入任何群組
+                if (previewHtml === '') {
+                    container.innerHTML = `
+                        <div class="no-group-preview">
+                            <p>📭 還沒有加入任何群組</p>
+                            <a href="createJoin.html" style="color:var(--accent); font-size:12px; text-decoration:none; margin-top:8px; display:inline-block;">＋ 建立或加入群組</a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                if (groups.length > 3) {
+                    previewHtml += `
+                        <div style="text-align:center; margin-top:5px; color:var(--muted); font-size:11px;">
+                            還有 ${groups.length - 3} 個群組...
+                        </div>
+                    `;
+                }
+
+                container.innerHTML = previewHtml;
+
+            } catch (error) {
+                console.error('載入群組預覽錯誤:', error);
+                // 🔴 錯誤時也顯示友好的提示，而不是 ❌ 載入失敗
+                container.innerHTML = `
+                    <div class="no-group-preview">
+                        <p>📭 還沒有加入任何群組</p>
+                        <a href="createJoin.html" style="color:var(--accent); font-size:12px; text-decoration:none; margin-top:8px; display:inline-block;">＋ 建立或加入群組</a>
+                    </div>
+                `;
+            }
+        }
+
+        // ==================== 其他函數保持不變 ====================
         
-        // 移除其他項目的 selected 類別
-        document.querySelectorAll('.group-item').forEach(item => {
-          item.classList.remove('selected');
-        });
-        
-        // 為當前項目添加 selected 類別
-        event.currentTarget.classList.add('selected');
-      }
+        // 天氣預報功能
+        window.getWeatherForecast = function() {
+            console.log('getWeatherForecast 函數被呼叫');
+            
+            if (!navigator.geolocation) {
+                alert('您的瀏覽器不支援地理位置功能');
+                return;
+            }
 
-      // 下一步
-      window.nextStep = function() {
-        if (currentStep === 1) {
-          if (!selectedGroupId) {
-            alert('請選擇一個群組');
-            return;
-          }
-          currentStep = 2;
-          // 跳轉到 meeting.html 進行地圖選擇
-          window.location.href = `meeting.html?groupId=${selectedGroupId}&groupName=${encodeURIComponent(selectedGroupName)}`;
+            const weatherOverlay = document.getElementById('weatherOverlay');
+            weatherOverlay.style.display = 'flex';
+
+            const loadingEl = document.getElementById('locationLoading');
+            const locationInfo = document.getElementById('locationInfo');
+            
+            if (loadingEl) loadingEl.style.display = 'block';
+
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
+                    const accuracy = position.coords.accuracy;
+                    
+                    if (locationInfo) {
+                        locationInfo.textContent = `📍 位置精確度：約 ${Math.round(accuracy)} 公尺`;
+                        locationInfo.style.display = 'block';
+                        setTimeout(() => locationInfo.style.display = 'none', 5000);
+                    }
+                    
+                    if (loadingEl) loadingEl.style.display = 'none';
+                    
+                    getCityName(latitude, longitude).then(cityName => {
+                        document.getElementById('weatherLocation').textContent = cityName;
+                        fetchWeatherData(latitude, longitude);
+                    });
+                },
+                
+                function(error) {
+                    console.error('地理位置錯誤:', error);
+                    if (loadingEl) loadingEl.style.display = 'none';
+                    
+                    let errorMessage = '無法獲取您的位置：';
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMessage += '您拒絕了位置存取權限。';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMessage += '位置資訊不可用。';
+                            break;
+                        case error.TIMEOUT:
+                            errorMessage += '擷取位置超時。';
+                            break;
+                        default:
+                            errorMessage += '未知錯誤。';
+                    }
+                    
+                    document.getElementById('weatherContent').innerHTML = `
+                        <div style="text-align:center; padding:20px; color:var(--error);">
+                            <p>❌ ${errorMessage}</p>
+                        </div>
+                    `;
+                }
+            );
+        };
+
+        window.closeWeather = function() {
+            document.getElementById('weatherOverlay').style.display = 'none';
+        };
+
+        async function getCityName(lat, lng) {
+            try {
+                const response = await fetch(
+                    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=zh`
+                );
+                const data = await response.json();
+                return data.address.city || data.address.town || data.address.village || '未知位置';
+            } catch (error) {
+                console.error('取得城市名稱錯誤:', error);
+                return '未知位置';
+            }
         }
-        
-        updateStepDisplay();
-      }
 
-      // 上一步
-      window.prevStep = function() {
-        if (currentStep > 1) {
-          currentStep--;
-          updateStepDisplay();
+        async function fetchWeatherData(lat, lng) {
+            try {
+                const response = await fetch(
+                    `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=7`
+                );
+                const data = await response.json();
+                
+                const weatherContent = document.getElementById('weatherContent');
+                
+                let weatherHtml = '<div class="weather-grid">';
+                
+                const weekdays = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
+                
+                for (let i = 0; i < data.daily.time.length; i++) {
+                    const date = new Date(data.daily.time[i]);
+                    const weekday = weekdays[date.getDay()];
+                    const dateStr = `${date.getMonth() + 1}/${date.getDate()}`;
+                    
+                    const weatherCode = data.daily.weathercode[i];
+                    const weatherIcon = getWeatherIcon(weatherCode);
+                    const weatherDesc = getWeatherDescription(weatherCode);
+                    
+                    const maxTemp = Math.round(data.daily.temperature_2m_max[i]);
+                    const minTemp = Math.round(data.daily.temperature_2m_min[i]);
+                    
+                    weatherHtml += `
+                        <div class="weather-card">
+                            <div class="weather-day">${weekday} ${dateStr}</div>
+                            <div class="weather-icon">${weatherIcon}</div>
+                            <div class="weather-temp">${maxTemp}° / ${minTemp}°</div>
+                            <div class="weather-desc">${weatherDesc}</div>
+                        </div>
+                    `;
+                }
+                
+                weatherHtml += '</div>';
+                weatherHtml += `
+                    <div style="text-align:center; margin-top:15px; color:var(--muted); font-size:12px;">
+                        天氣資料提供：Open-Meteo.com
+                    </div>
+                `;
+                
+                weatherContent.innerHTML = weatherHtml;
+                
+            } catch (error) {
+                console.error('獲取天氣資料錯誤:', error);
+                document.getElementById('weatherContent').innerHTML = `
+                    <div style="text-align:center; padding:20px; color:var(--error);">
+                        <p>❌ 無法獲取天氣資料</p>
+                    </div>
+                `;
+            }
         }
-      }
 
-      // 更新步驟顯示
-      function updateStepDisplay() {
-        document.getElementById('step1').style.display = currentStep === 1 ? 'block' : 'none';
-        document.getElementById('step2').style.display = currentStep === 2 ? 'block' : 'none';
-        document.getElementById('step3').style.display = currentStep === 3 ? 'block' : 'none';
-        
-        document.getElementById('prevBtn').style.display = currentStep > 1 ? 'block' : 'none';
-        document.getElementById('nextBtn').style.display = currentStep < 3 ? 'block' : 'none';
-        document.getElementById('sendBtn').style.display = currentStep === 3 ? 'block' : 'none';
-      }
-
-      // 使用目前位置
-      window.useCurrentLocation = function() {
-        alert('請前往地圖頁面選擇位置');
-        window.location.href = 'map.html';
-      }
-
-      // 發送會合點到群組
-      window.sendMeetingPoint = async function() {
-        alert('請先在地圖上選擇位置');
-      }
-
-      // ==================== 處理個人資料點擊 ====================
-      window.handleProfileTabClick = function() {
-        console.log('點擊底部帳號按鈕');
-        const user = firebase.auth().currentUser;
-        if (user) {
-          window.location.href = 'editProfile.html';
-        } else {
-          window.location.href = 'loginPage.html';
+        function getWeatherIcon(code) {
+            if (code === 0) return '☀️';
+            if (code === 1) return '🌤️';
+            if (code === 2) return '⛅';
+            if (code === 3) return '☁️';
+            if (code >= 45 && code <= 49) return '🌫️';
+            if (code >= 51 && code <= 55) return '🌧️';
+            if (code >= 61 && code <= 65) return '🌧️';
+            if (code >= 71 && code <= 75) return '❄️';
+            if (code >= 80 && code <= 82) return '🌦️';
+            if (code >= 95 && code <= 99) return '⛈️';
+            return '☁️';
         }
-      };
 
-      // ==================== 處理頂部按鈕點擊 ====================
-      window.handleAuthAction = function() {
-        const user = firebase.auth().currentUser;
-        if (user) {
-          window.location.href = 'profile.html';
-        } else {
-          window.location.href = 'loginPage.html';
+        function getWeatherDescription(code) {
+            if (code === 0) return '晴天';
+            if (code === 1) return '多雲時晴';
+            if (code === 2) return '多雲';
+            if (code === 3) return '陰天';
+            if (code >= 45 && code <= 49) return '有霧';
+            if (code >= 51 && code <= 55) return '毛毛雨';
+            if (code >= 61 && code <= 65) return '雨天';
+            if (code >= 71 && code <= 75) return '下雪';
+            if (code >= 80 && code <= 82) return '陣雨';
+            if (code >= 95 && code <= 99) return '雷雨';
+            return '未知';
         }
-      };
 
-      // ==================== 登出確認對話框 ====================
-      window.showLogoutConfirm = function() {
-        if (confirm('確定要登出嗎？')) {
-          firebase.auth().signOut().then(() => {
-            window.location.href = 'index.html';
-          });
-        }
-      };
+        // 集合點功能
+        let selectedGroupId = null;
+        let selectedGroupName = null;
+        let selectedLocation = null;
+        let selectedAddress = null;
+        let currentStep = 1;
 
-      // ==================== 浮層控制 ====================
-      window.hideAllOverlays = function() {
-        const createJoin = document.getElementById('createJoin');
-        const groupScreen = document.getElementById('groupScreen');
-        const auth = document.getElementById('auth');
-        
-        if (createJoin) createJoin.style.display = 'none';
-        if (groupScreen) groupScreen.style.display = 'none';
-        if (auth) auth.style.display = 'none';
-      };
+        window.openMeetingPointSelector = function() {
+            const user = auth.currentUser;
+            if (!user) {
+                alert('請先登入');
+                return;
+            }
+            
+            selectedGroupId = null;
+            selectedGroupName = null;
+            selectedLocation = null;
+            selectedAddress = null;
+            currentStep = 1;
+            
+            document.getElementById('meetingOverlay').style.display = 'flex';
+            
+            loadUserGroupsForMeeting();
+            updateStepDisplay();
+        }
 
-      window.showScreen = function(name) {
-        if (!name) {
-          hideAllOverlays();
-          return;
+        window.closeMeetingSelector = function() {
+            document.getElementById('meetingOverlay').style.display = 'none';
         }
-        hideAllOverlays();
-        
-        if (name === 'createJoin') {
-          const createJoin = document.getElementById('createJoin');
-          if (createJoin) createJoin.style.display = 'block';
-        }
-        else if (name === 'group') {
-          const groupScreen = document.getElementById('groupScreen');
-          if (groupScreen) groupScreen.style.display = 'block';
-        }
-        else if (name === 'auth') {
-          const auth = document.getElementById('auth');
-          if (auth) auth.style.display = 'block';
-        }
-      };
 
-      // ==================== 初始化所有功能 ====================
-      function initializeAll() {
-        console.log('初始化所有功能...');
-        
-        if (typeof hideAllOverlays === 'function') {
-          hideAllOverlays();
+        async function loadUserGroupsForMeeting() {
+            const user = auth.currentUser;
+            if (!user) return;
+            
+            const groupList = document.getElementById('groupList');
+            groupList.innerHTML = '<div class="loading-spinner">載入群組中...</div>';
+            
+            try {
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                
+                if (!userDoc.exists) {
+                    groupList.innerHTML = '<div class="loading-spinner">尚無群組資料</div>';
+                    return;
+                }
+                
+                const userData = userDoc.data();
+                const groups = userData.groups || [];
+                
+                if (groups.length === 0) {
+                    groupList.innerHTML = '<div class="loading-spinner">您還沒有加入任何群組</div>';
+                    return;
+                }
+                
+                let html = '';
+                for (const group of groups) {
+                    try {
+                        const groupDoc = await db.collection('groups').doc(group.groupId).get();
+                        if (groupDoc.exists) {
+                            const groupData = groupDoc.data();
+                            
+                            const membersSnapshot = await db.collection('groups')
+                                .doc(group.groupId)
+                                .collection('members')
+                                .get();
+                            
+                            html += `
+                                <div class="group-item" onclick="selectGroup('${group.groupId}', '${groupData.name.replace(/'/g, "\\'")}')">
+                                    <div class="group-avatar">${groupData.name.charAt(0).toUpperCase()}</div>
+                                    <div class="group-info">
+                                        <div class="group-name">${groupData.name}</div>
+                                        <div class="group-members">👥 ${membersSnapshot.size} 位成員</div>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    } catch (e) {
+                        console.error('載入群組錯誤:', e);
+                    }
+                }
+                
+                groupList.innerHTML = html;
+                
+            } catch (error) {
+                console.error('載入群組列表錯誤:', error);
+                groupList.innerHTML = '<div class="loading-spinner">載入失敗</div>';
+            }
         }
-        
-        // 載入群組預覽
-        firebase.auth().onAuthStateChanged((user) => {
-          if (user) {
+
+        window.selectGroup = function(groupId, groupName) {
+            selectedGroupId = groupId;
+            selectedGroupName = groupName;
+            
+            document.querySelectorAll('.group-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            event.currentTarget.classList.add('selected');
+        }
+
+        window.nextStep = function() {
+            if (currentStep === 1) {
+                if (!selectedGroupId) {
+                    alert('請選擇一個群組');
+                    return;
+                }
+                currentStep = 2;
+                window.location.href = `meeting.html?groupId=${selectedGroupId}&groupName=${encodeURIComponent(selectedGroupName)}`;
+            }
+            
+            updateStepDisplay();
+        }
+
+        window.prevStep = function() {
+            if (currentStep > 1) {
+                currentStep--;
+                updateStepDisplay();
+            }
+        }
+
+        function updateStepDisplay() {
+            document.getElementById('step1').style.display = currentStep === 1 ? 'block' : 'none';
+            document.getElementById('step2').style.display = currentStep === 2 ? 'block' : 'none';
+            document.getElementById('step3').style.display = currentStep === 3 ? 'block' : 'none';
+            
+            document.getElementById('prevBtn').style.display = currentStep > 1 ? 'block' : 'none';
+            document.getElementById('nextBtn').style.display = currentStep < 3 ? 'block' : 'none';
+            document.getElementById('sendBtn').style.display = currentStep === 3 ? 'block' : 'none';
+        }
+
+        window.useCurrentLocation = function() {
+            alert('請前往地圖頁面選擇位置');
+            window.location.href = 'map.html';
+        }
+
+        window.sendMeetingPoint = async function() {
+            alert('請先在地圖上選擇位置');
+        }
+
+        // 處理個人資料點擊
+        window.handleProfileTabClick = function() {
+            console.log('點擊底部帳號按鈕');
+            const user = auth.currentUser;
+            if (user) {
+                window.location.href = 'editProfile.html';
+            } else {
+                window.location.href = 'loginPage.html';
+            }
+        };
+
+        // 處理頂部按鈕點擊
+        window.handleAuthAction = function() {
+            const user = auth.currentUser;
+            if (user) {
+                window.location.href = 'profile.html';
+            } else {
+                window.location.href = 'loginPage.html';
+            }
+        };
+
+        // 登出確認
+        window.showLogoutConfirm = function() {
+            if (confirm('確定要登出嗎？')) {
+                auth.signOut().then(() => {
+                    window.location.href = 'index.html';
+                });
+            }
+        };
+
+        // 隱藏所有浮層
+        window.hideAllOverlays = function() {
+            const createJoin = document.getElementById('createJoin');
+            const groupScreen = document.getElementById('groupScreen');
+            const auth = document.getElementById('auth');
+            
+            if (createJoin) createJoin.style.display = 'none';
+            if (groupScreen) groupScreen.style.display = 'none';
+            if (auth) auth.style.display = 'none';
+        };
+
+        // 監聽登入狀態變化
+        auth.onAuthStateChanged((user) => {
+            const authButton = document.getElementById('authButton');
+            const logoutButton = document.getElementById('logoutButton');
+            
+            if (user) {
+                authButton.textContent = '我的帳號';
+                logoutButton.style.display = 'block';
+            } else {
+                authButton.textContent = '註冊 / 登入';
+                logoutButton.style.display = 'none';
+            }
+            
+            // 載入群組預覽
             loadGroupPreview();
-          } else {
-            document.getElementById('groupPreviewContainer').innerHTML = `
-              <div class="no-group-preview">
-                <p>👤 請先登入</p>
-                <p style="font-size:12px; margin-top:8px;">登入後即可查看您的群組</p>
-              </div>
-            `;
-          }
         });
-        
-        console.log('初始化完成');
-      }
 
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initializeAll);
-      } else {
-        initializeAll();
-      }
-    })();
-  </script>
+        // 初始化
+        hideAllOverlays();
+    </script>
 </body>
 </html>
