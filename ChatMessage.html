@@ -10,12 +10,15 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     
+    <!-- Google Maps API -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDXCOcFaB80u9FjnEkQf-DlMOPqAJyGngA&libraries=places,geometry&v=weekly"></script>
+    
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent; /* 移除觸摸高亮 */
+            -webkit-tap-highlight-color: transparent;
         }
 
         :root {
@@ -29,6 +32,7 @@
             --shadow: rgba(6, 30, 38, 0.06);
             --meeting-bg: #fff9e6;
             --meeting-border: #ffd966;
+            --member-color: #FFB347;
         }
 
         body {
@@ -38,28 +42,28 @@
             display: flex;
             justify-content: center;
             padding: 20px 20px 20px 100px;
-            touch-action: pan-y pinch-zoom; /* 允許垂直滑動和縮放 */
+            touch-action: pan-y pinch-zoom;
         }
 
-        /* ==================== 側邊導航 ==================== */
+        /* ==================== 側邊導航 - 寬度減少版 ==================== */
         .side-nav {
             position: fixed;
-            left: 20px;
+            left: 10px;
             top: 50%;
             transform: translateY(-50%);
             background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.98));
-            width: 80px;
-            border-radius: 40px;
+            width: 60px;
+            border-radius: 30px;
             box-shadow: 0 10px 30px rgba(12,52,78,0.08);
             z-index: 1000;
-            padding: 20px 0;
+            padding: 15px 0;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(44, 197, 194, 0.2);
             transition: all 0.3s ease;
         }
 
         .side-nav:hover {
-            width: 200px;
+            width: 160px;
             box-shadow: 0 15px 40px rgba(44, 197, 194, 0.15);
         }
 
@@ -67,19 +71,19 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 15px;
+            gap: 10px;
         }
 
         .side-nav:hover .nav-items {
             align-items: flex-start;
-            padding-left: 20px;
+            padding-left: 15px;
         }
 
         .nav-item {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 12px 0;
+            gap: 10px;
+            padding: 8px 0;
             width: 100%;
             color: var(--text-muted);
             text-decoration: none;
@@ -113,20 +117,20 @@
             left: 0;
             top: 50%;
             transform: translateY(-50%);
-            width: 4px;
-            height: 20px;
+            width: 3px;
+            height: 18px;
             background: var(--primary);
-            border-radius: 0 4px 4px 0;
+            border-radius: 0 3px 3px 0;
         }
 
         .nav-icon {
-            font-size: 20px;
-            min-width: 40px;
+            font-size: 18px;
+            min-width: 30px;
             text-align: center;
         }
 
         .nav-label {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 500;
             white-space: nowrap;
             opacity: 0;
@@ -188,7 +192,7 @@
 
         .header-content {
             flex: 1;
-            min-width: 0; /* 防止 flex 溢出 */
+            min-width: 0;
         }
 
         .chat-header h2 {
@@ -206,7 +210,6 @@
             margin-bottom: 5px;
         }
 
-        /* 邀請碼標籤 */
         .invite-code {
             display: inline-flex;
             align-items: center;
@@ -267,16 +270,26 @@
             }
         }
 
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
         /* 訊息列表區域 */
         .messages-area {
             flex: 1;
             overflow-y: auto;
             padding: 20px;
             background: var(--bg-light);
-            -webkit-overflow-scrolling: touch; /* iOS 流暢滑動 */
+            -webkit-overflow-scrolling: touch;
         }
 
-        /* 單則訊息 */
         .message-wrapper {
             display: flex;
             margin-bottom: 20px;
@@ -338,7 +351,6 @@
             word-break: break-word;
         }
 
-        /* 會合點訊息樣式 */
         .meeting-message {
             background: var(--meeting-bg) !important;
             border-left: 4px solid var(--meeting-border);
@@ -450,7 +462,6 @@
             font-size: 12px;
         }
 
-        /* 訊息類型樣式 */
         .message-image {
             max-width: 200px;
             border-radius: 8px;
@@ -467,6 +478,14 @@
             border-radius: 8px;
             margin-top: 5px;
             word-break: break-word;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--member-color);
+        }
+
+        .message-location:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 179, 71, 0.3);
         }
 
         .message-file {
@@ -567,6 +586,17 @@
             color: var(--primary-dark);
             margin-bottom: 15px;
             font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .online-count {
+            background: var(--member-color);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
         }
 
         .member-item {
@@ -575,6 +605,7 @@
             gap: 10px;
             padding: 8px 0;
             border-bottom: 1px solid var(--border);
+            position: relative;
         }
 
         .member-avatar {
@@ -587,6 +618,13 @@
             justify-content: center;
             color: white;
             font-weight: bold;
+            overflow: hidden;
+        }
+
+        .member-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .member-info {
@@ -597,14 +635,45 @@
             font-weight: 600;
             color: var(--text-dark);
             font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
         .member-status {
             font-size: 0.8rem;
             color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
 
-        /* 日期分隔線 */
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .status-dot.online {
+            background: #4caf50;
+            box-shadow: 0 0 8px #4caf50;
+        }
+
+        .status-dot.offline {
+            background: #9e9e9e;
+        }
+
+        .member-location-indicator {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--member-color);
+            font-size: 16px;
+            cursor: pointer;
+        }
+
         .date-divider {
             text-align: center;
             margin: 20px 0;
@@ -631,7 +700,6 @@
             right: 0;
         }
 
-        /* 載入更多按鈕 */
         .load-more {
             text-align: center;
             margin: 10px 0;
@@ -656,7 +724,6 @@
             transform: scale(0.95);
         }
 
-        /* 載入中動畫 */
         .loading {
             text-align: center;
             padding: 40px;
@@ -677,24 +744,28 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* 🔴 手機版優化 */
+        /* 手機版優化 */
         @media (max-width: 768px) {
             body {
                 padding: 10px 10px 10px 80px;
             }
             
             .side-nav {
-                left: 10px;
-                width: 60px;
+                left: 5px;
+                width: 50px;
             }
             
             .side-nav:hover {
-                width: 140px;
+                width: 130px;
             }
             
             .nav-icon {
-                font-size: 18px;
-                min-width: 35px;
+                font-size: 16px;
+                min-width: 30px;
+            }
+            
+            .nav-label {
+                font-size: 12px;
             }
             
             .chat-container {
@@ -730,7 +801,7 @@
             }
             
             .members-sidebar {
-                display: none; /* 手機版隱藏成員列表 */
+                display: none;
             }
             
             .messages-area {
@@ -769,7 +840,6 @@
             }
         }
 
-        /* 🔴 小手機專用 */
         @media (max-width: 480px) {
             body {
                 padding-left: 70px;
@@ -779,12 +849,12 @@
             }
             
             .side-nav {
-                width: 55px;
+                width: 45px;
             }
             
             .nav-icon {
-                font-size: 16px;
-                min-width: 30px;
+                font-size: 14px;
+                min-width: 25px;
             }
             
             .chat-header {
@@ -851,7 +921,6 @@
             }
         }
 
-        /* 極小螢幕 (如 iPhone SE) */
         @media (max-width: 375px) {
             .chat-header h2 {
                 font-size: 1rem;
@@ -940,13 +1009,17 @@
                         <button class="tool-btn" onclick="attachImage()" id="imageButton" disabled>📷 圖片</button>
                         <button class="tool-btn" onclick="attachLocation()" id="locationButton" disabled>📍 位置</button>
                         <button class="tool-btn" onclick="attachFile()" id="fileButton" disabled>📎 檔案</button>
+                        <button class="tool-btn" onclick="shareCurrentLocation()" id="shareLocationBtn" disabled>📍 分享位置</button>
                     </div>
                 </div>
             </div>
 
             <!-- 成員列表 - 手機版隱藏 -->
             <div class="members-sidebar">
-                <h3>群組成員</h3>
+                <h3>
+                    群組成員
+                    <span class="online-count" id="onlineCount">0</span>
+                </h3>
                 <div id="membersList">
                     <div class="loading">
                         <div class="spinner"></div>
@@ -958,7 +1031,6 @@
     </div>
 
     <script>
-        // ==================== Firebase 配置 ====================
         const firebaseConfig = {
             apiKey: "AIzaSyBhvbTPl-hGv1MWtrua55LuvIUpdabqy4M",
             authDomain: "YOUR_AUTH_DOMAIN",
@@ -968,27 +1040,24 @@
             appId: "YOUR_APP_ID"
         };
 
-        // 初始化 Firebase
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // ==================== 全域變數 ====================
         let currentUser = null;
         let currentGroupId = null;
         let currentGroupData = null;
         let unsubscribeMessages = null;
         let unsubscribeMembers = null;
+        let unsubscribeLocations = null;
 
-        // ==================== URL 參數處理 ====================
         function getUrlParameter(name) {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get(name);
         }
 
-        // ==================== MContent 類別 ====================
         class MContent {
             constructor(text, type = 'text', metadata = {}) {
                 this.text = text;
@@ -1005,7 +1074,6 @@
             }
         }
 
-        // ==================== ChatMessage 類別 ====================
         class ChatMessage {
             constructor(id, senderId, senderName, timestamp, content) {
                 this.id = id;
@@ -1051,7 +1119,6 @@
             }
         }
 
-        // ==================== 顯示複製成功提示 ====================
         function showCopyFeedback() {
             const feedback = document.createElement('div');
             feedback.className = 'copy-feedback';
@@ -1063,7 +1130,6 @@
             }, 2000);
         }
 
-        // ==================== 複製邀請碼 ====================
         function copyInviteCode() {
             const inviteCode = document.getElementById('inviteCode').textContent;
             if (inviteCode && inviteCode !== '------') {
@@ -1076,9 +1142,7 @@
             }
         }
 
-        // ==================== 跳轉到地圖並顯示位置 ====================
         function openLocationOnMap(lat, lng, address) {
-            // 將位置資訊儲存到 localStorage，讓 index.html 可以讀取
             const locationData = {
                 lat: lat,
                 lng: lng,
@@ -1087,13 +1151,92 @@
             };
             localStorage.setItem('meetingLocation', JSON.stringify(locationData));
             
-            // 跳轉到 index.html
-            window.location.href = 'index.html';
+            window.location.href = 'map.html';
         }
 
-        // ==================== 初始化聊天室 ====================
+        // 顯示提示訊息
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'copy-feedback';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 2000);
+        }
+
+        // 分享目前位置到聊天室
+        async function shareCurrentLocation() {
+            if (!currentUser || !currentGroupId) {
+                alert('請先加入群組');
+                return;
+            }
+            
+            if (!navigator.geolocation) {
+                alert('您的瀏覽器不支援地理位置功能');
+                return;
+            }
+            
+            try {
+                const position = await new Promise((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(resolve, reject, {
+                        enableHighAccuracy: true,
+                        timeout: 10000
+                    });
+                });
+                
+                const currentPos = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                };
+                
+                // 使用 Google Maps Geocoder 獲取地址
+                const geocoder = new google.maps.Geocoder();
+                const result = await new Promise((resolve) => {
+                    geocoder.geocode({ location: currentPos }, (results, status) => {
+                        if (status === 'OK' && results[0]) {
+                            resolve(results[0].formatted_address);
+                        } else {
+                            resolve(`${currentPos.lat.toFixed(6)}, ${currentPos.lng.toFixed(6)}`);
+                        }
+                    });
+                });
+                
+                let senderName = currentUser.displayName;
+                if (!senderName) {
+                    const userDoc = await db.collection('users').doc(currentUser.uid).get();
+                    senderName = userDoc.exists ? userDoc.data().username : '匿名用戶';
+                }
+                
+                const message = {
+                    senderId: currentUser.uid,
+                    senderName: senderName,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    text: '',
+                    type: 'location',
+                    metadata: {
+                        latitude: currentPos.lat,
+                        longitude: currentPos.lng,
+                        address: result,
+                        isLive: true
+                    }
+                };
+                
+                await db.collection('groups')
+                    .doc(currentGroupId)
+                    .collection('messages')
+                    .add(message);
+                
+                showToast('📍 已分享您的位置');
+                
+            } catch (error) {
+                console.error('獲取位置錯誤:', error);
+                alert('無法獲取您的位置：' + error.message);
+            }
+        }
+
         async function initChatRoom() {
-            // 檢查用戶登入狀態
             const user = auth.currentUser;
             if (!user) {
                 alert('請先登入');
@@ -1103,7 +1246,6 @@
 
             currentUser = user;
 
-            // 從 URL 獲取群組ID
             const urlGroupId = getUrlParameter('groupId');
             if (urlGroupId) {
                 currentGroupId = urlGroupId;
@@ -1117,20 +1259,17 @@
                 return;
             }
 
-            // 載入群組資訊
             await loadGroupInfo();
 
-            // 啟用輸入框
             enableInputs(true);
 
-            // 監聽訊息
             listenMessages();
 
-            // 監聽成員
             listenMembers();
+            
+            listenMemberLocations();
         }
 
-        // ==================== 載入用戶群組 ====================
         async function loadUserGroup() {
             try {
                 const userDoc = await db.collection('users').doc(currentUser.uid).get();
@@ -1142,7 +1281,6 @@
             }
         }
 
-        // ==================== 載入群組資訊 ====================
         async function loadGroupInfo() {
             try {
                 const groupDoc = await db.collection('groups').doc(currentGroupId).get();
@@ -1150,10 +1288,8 @@
                     currentGroupData = groupDoc.data();
                     const groupData = groupDoc.data();
                     
-                    // 顯示群組名稱
                     document.getElementById('groupName').textContent = groupData.name || '未命名群組';
                     
-                    // 顯示邀請碼
                     const inviteCodeElement = document.getElementById('inviteCode');
                     if (groupData.joinCode) {
                         inviteCodeElement.textContent = groupData.joinCode;
@@ -1161,23 +1297,12 @@
                     } else {
                         inviteCodeElement.parentElement.style.display = 'none';
                     }
-                    
-                    // 載入成員數量
-                    const membersSnapshot = await db.collection('groups')
-                        .doc(currentGroupId)
-                        .collection('members')
-                        .get();
-                    
-                    const onlineCount = membersSnapshot.docs.filter(doc => doc.data().status === 'online').length;
-                    document.getElementById('groupInfo').textContent = 
-                        `${membersSnapshot.size} 位成員 · 線上 ${onlineCount} 人`;
                 }
             } catch (error) {
                 console.error('載入群組資訊錯誤:', error);
             }
         }
 
-        // ==================== 監聽訊息 ====================
         function listenMessages() {
             if (unsubscribeMessages) {
                 unsubscribeMessages();
@@ -1201,7 +1326,6 @@
             });
         }
 
-        // ==================== 監聽成員 ====================
         function listenMembers() {
             if (unsubscribeMembers) {
                 unsubscribeMembers();
@@ -1213,19 +1337,64 @@
 
             unsubscribeMembers = membersRef.onSnapshot((snapshot) => {
                 const members = [];
+                let onlineCount = 0;
+                
                 snapshot.forEach(doc => {
+                    const memberData = doc.data();
                     members.push({
                         id: doc.id,
-                        ...doc.data()
+                        ...memberData
                     });
+                    if (memberData.status === 'online') onlineCount++;
                 });
+                
+                document.getElementById('onlineCount').textContent = onlineCount;
+                document.getElementById('groupInfo').textContent = 
+                    `${members.length} 位成員 · 線上 ${onlineCount} 人`;
+                    
                 renderMembers(members);
             }, (error) => {
                 console.error('監聽成員錯誤:', error);
             });
         }
 
-        // ==================== 渲染訊息 ====================
+        function listenMemberLocations() {
+            if (unsubscribeLocations) {
+                unsubscribeLocations();
+            }
+
+            const locationsRef = db.collection('groups')
+                .doc(currentGroupId)
+                .collection('locations');
+
+            unsubscribeLocations = locationsRef.onSnapshot((snapshot) => {
+                // 更新成員列表中的位置指示器
+                const memberItems = document.querySelectorAll('.member-item');
+                memberItems.forEach(item => {
+                    const memberId = item.dataset.memberId;
+                    const locationIndicator = item.querySelector('.member-location-indicator');
+                    
+                    const hasLocation = snapshot.docs.some(doc => doc.id === memberId);
+                    
+                    if (hasLocation) {
+                        if (!locationIndicator) {
+                            const indicator = document.createElement('span');
+                            indicator.className = 'member-location-indicator';
+                            indicator.innerHTML = '📍';
+                            indicator.title = '正在分享位置';
+                            item.appendChild(indicator);
+                        }
+                    } else {
+                        if (locationIndicator) {
+                            locationIndicator.remove();
+                        }
+                    }
+                });
+            }, (error) => {
+                console.error('監聽位置錯誤:', error);
+            });
+        }
+
         function renderMessages(messages) {
             const area = document.getElementById('messagesArea');
             const loading = document.getElementById('messageLoading');
@@ -1252,7 +1421,6 @@
 
                 const isOwn = msg.senderId === currentUser?.uid;
                 
-                // 判斷是否為會合點訊息
                 const isMeeting = msg.content.type === 'location' && msg.content.metadata?.isMeeting;
                 
                 let contentHtml = '';
@@ -1267,10 +1435,8 @@
                             minute: '2-digit'
                         }) : '未設定時間';
                     
-                    // 確保地址不是座標
                     let displayAddress = msg.content.metadata.address || '未知';
                     
-                    // 如果地址看起來像是座標（包含逗號和6位小數），顯示無法取得地址
                     if (displayAddress.match(/^-?\d+\.\d+,\s*-?\d+\.\d+$/)) {
                         displayAddress = '無法取得地址';
                     }
@@ -1302,7 +1468,6 @@
                         </div>
                     `;
                 } else {
-                    // 一般訊息
                     switch(msg.content.type) {
                         case 'image':
                             contentHtml = `
@@ -1312,9 +1477,22 @@
                             `;
                             break;
                         case 'location':
+                            const locationLat = msg.content.metadata.latitude;
+                            const locationLng = msg.content.metadata.longitude;
+                            const locationAddress = msg.content.metadata.address || '未知位置';
+                            
                             contentHtml = `
-                                <div class="message-location" onclick="openMap('${msg.content.metadata.address || ''}')">
-                                    📍 ${msg.content.metadata.address || '位置'}
+                                <div class="message-location" onclick='openLocationOnMap(${locationLat}, ${locationLng}, "${locationAddress.replace(/"/g, '&quot;')}")'>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <span style="font-size: 20px;">📍</span>
+                                        <div>
+                                            <div style="font-weight: 600;">即時位置</div>
+                                            <div style="font-size: 12px; color: var(--text-muted);">${locationAddress}</div>
+                                        </div>
+                                    </div>
+                                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 8px; text-align: right;">
+                                        👆 點擊查看地圖
+                                    </div>
                                 </div>
                             `;
                             break;
@@ -1349,8 +1527,7 @@
             area.scrollTop = area.scrollHeight;
         }
 
-        // ==================== 渲染成員 ====================
-        function renderMembers(members) {
+        async function renderMembers(members) {
             const list = document.getElementById('membersList');
 
             if (members.length === 0) {
@@ -1358,20 +1535,43 @@
                 return;
             }
 
-            const html = members.map(member => `
-                <div class="member-item">
-                    <div class="member-avatar">${member.name ? member.name.charAt(0).toUpperCase() : '?'}</div>
-                    <div class="member-info">
-                        <div class="member-name">${member.name || '未知用戶'}</div>
-                        <div class="member-status">${member.status || 'offline'}</div>
+            // 獲取所有正在分享位置的成員
+            const locationsSnapshot = await db.collection('groups')
+                .doc(currentGroupId)
+                .collection('locations')
+                .get();
+            
+            const sharingMembers = new Set(locationsSnapshot.docs.map(doc => doc.id));
+
+            const html = members.map(member => {
+                const isSharing = sharingMembers.has(member.id);
+                
+                return `
+                    <div class="member-item" data-member-id="${member.id}">
+                        <div class="member-avatar">
+                            ${member.avatarUrl ? 
+                                `<img src="${member.avatarUrl}" alt="${member.name || '用戶'}">` : 
+                                (member.name ? member.name.charAt(0).toUpperCase() : '?')
+                            }
+                        </div>
+                        <div class="member-info">
+                            <div class="member-name">
+                                ${member.name || '未知用戶'}
+                                ${member.role === 'admin' ? '👑' : ''}
+                            </div>
+                            <div class="member-status">
+                                <span class="status-dot ${member.status === 'online' ? 'online' : 'offline'}"></span>
+                                ${member.status === 'online' ? '在線' : '離線'}
+                            </div>
+                        </div>
+                        ${isSharing ? '<span class="member-location-indicator" title="正在分享位置">📍</span>' : ''}
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
 
             list.innerHTML = html;
         }
 
-        // ==================== 發送訊息 ====================
         async function sendMessage() {
             if (!currentUser || !currentGroupId) {
                 alert('請先登入');
@@ -1384,14 +1584,12 @@
             if (!text) return;
 
             try {
-                // 獲取用戶名稱
                 let senderName = currentUser.displayName;
                 if (!senderName) {
                     const userDoc = await db.collection('users').doc(currentUser.uid).get();
                     senderName = userDoc.exists ? userDoc.data().username : '匿名用戶';
                 }
 
-                // 建立訊息
                 const message = {
                     senderId: currentUser.uid,
                     senderName: senderName,
@@ -1401,7 +1599,6 @@
                     metadata: {}
                 };
 
-                // 儲存到 Firestore
                 await db.collection('groups')
                     .doc(currentGroupId)
                     .collection('messages')
@@ -1414,7 +1611,6 @@
             }
         }
 
-        // ==================== 附加圖片 ====================
         async function attachImage() {
             if (!currentUser || !currentGroupId) return;
 
@@ -1422,7 +1618,7 @@
             if (caption === null) return;
 
             try {
-                const imageUrl = '#'; // 實際應用中這裡應該是上傳後的圖片URL
+                const imageUrl = '#';
 
                 let senderName = currentUser.displayName;
                 if (!senderName) {
@@ -1453,7 +1649,6 @@
             }
         }
 
-        // ==================== 附加位置 ====================
         async function attachLocation() {
             if (!currentUser || !currentGroupId) return;
 
@@ -1489,7 +1684,6 @@
             }
         }
 
-        // ==================== 附加檔案 ====================
         async function attachFile() {
             if (!currentUser || !currentGroupId) return;
 
@@ -1526,20 +1720,11 @@
             }
         }
 
-        // ==================== 輔助功能 ====================
         function previewImage(url) {
             if (url && url !== '#') {
                 window.open(url, '_blank');
             } else {
                 alert('圖片預覽功能開發中');
-            }
-        }
-
-        function openMap(address) {
-            if (address) {
-                window.open(`https://maps.google.com/?q=${encodeURIComponent(address)}`, '_blank');
-            } else {
-                alert('地圖功能開發中');
             }
         }
 
@@ -1557,16 +1742,16 @@
             document.getElementById('imageButton').disabled = !enabled;
             document.getElementById('locationButton').disabled = !enabled;
             document.getElementById('fileButton').disabled = !enabled;
+            document.getElementById('shareLocationBtn').disabled = !enabled;
         }
 
-        // ==================== 返回首頁 ====================
         function goBack() {
             if (unsubscribeMessages) unsubscribeMessages();
             if (unsubscribeMembers) unsubscribeMembers();
+            if (unsubscribeLocations) unsubscribeLocations();
             window.location.href = 'index.html';
         }
 
-        // ==================== 監聽登入狀態 ====================
         auth.onAuthStateChanged((user) => {
             if (user) {
                 currentUser = user;
@@ -1577,7 +1762,6 @@
             }
         });
 
-        // ==================== Enter 鍵發送 ====================
         document.addEventListener('DOMContentLoaded', () => {
             const input = document.getElementById('messageInput');
             if (input) {
@@ -1590,18 +1774,16 @@
             }
         });
 
-        // ==================== 頁面卸載時清理監聽器 ====================
         window.addEventListener('beforeunload', () => {
             if (unsubscribeMessages) unsubscribeMessages();
             if (unsubscribeMembers) unsubscribeMembers();
+            if (unsubscribeLocations) unsubscribeLocations();
         });
 
-        // ==================== 全域函數 ====================
         window.openLocationOnMap = openLocationOnMap;
+        window.shareCurrentLocation = shareCurrentLocation;
 
-        // 🔴 防止 iOS 上按鈕點擊問題
         document.addEventListener('touchstart', function(e) {
-            // 不做任何事，只是為了啟用 touch 事件
         }, { passive: true });
     </script>
 </body>

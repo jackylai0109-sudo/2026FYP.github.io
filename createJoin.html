@@ -11,12 +11,11 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     
     <style>
-        /* 所有樣式加入觸控優化 */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent; /* 移除觸摸高亮 */
+            -webkit-tap-highlight-color: transparent;
         }
 
         :root {
@@ -35,7 +34,7 @@
             background: linear-gradient(135deg, #f2fbfb 0%, #ebf8f8 100%);
             min-height: 100vh;
             padding: 20px;
-            touch-action: pan-y pinch-zoom; /* 允許垂直滑動和縮放 */
+            touch-action: pan-y pinch-zoom;
         }
 
         .header {
@@ -298,7 +297,7 @@
             word-break: break-all;
         }
 
-        /* 🔴 手機版優化 */
+        /* 手機版優化 */
         @media (max-width: 768px) {
             body {
                 padding: 15px;
@@ -389,7 +388,6 @@
             }
         }
 
-        /* 🔴 小手機專用 */
         @media (max-width: 480px) {
             body {
                 padding: 10px;
@@ -461,7 +459,6 @@
             }
         }
 
-        /* 極小螢幕 (如 iPhone SE) */
         @media (max-width: 375px) {
             .header h1 {
                 font-size: 16px;
@@ -575,7 +572,6 @@
     </div>
 
     <script>
-        // ==================== Firebase 配置 ====================
         const firebaseConfig = {
             apiKey: "AIzaSyBhvbTPl-hGv1MWtrua55LuvIUpdabqy4M",
             authDomain: "YOUR_AUTH_DOMAIN",
@@ -585,14 +581,12 @@
             appId: "YOUR_APP_ID"
         };
 
-        // 初始化 Firebase
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // ==================== 產生隨機邀請碼 ====================
         function generateJoinCode() {
             const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
             let code = '';
@@ -603,7 +597,6 @@
             return code;
         }
 
-        // 預覽將產生的邀請碼
         function updateCodePreview() {
             const previewCode = generateJoinCode();
             document.getElementById('codePreview').textContent = previewCode;
@@ -611,7 +604,6 @@
         setInterval(updateCodePreview, 1000);
         updateCodePreview();
 
-        // ==================== 建立群組 ====================
         document.getElementById('createGroupForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -632,7 +624,6 @@
             document.getElementById('createBtn').disabled = true;
 
             try {
-                // 產生唯一的邀請碼
                 let joinCode = generateJoinCode();
                 let isUnique = false;
                 let attempts = 0;
@@ -655,7 +646,6 @@
                     throw new Error('無法產生唯一的邀請碼，請稍後再試');
                 }
 
-                // 建立群組資料
                 const groupData = {
                     name: groupName,
                     joinCode: joinCode,
@@ -667,11 +657,9 @@
                     memberCount: 1
                 };
 
-                // 儲存到 Firestore
                 const groupRef = await db.collection('groups').add(groupData);
                 const groupId = groupRef.id;
 
-                // 將建立者加入成員列表
                 await db.collection('groups')
                     .doc(groupId)
                     .collection('members')
@@ -683,7 +671,6 @@
                         status: 'online'
                     });
 
-                // 更新用戶的群組列表
                 const userRef = db.collection('users').doc(user.uid);
                 const userDoc = await userRef.get();
 
@@ -736,7 +723,6 @@
             }
         });
 
-        // ==================== 加入群組 ====================
         window.joinGroup = async function() {
             const user = auth.currentUser;
             if (!user) {
@@ -760,7 +746,6 @@
             document.getElementById('joinLoading').style.display = 'block';
 
             try {
-                // 查詢群組
                 const groupQuery = await db.collection('groups')
                     .where('joinCode', '==', joinCode)
                     .get();
@@ -775,7 +760,6 @@
                 const groupId = groupDoc.id;
                 const groupData = groupDoc.data();
 
-                // 檢查用戶是否已在群組中
                 const memberDoc = await db.collection('groups')
                     .doc(groupId)
                     .collection('members')
@@ -788,14 +772,12 @@
                     return;
                 }
 
-                // 獲取用戶名稱
                 let userName = user.displayName;
                 if (!userName) {
                     const userDoc = await db.collection('users').doc(user.uid).get();
                     userName = userDoc.exists ? userDoc.data().username : '新成員';
                 }
 
-                // 加入群組成員
                 await db.collection('groups')
                     .doc(groupId)
                     .collection('members')
@@ -807,12 +789,10 @@
                         status: 'online'
                     });
 
-                // 更新群組成員數量
                 await db.collection('groups').doc(groupId).update({
                     memberCount: firebase.firestore.FieldValue.increment(1)
                 });
 
-                // 更新用戶的群組列表
                 const userRef = db.collection('users').doc(user.uid);
                 const userDoc = await userRef.get();
 
@@ -862,13 +842,11 @@
             } catch (error) {
                 console.error('加入群組錯誤:', error);
                 
-                // 🔴 更詳細的錯誤訊息
                 let errorMessage = '加入失敗：';
                 
                 if (error.code === 'permission-denied') {
                     errorMessage += '權限不足。請檢查 Firebase 安全規則是否正確設定。';
                     
-                    // 顯示建議的安全規則
                     console.log('建議的 Firestore 安全規則：\n' +
                         'rules_version = \'2\';\n' +
                         'service cloud.firestore {\n' +
@@ -888,7 +866,6 @@
             }
         };
 
-        // ==================== 輔助函數 ====================
         function showMessage(elementId, text, type) {
             const element = document.getElementById(elementId);
             element.textContent = text;
@@ -899,12 +876,10 @@
             document.getElementById('joinCode').value = code;
         }
 
-        // 自動將輸入轉為大寫
         document.getElementById('joinCode').addEventListener('input', function(e) {
             this.value = this.value.toUpperCase();
         });
 
-        // ==================== 監聽登入狀態 ====================
         auth.onAuthStateChanged((user) => {
             if (!user) {
                 const createBtn = document.getElementById('createBtn');
@@ -928,9 +903,7 @@
             }
         });
 
-        // 🔴 防止 iOS 上按鈕點擊問題
         document.addEventListener('touchstart', function(e) {
-            // 不做任何事，只是為了啟用 touch 事件
         }, { passive: true });
     </script>
 </body>

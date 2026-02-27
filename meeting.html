@@ -10,74 +10,20 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     
-    <!-- Google Maps API 載入 (加入 places 程式庫) -->
+    <!-- Google Maps API 載入 -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDXCOcFaB80u9FjnEkQf-DlMOPqAJyGngA&libraries=places&callback=initMap&loading=async" async defer></script>
     
-    <!-- Flatpickr 日期選擇器 (只留日期) -->
+    <!-- Flatpickr 日期選擇器 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://npmcdn.com/flatpickr/dist/l10n/zh-tw.js"></script>
     
     <style>
-        /* 所有樣式保持不變，只修改錯誤訊息的樣式 */
-        .no-group-message {
-            text-align: center;
-            padding: 40px 20px;
-            color: var(--muted);
-            background: #f8fcfc;
-            border-radius: 12px;
-        }
-        
-        .no-group-message p {
-            margin-bottom: 15px;
-            font-size: 15px;
-        }
-        
-        .no-group-message .icon {
-            font-size: 48px;
-            margin-bottom: 15px;
-            opacity: 0.7;
-        }
-        
-        .create-group-link {
-            display: inline-block;
-            padding: 10px 20px;
-            background: var(--accent);
-            color: white;
-            text-decoration: none;
-            border-radius: 30px;
-            font-size: 14px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        
-        .create-group-link:hover {
-            background: #28b5b2;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(44, 197, 194, 0.3);
-        }
-        
-        .error-message {
-            text-align: center;
-            padding: 40px;
-            color: #ff5a5f;
-        }
-
-        .retry-btn {
-            margin-top: 15px;
-            padding: 8px 20px;
-            background: var(--accent);
-            color: white;
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-        }
-
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent; /* 移除觸摸高亮 */
+            -webkit-tap-highlight-color: transparent;
         }
 
         :root {
@@ -94,7 +40,7 @@
             background: linear-gradient(135deg, #f2fbfb 0%, #ebf8f8 100%);
             min-height: 100vh;
             padding: 20px;
-            touch-action: pan-y pinch-zoom; /* 允許垂直滑動和縮放 */
+            touch-action: pan-y pinch-zoom;
         }
 
         .header {
@@ -121,6 +67,10 @@
         .back-btn:hover {
             background: var(--accent);
             color: white;
+        }
+
+        .back-btn:active {
+            transform: scale(0.95);
         }
 
         .container {
@@ -252,7 +202,6 @@
             color: var(--muted);
         }
 
-        /* 日期時間選擇器 */
         .datetime-container {
             margin: 20px 0;
             padding: 15px;
@@ -363,7 +312,6 @@
             color: var(--accent-dark);
         }
 
-        /* 地圖容器 */
         .right-panel {
             background: var(--card);
             border-radius: var(--radius);
@@ -422,7 +370,6 @@
             transform: scale(0.95);
         }
 
-        /* Google Places 自動完成下拉選單 */
         .pac-container {
             border-radius: 10px;
             margin-top: 5px;
@@ -440,6 +387,10 @@
 
         .pac-item:hover {
             background: #f0fcfc;
+        }
+
+        .pac-item:active {
+            background: #e0f5f5;
         }
 
         .pac-matched {
@@ -489,7 +440,6 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* 🔴 地圖控制項容器 */
         .map-controls {
             position: absolute;
             bottom: 20px;
@@ -552,7 +502,6 @@
             100% { opacity: 0.7; transform: translateX(-50%) scale(1); }
         }
 
-        /* 地點資訊面板 */
         .location-info-panel {
             background: white;
             border-top: 1px solid #eef2f2;
@@ -573,11 +522,6 @@
             color: var(--accent-dark);
             margin-bottom: 5px;
             word-break: break-all;
-        }
-
-        .location-coords {
-            font-size: 12px;
-            color: var(--muted);
         }
 
         .meeting-notes {
@@ -642,11 +586,6 @@
             transform: none;
         }
 
-        .btn:disabled:hover {
-            background: var(--accent);
-            transform: none;
-        }
-
         .loading {
             text-align: center;
             padding: 40px;
@@ -678,7 +617,6 @@
             cursor: pointer;
         }
 
-        /* 位置載入提示 */
         .location-loading {
             position: fixed;
             top: 50%;
@@ -699,7 +637,6 @@
             margin: 0 auto 15px;
         }
 
-        /* 搜尋結果標記資訊 */
         .info-window {
             padding: 10px;
             max-width: 200px;
@@ -737,7 +674,6 @@
             transform: scale(0.95);
         }
 
-        /* Flatpickr 客製化樣式 */
         .flatpickr-calendar {
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.15);
@@ -765,7 +701,7 @@
             background: #28b5b2;
         }
 
-        /* 🔴 響應式設計 - 手機版 */
+        /* 手機版響應式 */
         @media (max-width: 768px) {
             body {
                 padding: 10px;
@@ -931,7 +867,6 @@
             }
         }
 
-        /* 🔴 小手機專用 */
         @media (max-width: 480px) {
             .header {
                 flex-direction: column;
@@ -1145,7 +1080,6 @@
     </div>
 
     <script>
-        // ==================== Firebase 初始化 ====================
         const firebaseConfig = {
             apiKey: "AIzaSyBhvbTPl-hGv1MWtrua55LuvIUpdabqy4M",
             authDomain: "YOUR_AUTH_DOMAIN",
@@ -1161,7 +1095,6 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // ==================== 全域變數 ====================
         let map;
         let geocoder;
         let placesService;
@@ -1183,18 +1116,13 @@
         let mapLoadAttempts = 0;
         const maxMapLoadAttempts = 30;
         let resizeTimer;
-
-        // 初始化日期選擇器
         let datePicker;
 
-        // ==================== Google Maps 初始化 ====================
         window.initMap = function() {
             console.log('Google Maps API 初始化成功');
             
             try {
                 const mapElement = document.getElementById('map');
-                
-                // 預設中心（台北）
                 const defaultCenter = { lat: 25.0330, lng: 121.5654 };
                 
                 map = new google.maps.Map(mapElement, {
@@ -1204,7 +1132,7 @@
                     fullscreenControl: false,
                     streetViewControl: true,
                     zoomControl: false,
-                    gestureHandling: 'greedy', // 🔴 讓手機觸控更靈敏
+                    gestureHandling: 'greedy',
                 });
                 
                 geocoder = new google.maps.Geocoder();
@@ -1212,17 +1140,14 @@
                 
                 mapInitialized = true;
                 
-                // 隱藏載入提示
                 document.getElementById('mapLoading').style.display = 'none';
                 
-                // 啟用地圖控制項
                 document.getElementById('searchInput').disabled = false;
                 document.getElementById('searchBtn').disabled = false;
                 document.getElementById('locationBtn').disabled = false;
                 document.getElementById('zoomInBtn').disabled = false;
                 document.getElementById('zoomOutBtn').disabled = false;
                 
-                // 初始化自動完成
                 initAutocomplete();
                 
                 console.log('地圖初始化完成');
@@ -1236,7 +1161,6 @@
             }
         };
 
-        // 🔴 處理手機旋轉時地圖大小調整
         window.addEventListener('resize', function() {
             clearTimeout(resizeTimer);
             resizeTimer = setTimeout(function() {
@@ -1246,7 +1170,6 @@
             }, 250);
         });
 
-        // ==================== 重試載入地圖 ====================
         window.retryMapLoad = function() {
             document.getElementById('mapLoading').innerHTML = `
                 <div class="map-loading-spinner"></div>
@@ -1256,12 +1179,10 @@
             if (typeof google !== 'undefined' && google.maps) {
                 initMap();
             } else {
-                // 重新載入頁面
                 location.reload();
             }
         };
 
-        // ==================== 等待地圖初始化 ====================
         function waitForMap(callback) {
             if (mapInitialized) {
                 callback();
@@ -1285,9 +1206,7 @@
             }, 500);
         }
 
-        // ==================== 初始化日期時間選擇器 ====================
         function initDateTimePicker() {
-            // 生成小時選項
             const hourSelect = document.getElementById('meetingHour');
             for (let i = 0; i < 24; i++) {
                 const option = document.createElement('option');
@@ -1296,12 +1215,10 @@
                 hourSelect.appendChild(option);
             }
             
-            // 設定預設時間為明天上午10點
             const tomorrow = new Date();
             tomorrow.setDate(tomorrow.getDate() + 1);
             tomorrow.setHours(10, 0, 0, 0);
             
-            // 初始化日期選擇器
             datePicker = flatpickr("#meetingDate", {
                 locale: 'zh_tw',
                 minDate: "today",
@@ -1312,32 +1229,26 @@
                 }
             });
             
-            // 設定預設值
             document.getElementById('meetingHour').value = '10';
             document.getElementById('meetingMinute').value = '00';
             
-            // 監聽時間選擇變化
             document.getElementById('meetingHour').addEventListener('change', updateDateTimeDisplay);
             document.getElementById('meetingMinute').addEventListener('change', updateDateTimeDisplay);
             
-            // 更新顯示
             updateDateTimeDisplay();
         }
 
-        // ==================== 設定快速時間 ====================
         window.setQuickTime = function(hour, minute) {
             document.getElementById('meetingHour').value = hour.toString().padStart(2, '0');
             document.getElementById('meetingMinute').value = minute.toString().padStart(2, '0');
             updateDateTimeDisplay();
             
-            // 視覺反饋
             document.querySelectorAll('.quick-time-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
             event.currentTarget.classList.add('active');
         };
 
-        // ==================== 更新日期時間顯示 ====================
         function updateDateTimeDisplay() {
             const dateStr = document.getElementById('meetingDate').value;
             const hour = document.getElementById('meetingHour').value;
@@ -1347,7 +1258,6 @@
                 const displayStr = `${dateStr} ${hour}:${minute}`;
                 document.getElementById('selectedDateTimeDisplay').textContent = displayStr;
                 
-                // 儲存為 Date 物件
                 const [year, month, day] = dateStr.split('-').map(Number);
                 selectedDateTime = new Date(year, month - 1, day, parseInt(hour), parseInt(minute));
             } else {
@@ -1356,7 +1266,6 @@
             }
         }
 
-        // ==================== 初始化 Google Places 自動完成 ====================
         function initAutocomplete() {
             const input = document.getElementById('searchInput');
             
@@ -1374,7 +1283,6 @@
             });
         }
 
-        // ==================== 處理選擇的地點 ====================
         function handlePlaceSelected(place) {
             const lat = place.geometry.location.lat();
             const lng = place.geometry.location.lng();
@@ -1424,7 +1332,6 @@
             };
         }
 
-        // ==================== 搜尋地點 ====================
         window.searchPlace = function() {
             const query = document.getElementById('searchInput').value.trim();
             if (!query) return;
@@ -1474,7 +1381,6 @@
             });
         };
 
-        // ==================== 地圖控制 ====================
         function centerToCurrentLocation() {
             if (!navigator.geolocation) {
                 alert('您的瀏覽器不支援地理位置功能');
@@ -1526,7 +1432,6 @@
             map.setZoom(map.getZoom() - 1);
         }
 
-        // ==================== 載入用戶群組 ====================
         async function loadUserGroups() {
             const user = auth.currentUser;
             if (!user) {
@@ -1541,7 +1446,6 @@
                 const userDoc = await db.collection('users').doc(user.uid).get();
                 
                 if (!userDoc.exists) {
-                    // 🔴 用戶文件不存在，顯示「還沒有加入任何群組」
                     groupList.innerHTML = `
                         <div class="no-group-message">
                             <div class="icon">📭</div>
@@ -1556,7 +1460,6 @@
                 const userData = userDoc.data();
                 groups = userData.groups || [];
                 
-                // 🔴 檢查 groups 是否為空
                 if (groups.length === 0) {
                     groupList.innerHTML = `
                         <div class="no-group-message">
@@ -1614,7 +1517,6 @@
 
             } catch (error) {
                 console.error('載入群組錯誤:', error);
-                // 🔴 錯誤時也顯示友好提示
                 groupList.innerHTML = `
                     <div class="no-group-message">
                         <div class="icon">📭</div>
@@ -1626,7 +1528,6 @@
             }
         }
 
-        // ==================== 選擇群組 ====================
         window.selectGroup = function(groupId, groupName) {
             selectedGroupId = groupId;
             selectedGroupName = groupName;
@@ -1637,7 +1538,6 @@
             event.currentTarget.classList.add('selected');
         };
 
-        // ==================== 步驟導航 ====================
         window.nextStep = function() {
             if (currentStep === 1) {
                 if (!selectedGroupId) {
@@ -1653,7 +1553,6 @@
                 }
                 currentStep = 3;
             } else if (currentStep === 3) {
-                // 驗證日期時間
                 const dateStr = document.getElementById('meetingDate').value;
                 const hour = document.getElementById('meetingHour').value;
                 const minute = document.getElementById('meetingMinute').value;
@@ -1719,7 +1618,6 @@
             }
         }
 
-        // ==================== 地圖點擊選擇 ====================
         function enableMapSelection() {
             waitForMap(() => {
                 if (mapClickListener) {
@@ -1738,7 +1636,6 @@
             });
         }
 
-        // ==================== 使用目前位置 ====================
         window.useCurrentLocation = function() {
             if (!navigator.geolocation) {
                 alert('您的瀏覽器不支援地理位置功能');
@@ -1763,7 +1660,6 @@
             });
         };
 
-        // ==================== 選擇地點 ====================
         async function selectLocation(lat, lng) {
             selectedLocation = { lat, lng };
 
@@ -1786,9 +1682,7 @@
                 animation: google.maps.Animation.DROP
             });
 
-            // 改進反向地理編碼，確保取得地址
             try {
-                // 使用 Google Geocoder 取得地址（更準確）
                 const response = await new Promise((resolve, reject) => {
                     geocoder.geocode({ location: { lat, lng } }, (results, status) => {
                         if (status === 'OK' && results.length > 0) {
@@ -1804,7 +1698,6 @@
                 
             } catch (error) {
                 console.error('Geocoder 錯誤:', error);
-                // 如果 Google Geocoder 失敗，改用 Nominatim 備用
                 try {
                     const nominatimResponse = await fetch(
                         `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=zh`
@@ -1955,14 +1848,12 @@
             }
         };
 
-        // ==================== 檢查登入狀態 ====================
         auth.onAuthStateChanged(user => {
             if (user) {
                 console.log('用戶已登入:', user.uid);
                 loadUserGroups();
                 initDateTimePicker();
                 
-                // 如果地圖還沒載入，等待它
                 waitForMap(() => {
                     console.log('地圖已就緒');
                 });
@@ -1971,9 +1862,7 @@
             }
         });
 
-        // 🔴 防止 iOS 上按鈕點擊問題
         document.addEventListener('touchstart', function(e) {
-            // 不做任何事，只是為了啟用 touch 事件
         }, { passive: true });
     </script>
 </body>

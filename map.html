@@ -1,1304 +1,2449 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
-  <title>TravelSync · 地圖＋多元交通</title>
-  
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-  
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    :root {
-      --accent: #2CC5C2;
-      --accent-dark: #0C344E;
-      --bg: #f5fbfb;
-      --card: #ffffff;
-      --muted: #6b7b86;
-      --radius: 14px;
-    }
-
-    body {
-      font-family: 'Noto Sans', 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #f2fbfb 0%, #ebf8f8 100%);
-      min-height: 100vh;
-      padding: 20px 20px 20px 100px;
-      position: relative;
-      touch-action: pan-y pinch-zoom; /* 允許垂直滑動和縮放 */
-    }
-
-    /* ==================== 側邊導航 ==================== */
-    .side-nav {
-      position: fixed;
-      left: 20px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.98));
-      width: 80px;
-      border-radius: 40px;
-      box-shadow: 0 10px 30px rgba(12,52,78,0.08);
-      z-index: 1000; /* 提高 z-index */
-      padding: 20px 0;
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(44, 197, 194, 0.2);
-      transition: all 0.3s ease;
-      pointer-events: auto; /* 確保可以點擊 */
-    }
-
-    .side-nav:hover {
-      width: 200px;
-      box-shadow: 0 15px 40px rgba(44, 197, 194, 0.15);
-    }
-
-    .nav-items {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 15px;
-    }
-
-    .side-nav:hover .nav-items {
-      align-items: flex-start;
-      padding-left: 20px;
-    }
-
-    .nav-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 0;
-      width: 100%;
-      color: var(--muted);
-      text-decoration: none;
-      transition: all 0.3s ease;
-      border-radius: 30px;
-      position: relative;
-      overflow: hidden;
-      -webkit-tap-highlight-color: transparent; /* 移除觸摸高亮 */
-    }
-
-    .side-nav:not(:hover) .nav-item {
-      justify-content: center;
-    }
-
-    .nav-item:hover {
-      color: var(--accent-dark);
-      background: rgba(44, 197, 194, 0.1);
-    }
-
-    .nav-item.active {
-      color: var(--accent-dark);
-      font-weight: 600;
-    }
-
-    .nav-item.active::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 4px;
-      height: 20px;
-      background: var(--accent);
-      border-radius: 0 4px 4px 0;
-    }
-
-    .nav-icon {
-      font-size: 20px;
-      min-width: 40px;
-      text-align: center;
-    }
-
-    .nav-label {
-      font-size: 14px;
-      font-weight: 500;
-      white-space: nowrap;
-      opacity: 0;
-      transition: opacity 0.2s ease 0.1s;
-    }
-
-    .side-nav:hover .nav-label {
-      opacity: 1;
-    }
-
-    .header {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      margin-bottom: 30px;
-      max-width: 1200px;
-      margin-left: auto;
-      margin-right: auto;
-      padding-left: 0;
-      position: relative;
-      z-index: 10;
-    }
-
-    .back-btn {
-      padding: 10px 20px;
-      background: white;
-      border: 1px solid var(--accent);
-      border-radius: 10px;
-      color: var(--accent);
-      text-decoration: none;
-      font-weight: 600;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    .back-btn:hover {
-      background: var(--accent);
-      color: white;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      height: calc(100vh - 150px);
-      padding-left: 0;
-      position: relative;
-      z-index: 1;
-    }
-
-    .map-card {
-      background: var(--card);
-      border-radius: var(--radius);
-      height: 100%;
-      overflow: hidden;
-      box-shadow: 0 6px 20px rgba(6, 30, 38, 0.06);
-      display: flex;
-      flex-direction: column;
-      position: relative;
-    }
-
-    .map-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 15px 20px;
-      border-bottom: 1px solid #eef2f2;
-      flex-wrap: wrap;
-      gap: 15px;
-      background: white;
-      z-index: 5;
-    }
-
-    .map-header h2 {
-      color: var(--accent-dark);
-      font-size: 18px;
-    }
-
-    .search-container {
-      flex: 1;
-      max-width: 500px;
-      position: relative;
-    }
-
-    .search-box {
-      display: flex;
-      gap: 10px;
-    }
-
-    .search-input {
-      flex: 1;
-      padding: 12px 15px;
-      border: 1px solid #e6eef0;
-      border-radius: 30px;
-      font-size: 14px;
-      transition: all 0.3s ease;
-      background: white;
-      -webkit-appearance: none; /* 移除 iOS 預設樣式 */
-    }
-
-    .search-input:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(44, 197, 194, 0.1);
-    }
-
-    .search-btn {
-      padding: 12px 20px;
-      background: var(--accent);
-      color: white;
-      border: none;
-      border-radius: 30px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    .search-btn:hover {
-      background: #28b5b2;
-      transform: translateY(-2px);
-    }
-
-    .search-btn:active {
-      transform: translateY(0);
-    }
-
-    .pac-container {
-      border-radius: 10px;
-      margin-top: 5px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      border: 1px solid #e6eef0;
-      font-family: 'Noto Sans', 'Segoe UI', Roboto, sans-serif;
-      z-index: 2000;
-    }
-
-    .pac-item {
-      padding: 8px 12px;
-      cursor: pointer;
-      border-top: 1px solid #eef2f2;
-    }
-
-    .pac-item:hover {
-      background: #f0fcfc;
-    }
-
-    .pac-matched {
-      font-weight: 600;
-      color: var(--accent-dark);
-    }
-
-    .map-actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-
-    .map-action-btn {
-      padding: 8px 16px;
-      background: white;
-      border: 1px solid #e6eef0;
-      border-radius: 20px;
-      color: var(--accent-dark);
-      font-size: 13px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    .map-action-btn:hover {
-      background: var(--accent);
-      color: white;
-      border-color: var(--accent);
-    }
-
-    .route-mode-group {
-      display: flex;
-      gap: 6px;
-      background: #f0f7f9;
-      padding: 4px;
-      border-radius: 30px;
-      margin-right: 5px;
-      flex-wrap: wrap;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>TravelSync · 地圖＋多元交通</title>
     
-    .route-mode-btn {
-      padding: 6px 12px;
-      border: none;
-      background: transparent;
-      border-radius: 30px;
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--accent-dark);
-      cursor: pointer;
-      transition: 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      -webkit-tap-highlight-color: transparent;
-    }
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
     
-    .route-mode-btn.active {
-      background: white;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      color: var(--accent);
-    }
+    <!-- Google Maps API 直接載入 -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDXCOcFaB80u9FjnEkQf-DlMOPqAJyGngA&libraries=places,geometry,marker&callback=initMap&v=weekly" async defer></script>
     
-    .route-mode-btn i { font-style: normal; font-size: 16px; }
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-    .map-container {
-      flex: 1;
-      position: relative;
-      min-height: 500px;
-      background-color: #f0f0f0;
-      touch-action: pan-y pinch-zoom; /* 允許地圖操作 */
-      overflow: hidden;
-    }
+        :root {
+            --accent: #2CC5C2;
+            --accent-dark: #0C344E;
+            --bg: #f5fbfb;
+            --card: #ffffff;
+            --muted: #6b7b86;
+            --radius: 14px;
+            --member-color: #FFB347;
+            --member-dark: #FF8C00;
+        }
 
-    #google-map {
-      width: 100%;
-      height: 100%;
-      min-height: 500px;
-      background-color: #e8eef0;
-    }
+        body {
+            font-family: 'Noto Sans', 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f2fbfb 0%, #ebf8f8 100%);
+            min-height: 100vh;
+            padding: 20px 20px 20px 100px;
+            touch-action: pan-y pinch-zoom;
+        }
 
-    /* 🔴 修正：定位按鈕容器 */
-    .location-button-container {
-      position: absolute;
-      bottom: 20px;
-      left: 20px;
-      z-index: 1001; /* 高於地圖 */
-      pointer-events: auto;
-    }
+        /* ==================== 側邊導航 - 寬度減少版 ==================== */
+        .side-nav {
+            position: fixed;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.98));
+            width: 60px;
+            border-radius: 30px;
+            box-shadow: 0 10px 30px rgba(12,52,78,0.08);
+            z-index: 1000;
+            padding: 15px 0;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(44, 197, 194, 0.2);
+            transition: all 0.3s ease;
+        }
 
-    .location-button {
-      width: 50px;
-      height: 50px;
-      background: white;
-      border: none;
-      border-radius: 50%;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      transition: all 0.3s ease;
-      -webkit-tap-highlight-color: transparent;
-      outline: none;
-      padding: 0;
-    }
+        .side-nav:hover {
+            width: 160px;
+            box-shadow: 0 15px 40px rgba(44, 197, 194, 0.15);
+        }
 
-    .location-button:hover {
-      transform: scale(1.1);
-      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    }
+        .nav-items {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
 
-    .location-button:active {
-      transform: scale(0.95);
-    }
+        .side-nav:hover .nav-items {
+            align-items: flex-start;
+            padding-left: 15px;
+        }
 
-    .location-info {
-      position: fixed;
-      bottom: 160px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: white;
-      padding: 8px 16px;
-      border-radius: 30px;
-      font-size: 12px;
-      color: var(--accent-dark);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      z-index: 2001;
-      display: none;
-      white-space: nowrap;
-    }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            width: 100%;
+            color: var(--muted);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-radius: 30px;
+            position: relative;
+            overflow: hidden;
+        }
 
-    .location-loading {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      padding: 20px 30px;
-      border-radius: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-      z-index: 2000;
-      display: none;
-      text-align: center;
-    }
+        .side-nav:not(:hover) .nav-item {
+            justify-content: center;
+        }
 
-    .location-loading .spinner {
-      border: 3px solid #f3f3f3;
-      border-top: 3px solid var(--accent);
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 15px;
-    }
+        .nav-item:hover {
+            color: var(--accent-dark);
+            background: rgba(44, 197, 194, 0.1);
+        }
 
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
+        .nav-item:active {
+            background: rgba(44, 197, 194, 0.2);
+        }
 
-    .info-window {
-      padding: 10px;
-      max-width: 200px;
-    }
+        .nav-item.active {
+            color: var(--accent-dark);
+            font-weight: 600;
+        }
 
-    .info-window-title {
-      font-weight: 700;
-      color: var(--accent-dark);
-      margin-bottom: 5px;
-      font-size: 14px;
-    }
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 18px;
+            background: var(--accent);
+            border-radius: 0 3px 3px 0;
+        }
 
-    .info-window-address {
-      font-size: 12px;
-      color: var(--text-muted);
-      margin-bottom: 8px;
-      word-break: break-word;
-    }
+        .nav-icon {
+            font-size: 18px;
+            min-width: 30px;
+            text-align: center;
+        }
 
-    .route-summary {
-      position: absolute;
-      bottom: 90px;
-      left: 20px;
-      background: white;
-      border-radius: 30px;
-      padding: 15px 22px;
-      box-shadow: 0 6px 25px rgba(0,0,0,0.2);
-      z-index: 1001; /* 高於地圖 */
-      max-width: 340px;
-      font-size: 13px;
-      border-left: 5px solid var(--accent);
-      display: none;
-      backdrop-filter: blur(10px);
-      background: rgba(255,255,255,0.98);
-      pointer-events: auto;
-    }
-    
-    .route-summary.show { display: block; }
-    
-    .route-summary .close-route {
-      float: right;
-      cursor: pointer;
-      font-weight: bold;
-      margin-left: 10px;
-      color: #aaa;
-      font-size: 18px;
-      -webkit-tap-highlight-color: transparent;
-    }
-    
-    .route-summary .close-route:hover { color: #333; }
-    .route-summary strong { color: var(--accent-dark); }
-    
-    .route-summary .transit-details {
-      margin-top: 8px;
-      border-top: 1px dashed #ccc;
-      padding-top: 8px;
-      max-height: 150px;
-      overflow-y: auto;
-      font-size: 12px;
-    }
-    
-    .route-summary .transit-step {
-      display: flex;
-      gap: 6px;
-      margin: 5px 0;
-      align-items: center;
-      flex-wrap: wrap;
-    }
+        .nav-label {
+            font-size: 13px;
+            font-weight: 500;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.2s ease 0.1s;
+        }
 
-    .map-error {
-      padding: 40px;
-      text-align: center;
-      background: white;
-      border-radius: 10px;
-      margin: 20px;
-    }
-    .map-error h3 {
-      color: #d32f2f;
-      margin-bottom: 10px;
-    }
+        .side-nav:hover .nav-label {
+            opacity: 1;
+        }
 
-    /* 🔴 手機版專用修正 */
-    @media (max-width: 768px) {
-      body {
-        padding-left: 70px; /* 稍微縮小左邊距 */
-        padding-right: 10px;
-        padding-top: 10px;
-        padding-bottom: 10px;
-      }
-      
-      .side-nav {
-        left: 5px;
-        width: 50px;
-      }
-      
-      .side-nav:hover {
-        width: 140px;
-      }
-      
-      .nav-icon {
-        font-size: 18px;
-        min-width: 30px;
-      }
-      
-      .header {
-        margin-bottom: 15px;
-        gap: 10px;
-      }
-      
-      .header h1 {
-        font-size: 18px;
-      }
-      
-      .back-btn {
-        padding: 6px 12px;
-        font-size: 14px;
-      }
-      
-      .map-header {
-        padding: 10px;
-      }
-      
-      .map-header h2 {
-        font-size: 16px;
-      }
-      
-      .search-input {
-        padding: 8px 12px;
-        font-size: 13px;
-      }
-      
-      .search-btn {
-        padding: 8px 12px;
-        font-size: 13px;
-      }
-      
-      .map-action-btn {
-        padding: 6px 12px;
-        font-size: 12px;
-      }
-      
-      .route-mode-btn {
-        padding: 4px 8px;
-        font-size: 12px;
-      }
-      
-      .route-mode-btn i {
-        font-size: 14px;
-      }
-      
-      .container {
-        height: calc(100vh - 120px);
-      }
-      
-      .map-container {
-        min-height: 400px;
-      }
-      
-      #google-map {
-        min-height: 400px;
-      }
-      
-      .location-button {
-        width: 44px;
-        height: 44px;
-        font-size: 20px;
-      }
-      
-      .route-summary {
-        left: 10px;
-        right: 10px;
-        max-width: none;
-        font-size: 12px;
-        padding: 12px 15px;
-      }
-      
-      .location-info {
-        font-size: 11px;
-        padding: 6px 12px;
-        white-space: normal;
-        max-width: 90%;
-        text-align: center;
-      }
-    }
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+            padding-left: 100px;
+            flex-wrap: wrap;
+        }
 
-    /* 小手機專用 */
-    @media (max-width: 480px) {
-      body {
-        padding-left: 60px;
-      }
-      
-      .side-nav {
-        width: 45px;
-      }
-      
-      .nav-icon {
-        font-size: 16px;
-        min-width: 25px;
-      }
-      
-      .map-actions {
-        flex-direction: column;
-        align-items: stretch;
-        width: 100%;
-      }
-      
-      .route-mode-group {
-        width: 100%;
-        justify-content: center;
-      }
-      
-      .map-action-btn {
-        width: 100%;
-        text-align: center;
-      }
-      
-      .search-box {
-        flex-direction: column;
-      }
-      
-      .search-btn {
-        width: 100%;
-      }
-    }
-  </style>
+        .back-btn {
+            padding: 10px 20px;
+            background: white;
+            border: 1px solid var(--accent);
+            border-radius: 10px;
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .back-btn:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        .back-btn:active {
+            transform: scale(0.95);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            height: calc(100vh - 150px);
+            padding-left: 100px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .map-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            height: 100%;
+            overflow: hidden;
+            box-shadow: 0 6px 20px rgba(6, 30, 38, 0.06);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .map-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 20px;
+            border-bottom: 1px solid #eef2f2;
+            flex-wrap: wrap;
+            gap: 15px;
+            background: white;
+            z-index: 5;
+        }
+
+        .map-header h2 {
+            color: var(--accent-dark);
+            font-size: 18px;
+        }
+
+        .group-info-badge {
+            background: var(--member-color);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .group-info-badge i {
+            font-size: 14px;
+        }
+
+        .search-container {
+            flex: 1;
+            max-width: 500px;
+            position: relative;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #e6eef0;
+            border-radius: 30px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: white;
+            -webkit-appearance: none;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(44, 197, 194, 0.1);
+        }
+
+        .search-btn {
+            padding: 12px 20px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .search-btn:hover {
+            background: #28b5b2;
+            transform: translateY(-2px);
+        }
+
+        .search-btn:active {
+            transform: scale(0.95);
+        }
+
+        .pac-container {
+            border-radius: 10px;
+            margin-top: 5px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border: 1px solid #e6eef0;
+            font-family: 'Noto Sans', 'Segoe UI', Roboto, sans-serif;
+            z-index: 2000;
+        }
+
+        .pac-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-top: 1px solid #eef2f2;
+        }
+
+        .pac-item:hover {
+            background: #f0fcfc;
+        }
+
+        .pac-item:active {
+            background: #e0f5f5;
+        }
+
+        .pac-matched {
+            font-weight: 600;
+            color: var(--accent-dark);
+        }
+
+        .map-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .map-action-btn {
+            padding: 8px 16px;
+            background: white;
+            border: 1px solid #e6eef0;
+            border-radius: 20px;
+            color: var(--accent-dark);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .map-action-btn:hover {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .map-action-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* ==================== 附近設施按鈕組 ==================== */
+        .nearby-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding: 0;
+            background: transparent;
+            border-bottom: none;
+        }
+
+        .nearby-btn {
+            padding: 8px 16px;
+            background: #f0f8f8;
+            border: 1px solid #e6eef0;
+            border-radius: 30px;
+            color: var(--accent-dark);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nearby-btn:hover {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .nearby-btn:active {
+            transform: scale(0.95);
+        }
+
+        .nearby-btn i {
+            font-size: 16px;
+        }
+
+        .nearby-btn.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        /* ==================== 搜尋依據選擇器 ==================== */
+        .search-location-selector {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 0;
+            background: transparent;
+            border-bottom: none;
+        }
+
+        .selector-label {
+            font-size: 13px;
+            color: var(--accent-dark);
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .selector-radio {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            color: var(--muted);
+            transition: color 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .selector-radio:hover {
+            color: var(--accent-dark);
+        }
+
+        .selector-radio input[type="radio"] {
+            cursor: pointer;
+            width: 14px;
+            height: 14px;
+            accent-color: var(--accent);
+            margin: 0;
+        }
+
+        .route-mode-group {
+            display: flex;
+            gap: 6px;
+            background: #f0f7f9;
+            padding: 4px;
+            border-radius: 30px;
+            margin-right: 5px;
+            flex-wrap: wrap;
+        }
+        
+        .route-mode-btn {
+            padding: 6px 12px;
+            border: none;
+            background: transparent;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--accent-dark);
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .route-mode-btn:hover {
+            background: rgba(255,255,255,0.5);
+        }
+
+        .route-mode-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .route-mode-btn.active {
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            color: var(--accent);
+        }
+        
+        .route-mode-btn i { font-style: normal; font-size: 16px; }
+
+        .map-container {
+            flex: 1;
+            position: relative;
+            min-height: 500px;
+            background-color: #f0f0f0;
+            touch-action: pan-y pinch-zoom;
+            overflow: hidden;
+        }
+
+        #google-map {
+            width: 100%;
+            height: 100%;
+            min-height: 500px;
+            background-color: #e8eef0;
+        }
+
+        .location-button-container {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            z-index: 1001;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: auto;
+        }
+
+        .location-button {
+            width: 50px;
+            height: 50px;
+            background: white;
+            border: none;
+            border-radius: 50%;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transition: all 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+            padding: 0;
+        }
+
+        .location-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .location-button:active {
+            transform: scale(0.95);
+        }
+
+        .location-button.sharing {
+            background: var(--member-color);
+            color: white;
+        }
+
+        .location-info {
+            position: fixed;
+            bottom: 160px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 12px;
+            color: var(--accent-dark);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            z-index: 2001;
+            display: none;
+            white-space: nowrap;
+        }
+
+        .location-loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            z-index: 2000;
+            display: none;
+            text-align: center;
+        }
+
+        .location-loading .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--accent);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(2);
+                opacity: 0;
+            }
+        }
+
+        .info-window {
+            padding: 10px;
+            max-width: 200px;
+        }
+
+        .info-window-title {
+            font-weight: 700;
+            color: var(--accent-dark);
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .info-window-address {
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 8px;
+            word-break: break-word;
+        }
+
+        .info-window-rating {
+            font-size: 12px;
+            color: #f39c12;
+            margin-bottom: 5px;
+        }
+
+        .info-window-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            font-size: 12px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 5px;
+        }
+
+        .info-window-btn:hover {
+            background: #28b5b2;
+        }
+
+        .info-window-btn:active {
+            transform: scale(0.95);
+        }
+
+        .route-summary {
+            position: absolute;
+            bottom: 90px;
+            left: 20px;
+            background: white;
+            border-radius: 30px;
+            padding: 15px 22px;
+            box-shadow: 0 6px 25px rgba(0,0,0,0.2);
+            z-index: 1001;
+            max-width: 340px;
+            font-size: 13px;
+            border-left: 5px solid var(--accent);
+            display: none;
+            backdrop-filter: blur(10px);
+            background: rgba(255,255,255,0.98);
+            pointer-events: auto;
+        }
+        
+        .route-summary.show { display: block; }
+        
+        .route-summary .close-route {
+            float: right;
+            cursor: pointer;
+            font-weight: bold;
+            margin-left: 10px;
+            color: #aaa;
+            font-size: 18px;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .route-summary .close-route:hover { color: #333; }
+        
+        .route-summary .close-route:active { transform: scale(0.95); }
+        
+        .route-summary strong { color: var(--accent-dark); }
+        
+        .route-summary .transit-details {
+            margin-top: 8px;
+            border-top: 1px dashed #ccc;
+            padding-top: 8px;
+            max-height: 150px;
+            overflow-y: auto;
+            font-size: 12px;
+        }
+        
+        .route-summary .transit-step {
+            display: flex;
+            gap: 6px;
+            margin: 5px 0;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .map-error {
+            padding: 40px;
+            text-align: center;
+            background: white;
+            border-radius: 10px;
+            margin: 20px;
+        }
+        
+        .map-error h3 {
+            color: #d32f2f;
+            margin-bottom: 10px;
+        }
+
+        .toast-message {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent-dark);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 14px;
+            z-index: 10000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translate(-50%, 20px);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, 0);
+            }
+        }
+
+        .member-count-badge {
+            background: var(--member-color);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            margin-left: 8px;
+        }
+
+        /* 手機版響應式 */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px 15px 15px 80px;
+            }
+
+            .header {
+                padding-left: 80px;
+                margin-bottom: 20px;
+                gap: 15px;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .back-btn {
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+
+            .container {
+                padding-left: 80px;
+                height: calc(100vh - 120px);
+            }
+
+            .side-nav {
+                left: 5px;
+                width: 50px;
+            }
+
+            .side-nav:hover {
+                width: 130px;
+            }
+
+            .nav-icon {
+                font-size: 16px;
+                min-width: 30px;
+            }
+
+            .nav-label {
+                font-size: 12px;
+            }
+
+            .map-header {
+                padding: 12px;
+            }
+
+            .map-header h2 {
+                font-size: 16px;
+            }
+
+            .selector-label {
+                font-size: 12px;
+            }
+            
+            .selector-radio {
+                font-size: 12px;
+                gap: 3px;
+            }
+            
+            .selector-radio input[type="radio"] {
+                width: 13px;
+                height: 13px;
+            }
+
+            .nearby-btn {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+
+            .nearby-btn i {
+                font-size: 14px;
+            }
+
+            .search-input {
+                padding: 10px 12px;
+                font-size: 13px;
+            }
+
+            .search-btn {
+                padding: 10px 16px;
+                font-size: 13px;
+            }
+
+            .map-action-btn {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+
+            .route-mode-btn {
+                padding: 4px 8px;
+                font-size: 12px;
+            }
+
+            .route-mode-btn i {
+                font-size: 14px;
+            }
+
+            .map-container {
+                min-height: 400px;
+            }
+
+            #google-map {
+                min-height: 400px;
+            }
+
+            .location-button {
+                width: 44px;
+                height: 44px;
+                font-size: 20px;
+            }
+
+            .route-summary {
+                left: 10px;
+                right: 10px;
+                max-width: none;
+                font-size: 12px;
+                padding: 12px 15px;
+            }
+
+            .location-info {
+                font-size: 11px;
+                padding: 6px 12px;
+                white-space: normal;
+                max-width: 90%;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding-left: 70px;
+            }
+
+            .header {
+                padding-left: 70px;
+            }
+
+            .container {
+                padding-left: 70px;
+            }
+
+            .side-nav {
+                width: 45px;
+            }
+
+            .nav-icon {
+                font-size: 14px;
+                min-width: 25px;
+            }
+
+            .button-row {
+                flex-direction: column;
+                align-items: flex-start !important;
+            }
+            
+            .search-location-selector {
+                align-self: flex-end;
+            }
+
+            .map-actions {
+                flex-direction: column;
+                align-items: stretch;
+                width: 100%;
+            }
+
+            .route-mode-group {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .map-action-btn {
+                width: 100%;
+                text-align: center;
+            }
+
+            .search-box {
+                flex-direction: column;
+            }
+
+            .search-btn {
+                width: 100%;
+            }
+
+            .nearby-buttons {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .location-button-container {
+                bottom: 10px;
+                left: 10px;
+            }
+
+            .location-button {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+            }
+        }
+
+        @media (max-width: 375px) {
+            .route-mode-btn {
+                padding: 3px 6px;
+                font-size: 11px;
+            }
+
+            .route-mode-btn i {
+                font-size: 12px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <!-- 側邊導航 -->
-  <div class="side-nav">
-    <div class="nav-items">
-      <a href="index.html" class="nav-item">
-        <span class="nav-icon">🏠</span>
-        <span class="nav-label">主頁</span>
-      </a>
-      <a href="map.html" class="nav-item active">
-        <span class="nav-icon">🗺️</span>
-        <span class="nav-label">地圖</span>
-      </a>
-      <a href="groups.html" class="nav-item">
-        <span class="nav-icon">👥</span>
-        <span class="nav-label">群組</span>
-      </a>
-      <a href="ChatMessage.html" class="nav-item">
-        <span class="nav-icon">💬</span>
-        <span class="nav-label">聊天</span>
-      </a>
-      <a href="profile.html" class="nav-item">
-        <span class="nav-icon">👤</span>
-        <span class="nav-label">帳號</span>
-      </a>
+    <!-- 側邊導航 -->
+    <div class="side-nav">
+        <div class="nav-items">
+            <a href="index.html" class="nav-item">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">主頁</span>
+            </a>
+            <a href="map.html" class="nav-item active">
+                <span class="nav-icon">🗺️</span>
+                <span class="nav-label">地圖</span>
+            </a>
+            <a href="groups.html" class="nav-item">
+                <span class="nav-icon">👥</span>
+                <span class="nav-label">群組</span>
+            </a>
+            <a href="ChatMessage.html" class="nav-item">
+                <span class="nav-icon">💬</span>
+                <span class="nav-label">聊天</span>
+            </a>
+            <a href="profile.html" class="nav-item">
+                <span class="nav-icon">👤</span>
+                <span class="nav-label">帳號</span>
+            </a>
+        </div>
     </div>
-  </div>
 
-  <div class="header">
-    <a href="index.html" class="back-btn">← 返回</a>
-    <h1>地圖 · 多元交通</h1>
-  </div>
-
-  <!-- 地理位置載入提示 -->
-  <div class="location-loading" id="locationLoading">
-    <div class="spinner"></div>
-    <p>正在獲取您的位置...</p>
-    <p style="font-size: 12px; color: var(--muted); margin-top: 10px;">請允許瀏覽器存取位置</p>
-  </div>
-
-  <!-- 位置資訊顯示 -->
-  <div class="location-info" id="locationInfo"></div>
-
-  <div class="container">
-    <div class="map-card">
-      <div class="map-header">
-        <h2>🗺️ 即時地圖</h2>
-        
-        <!-- 搜尋列 -->
-        <div class="search-container">
-          <div class="search-box">
-            <input type="text" 
-                   class="search-input" 
-                   id="searchInput" 
-                   placeholder="搜尋地點、地址或地標..."
-                   autocomplete="off">
-            <button class="search-btn" onclick="searchPlace()">搜尋</button>
-          </div>
-        </div>
-
-        <div class="map-actions">
-          <!-- 交通模式切換 - 點擊自動重新規劃 -->
-          <div class="route-mode-group" id="routeModeGroup">
-            <button class="route-mode-btn active" data-mode="DRIVING" onclick="setTravelMode('DRIVING')"><i>🚗</i> 開車</button>
-            <button class="route-mode-btn" data-mode="TRANSIT" onclick="setTravelMode('TRANSIT')"><i>🚆</i> 大眾運輸</button>
-            <button class="route-mode-btn" data-mode="WALKING" onclick="setTravelMode('WALKING')"><i>🚶</i> 步行</button>
-            <button class="route-mode-btn" data-mode="BICYCLING" onclick="setTravelMode('BICYCLING')"><i>🚲</i> 單車</button>
-          </div>
-          <button class="map-action-btn" onclick="window.location.href='meeting.html'">🎯 建立會合點</button>
-          <button class="map-action-btn" onclick="window.location.href='weather.html'">☀️ 天氣查詢</button>
-        </div>
-      </div>
-      
-      <!-- 🔴 修正：將定位按鈕放在地圖容器外但絕對定位 -->
-      <div class="map-container" id="mapContainer">
-        <div id="google-map"></div>
-        
-        <!-- 路線摘要卡片 -->
-        <div class="route-summary" id="routeSummary">
-          <span class="close-route" onclick="closeRoutePanel()">✕</span>
-          <div id="routeSummaryContent"></div>
-          <div id="transitDetailed" class="transit-details"></div>
-        </div>
-      </div>
-      
-      <!-- 🔴 定位按鈕獨立放在地圖容器外，確保可點擊 -->
-      <div class="location-button-container">
-        <button class="location-button" onclick="getCurrentLocationAndCenter()" title="顯示我的位置">
-          <span>📍</span>
-        </button>
-      </div>
+    <div class="header">
+        <a href="index.html" class="back-btn">← 返回</a>
+        <h1>地圖 · 多元交通</h1>
+        <div id="groupInfoHeader" style="display: none;"></div>
     </div>
-  </div>
 
-  <!-- Google Maps API 直接載入 -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDXCOcFaB80u9FjnEkQf-DlMOPqAJyGngA&libraries=places,geometry&callback=initMap&v=weekly" async defer></script>
+    <!-- 地理位置載入提示 -->
+    <div class="location-loading" id="locationLoading">
+        <div class="spinner"></div>
+        <p>正在獲取您的位置...</p>
+        <p style="font-size: 12px; color: var(--muted); margin-top: 10px;">請允許瀏覽器存取位置</p>
+    </div>
 
-  <script>
-    // ==================== Firebase 初始化 ====================
-    const firebaseConfig = {
-      apiKey: "AIzaSyBhvbTPl-hGv1MWtrua55LuvIUpdabqy4M",
-      authDomain: "YOUR_AUTH_DOMAIN",
-      projectId: "project-221c4",
-      storageBucket: "project-221c4.firebasestorage.app",
-      messagingSenderId: "YOUR_SENDER_ID",
-      appId: "YOUR_APP_ID"
-    };
+    <!-- 位置資訊顯示 -->
+    <div class="location-info" id="locationInfo"></div>
 
-    if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
-    }
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-
-    // ==================== 地圖變數 ====================
-    let map;
-    let geocoder;
-    let placesService;
-    let autocomplete;
-    let searchMarker;
-    let currentLocationMarker;
-    let userLocationCircle;
-    let meetingLocationMarker;
-    let meetingInfoWindow;
-    let directionsService;
-    let directionsRenderer;
-    let currentDestinationPosition = null;
-    let lastOriginPosition = null;
-    let currentTravelMode = 'DRIVING';
-    let isMapInitialized = false;
-    let resizeTimer;
-
-    // ==================== Google 地圖初始化 ====================
-    window.initMap = function() {
-      console.log('initMap 開始執行');
-      
-      const mapElement = document.getElementById("google-map");
-      if (!mapElement) {
-        console.error("找不到地圖容器");
-        return;
-      }
-
-      try {
-        // 建立地圖
-        map = new google.maps.Map(mapElement, {
-          center: { lat: 25.0330, lng: 121.5654 }, // 台北
-          zoom: 12,
-          mapTypeControl: true,
-          fullscreenControl: true,
-          streetViewControl: true,
-          zoomControl: true,
-          gestureHandling: 'greedy', // 🔴 讓手機觸控更靈敏
-        });
-
-        console.log("地圖建立成功");
-
-        // 初始化服務
-        geocoder = new google.maps.Geocoder();
-        placesService = new google.maps.places.PlacesService(map);
-        directionsService = new google.maps.DirectionsService();
-        directionsRenderer = new google.maps.DirectionsRenderer({
-          map: map,
-          suppressMarkers: false,
-          preserveViewport: false,
-          polylineOptions: {
-            strokeColor: "#2CC5C2",
-            strokeWeight: 5,
-            strokeOpacity: 0.8
-          }
-        });
-
-        // 初始化自動完成
-        initAutocomplete();
-        
-        isMapInitialized = true;
-        console.log("所有服務初始化完成");
-        
-        // 檢查會合點
-        showMeetingLocationFromStorage();
-        
-      } catch (error) {
-        console.error("地圖初始化錯誤:", error);
-        mapElement.innerHTML = `<div class="map-error">
-          <h3>地圖載入失敗</h3>
-          <p>${error.message}</p>
-          <p>請檢查網路連線或重新整理頁面</p>
-        </div>`;
-      }
-    };
-
-    // 🔴 處理手機旋轉時地圖大小調整
-    window.addEventListener('resize', function() {
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(function() {
-        if (map) {
-          google.maps.event.trigger(map, 'resize');
-        }
-      }, 250);
-    });
-
-    // ==================== 初始化 Google Places 自動完成 ====================
-    function initAutocomplete() {
-      const input = document.getElementById('searchInput');
-      if (!input) return;
-      
-      autocomplete = new google.maps.places.Autocomplete(input, {
-        types: ['establishment', 'geocode'],
-        fields: ['place_id', 'name', 'formatted_address', 'geometry']
-      });
-
-      autocomplete.addListener('place_changed', function() {
-        const place = autocomplete.getPlace();
-        if (place && place.geometry) {
-          handlePlaceSelected(place);
-        }
-      });
-    }
-
-    // ==================== 處理選擇的地點 ====================
-    function handlePlaceSelected(place) {
-      if (!map) {
-        alert('地圖尚未初始化完成，請稍後再試');
-        return;
-      }
-      
-      const position = place.geometry.location;
-      
-      currentDestinationPosition = {
-        lat: position.lat(),
-        lng: position.lng()
-      };
-      
-      map.setCenter(position);
-      map.setZoom(17);
-      
-      if (searchMarker) {
-        searchMarker.setMap(null);
-      }
-      
-      searchMarker = new google.maps.Marker({
-        map: map,
-        position: position,
-        title: place.name,
-        animation: google.maps.Animation.DROP
-      });
-      
-      const infoWindow = new google.maps.InfoWindow({
-        content: `
-          <div class="info-window">
-            <div class="info-window-title">${place.name}</div>
-            <div class="info-window-address">${place.formatted_address || ''}</div>
-            <small style="color:var(--accent);">✅ 選擇交通模式自動規劃路線</small>
-          </div>
-        `
-      });
-      
-      infoWindow.open(map, searchMarker);
-
-      // 清除舊路線
-      if (directionsRenderer) directionsRenderer.setDirections({ routes: [] });
-      document.getElementById('routeSummary').classList.remove('show');
-      
-      // 如果有起點，自動規劃路線
-      if (lastOriginPosition) {
-        autoPlanRoute();
-      }
-    }
-
-    // ==================== 搜尋地點 ====================
-    window.searchPlace = function() {
-      if (!map || !placesService) {
-        alert('地圖尚未準備好，請稍後再試');
-        return;
-      }
-      
-      const query = document.getElementById('searchInput').value.trim();
-      if (!query) return;
-
-      const request = {
-        query: query,
-        fields: ['name', 'geometry', 'formatted_address']
-      };
-
-      placesService.findPlaceFromQuery(request, (results, status) => {
-        if (status === google.maps.places.PlacesServiceStatus.OK && results.length > 0) {
-          const place = results[0];
-          const position = place.geometry.location;
-          
-          currentDestinationPosition = {
-            lat: position.lat(),
-            lng: position.lng()
-          };
-          
-          map.setCenter(position);
-          map.setZoom(17);
-          
-          if (searchMarker) searchMarker.setMap(null);
-          
-          searchMarker = new google.maps.Marker({
-            map: map,
-            position: position,
-            title: place.name,
-            animation: google.maps.Animation.DROP
-          });
-          
-          const infoWindow = new google.maps.InfoWindow({
-            content: `
-              <div class="info-window">
-                <div class="info-window-title">${place.name}</div>
-                <div class="info-window-address">${place.formatted_address || ''}</div>
-                <small style="color:var(--accent);">✅ 選擇交通模式自動規劃路線</small>
-              </div>
-            `
-          });
-          infoWindow.open(map, searchMarker);
-          
-          if (directionsRenderer) directionsRenderer.setDirections({ routes: [] });
-          document.getElementById('routeSummary').classList.remove('show');
-          
-          // 如果有起點，自動規劃路線
-          if (lastOriginPosition) {
-            autoPlanRoute();
-          }
-        } else {
-          alert('找不到該地點，請嘗試其他關鍵字');
-        }
-      });
-    };
-
-    // ==================== 自動規劃路線 ====================
-    function autoPlanRoute() {
-      if (lastOriginPosition && currentDestinationPosition) {
-        calculateAndDisplayRoute(lastOriginPosition, currentDestinationPosition, currentTravelMode);
-      }
-    }
-
-    // ==================== 設定交通模式 (自動重新規劃) ====================
-    window.setTravelMode = function(mode) {
-      // 更新按鈕樣式
-      document.querySelectorAll('.route-mode-btn').forEach(btn => {
-        btn.classList.remove('active');
-      });
-      document.querySelector(`.route-mode-btn[data-mode="${mode}"]`).classList.add('active');
-      
-      // 更新當前模式
-      currentTravelMode = mode;
-      
-      // 自動重新規劃路線
-      if (lastOriginPosition && currentDestinationPosition) {
-        calculateAndDisplayRoute(lastOriginPosition, currentDestinationPosition, mode);
-      } else if (!lastOriginPosition) {
-        // 如果沒有起點，提示使用者
-        if (map) {
-          const infoWindow = new google.maps.InfoWindow({
-            content: '<div style="padding:8px;">📍 請先點擊左下角按鈕獲取您的位置</div>'
-          });
-          infoWindow.setPosition(map.getCenter());
-          infoWindow.open(map);
-        }
-      } else if (!currentDestinationPosition) {
-        // 如果沒有終點，提示使用者
-        if (map) {
-          const infoWindow = new google.maps.InfoWindow({
-            content: '<div style="padding:8px;">🔍 請先搜尋目的地</div>'
-          });
-          infoWindow.setPosition(map.getCenter());
-          infoWindow.open(map);
-        }
-      }
-    };
-
-    // 將模式轉換為 Google 的 TravelMode
-    function getGoogleTravelMode(mode) {
-      switch(mode) {
-        case 'DRIVING': return google.maps.TravelMode.DRIVING;
-        case 'TRANSIT': return google.maps.TravelMode.TRANSIT;
-        case 'WALKING': return google.maps.TravelMode.WALKING;
-        case 'BICYCLING': return google.maps.TravelMode.BICYCLING;
-        default: return google.maps.TravelMode.DRIVING;
-      }
-    }
-
-    // 計算並顯示路線
-    function calculateAndDisplayRoute(origin, destination, mode) {
-      if (!directionsService || !directionsRenderer) return;
-
-      const travelMode = getGoogleTravelMode(mode);
-
-      const request = {
-        origin: origin,
-        destination: destination,
-        travelMode: travelMode,
-        unitSystem: google.maps.UnitSystem.METRIC
-      };
-
-      // 大眾運輸選項
-      if (mode === 'TRANSIT') {
-        request.transitOptions = {
-          modes: [google.maps.TransitMode.BUS, google.maps.TransitMode.RAIL],
-          routingPreference: google.maps.TransitRoutePreference.FEWER_TRANSFERS
-        };
-      }
-
-      directionsService.route(request, (result, status) => {
-        if (status === google.maps.DirectionsStatus.OK) {
-          directionsRenderer.setDirections(result);
-          
-          const route = result.routes[0];
-          if (route && route.legs.length > 0) {
-            const leg = route.legs[0];
-            const distance = leg.distance.text;
-            const duration = leg.duration.text;
-            
-            let modeIcon = '🚗';
-            if (mode === 'TRANSIT') modeIcon = '🚆';
-            else if (mode === 'WALKING') modeIcon = '🚶';
-            else if (mode === 'BICYCLING') modeIcon = '🚲';
-            
-            let summaryHtml = `
-              <strong>${modeIcon} 最佳路線 (${getModeName(mode)})</strong><br>
-              <span>距離: ${distance} | 時間: ${duration}</span><br>
-              <small>起點: ${leg.start_address.split(',')[0]}</small><br>
-              <small>終點: ${leg.end_address.split(',')[0]}</small>
-            `;
-            document.getElementById('routeSummaryContent').innerHTML = summaryHtml;
-
-            // 顯示大眾運輸詳細資訊
-            if (mode === 'TRANSIT' && leg.steps) {
-              let transitStepsHtml = '<hr style="margin:8px 0"><strong>🚉 轉乘資訊</strong>';
-              leg.steps.forEach((step) => {
-                if (step.travel_mode === 'TRANSIT' && step.transit) {
-                  const line = step.transit.line;
-                  const vehicle = line.vehicle;
-                  const icon = vehicle && vehicle.type === 'BUS' ? '🚌' : '🚆';
-                  const departureStop = step.transit.departure_stop.name;
-                  const arrivalStop = step.transit.arrival_stop.name;
-                  transitStepsHtml += `
-                    <div class="transit-step">
-                      <span>${icon} ${line.short_name || line.name || ''}</span>
-                      <span>${departureStop} → ${arrivalStop}</span>
-                      <small>(${step.duration.text})</small>
+    <div class="container">
+        <div class="map-card">
+            <div class="map-header">
+                <h2>🗺️ 即時地圖 <span id="memberCountBadge" class="member-count-badge" style="display: none;">0 人在線</span></h2>
+                
+                <!-- 搜尋列 -->
+                <div class="search-container">
+                    <div class="search-box">
+                        <input type="text" 
+                               class="search-input" 
+                               id="searchInput" 
+                               placeholder="搜尋地點、地址或地標..."
+                               autocomplete="off">
+                        <button class="search-btn" onclick="searchPlace()">搜尋</button>
                     </div>
-                  `;
-                } else if (step.travel_mode === 'WALKING') {
-                  transitStepsHtml += `<div class="transit-step"><span>🚶 步行 ${step.distance.text} (${step.duration.text})</span></div>`;
-                }
-              });
-              document.getElementById('transitDetailed').innerHTML = transitStepsHtml;
-            } else {
-              document.getElementById('transitDetailed').innerHTML = '';
-            }
+                </div>
 
-            document.getElementById('routeSummary').classList.add('show');
-          }
-        } else {
-          console.log('路線規劃失敗:', status);
+                <div class="map-actions">
+                    <!-- 交通模式切換 -->
+                    <div class="route-mode-group" id="routeModeGroup">
+                        <button class="route-mode-btn active" data-mode="DRIVING" onclick="setTravelMode('DRIVING')"><i>🚗</i> 開車</button>
+                        <button class="route-mode-btn" data-mode="TRANSIT" onclick="setTravelMode('TRANSIT')"><i>🚆</i> 大眾運輸</button>
+                        <button class="route-mode-btn" data-mode="WALKING" onclick="setTravelMode('WALKING')"><i>🚶</i> 步行</button>
+                        <button class="route-mode-btn" data-mode="BICYCLING" onclick="setTravelMode('BICYCLING')"><i>🚲</i> 單車</button>
+                    </div>
+                    <button class="map-action-btn" onclick="window.location.href='meeting.html'">🎯 建立會合點</button>
+                    <button class="map-action-btn" onclick="window.location.href='weather.html'">☀️ 天氣查詢</button>
+                </div>
+            </div>
+
+            <!-- 附近設施按鈕列 + 搜尋依據（同一行） -->
+            <div class="button-row" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; background: white; border-bottom: 1px solid #eef2f2; flex-wrap: wrap; gap: 10px;">
+                <!-- 左側：附近設施按鈕 -->
+                <div class="nearby-buttons" style="display: flex; gap: 8px; flex-wrap: wrap; padding: 0; border-bottom: none; flex: 1;">
+                    <button class="nearby-btn" onclick="searchNearby('restaurant')" id="btnRestaurant">
+                        <i>🍽️</i> 餐廳
+                    </button>
+                    <button class="nearby-btn" onclick="searchNearby('hotel')" id="btnHotel">
+                        <i>🏨</i> 酒店
+                    </button>
+                    <button class="nearby-btn" onclick="searchNearby('convenience_store')" id="btnStore">
+                        <i>🏪</i> 便利店
+                    </button>
+                    <button class="nearby-btn" onclick="searchNearby('cafe')" id="btnCafe">
+                        <i>☕</i> 咖啡廳
+                    </button>
+                    <button class="nearby-btn" onclick="searchNearby('gas_station')" id="btnGas">
+                        <i>⛽</i> 加油站
+                    </button>
+                    <button class="nearby-btn" onclick="searchNearby('parking')" id="btnParking">
+                        <i>🅿️</i> 停車場
+                    </button>
+                    <button class="nearby-btn" onclick="searchNearby('hospital')" id="btnHospital">
+                        <i>🏥</i> 醫院
+                    </button>
+                    <button class="nearby-btn" onclick="searchNearby('atm')" id="btnATM">
+                        <i>🏧</i> 提款機
+                    </button>
+                </div>
+                
+                <!-- 右側：搜尋依據 -->
+                <div class="search-location-selector" style="display: flex; align-items: center; gap: 15px; padding: 0; border-bottom: none;">
+                    <span class="selector-label" style="font-size: 13px; color: var(--accent-dark); font-weight: 500; white-space: nowrap;">搜尋依據：</span>
+                    <label class="selector-radio" style="display: flex; align-items: center; gap: 4px; cursor: pointer; font-size: 13px; color: var(--muted); white-space: nowrap;">
+                        <input type="radio" name="searchLocation" value="center" checked onchange="updateSearchLocation()" style="accent-color: var(--accent);">
+                        <span>📍 地圖中心</span>
+                    </label>
+                    <label class="selector-radio" style="display: flex; align-items: center; gap: 4px; cursor: pointer; font-size: 13px; color: var(--muted); white-space: nowrap;">
+                        <input type="radio" name="searchLocation" value="current" onchange="updateSearchLocation()" style="accent-color: var(--accent);">
+                        <span>📍 我的位置</span>
+                    </label>
+                </div>
+            </div>
+            
+            <!-- 地圖容器 -->
+            <div class="map-container" id="mapContainer">
+                <div id="google-map"></div>
+                
+                <!-- 路線摘要卡片 -->
+                <div class="route-summary" id="routeSummary">
+                    <span class="close-route" onclick="closeRoutePanel()">✕</span>
+                    <div id="routeSummaryContent"></div>
+                    <div id="transitDetailed" class="transit-details"></div>
+                </div>
+            </div>
+            
+            <!-- 定位按鈕容器 -->
+            <div class="location-button-container">
+                <button class="location-button" onclick="getCurrentLocationAndCenter()" title="顯示我的位置">
+                    <span>📍</span>
+                </button>
+                <button class="location-button" id="shareLocationBtn" onclick="toggleLocationSharing()" title="分享位置給群組" style="display: none;">
+                    <span>👥</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Firebase 配置
+        const firebaseConfig = {
+            apiKey: "AIzaSyBhvbTPl-hGv1MWtrua55LuvIUpdabqy4M",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "project-221c4",
+            storageBucket: "project-221c4.firebasestorage.app",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
         }
-      });
-    }
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const storage = firebase.storage();
 
-    function getModeName(mode) {
-      switch(mode) {
-        case 'DRIVING': return '開車';
-        case 'TRANSIT': return '大眾運輸';
-        case 'WALKING': return '步行';
-        case 'BICYCLING': return '單車';
-        default: return '未知';
-      }
-    }
-
-    window.closeRoutePanel = function() {
-      document.getElementById('routeSummary').classList.remove('show');
-      if (directionsRenderer) directionsRenderer.setDirections({ routes: [] });
-    };
-
-    // ==================== 獲取目前位置 ====================
-    window.getCurrentLocationAndCenter = function() {
-      if (!map) {
-        alert('地圖尚未初始化完成，請稍後再試');
-        return;
-      }
-      
-      if (!navigator.geolocation) {
-        alert('您的瀏覽器不支援地理位置功能');
-        return;
-      }
-
-      const loadingEl = document.getElementById('locationLoading');
-      const locationInfo = document.getElementById('locationInfo');
-      
-      if (loadingEl) loadingEl.style.display = 'block';
-
-      navigator.geolocation.getCurrentPosition(
-        function(position) {
-          const currentPos = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-          };
-          const accuracy = position.coords.accuracy;
-          
-          lastOriginPosition = currentPos;
-          
-          map.setCenter(currentPos);
-          map.setZoom(17);
-          
-          if (currentLocationMarker) currentLocationMarker.setMap(null);
-          if (userLocationCircle) userLocationCircle.setMap(null);
-          
-          currentLocationMarker = new google.maps.Marker({
-            map: map,
-            position: currentPos,
-            title: '您的位置',
-            icon: {
-              path: google.maps.SymbolPath.CIRCLE,
-              scale: 10,
-              fillColor: '#4285F4',
-              fillOpacity: 1,
-              strokeColor: 'white',
-              strokeWeight: 3
-            }
-          });
-          
-          userLocationCircle = new google.maps.Circle({
-            map: map,
-            center: currentPos,
-            radius: accuracy,
-            fillColor: '#4285F4',
-            fillOpacity: 0.1,
-            strokeColor: '#4285F4',
-            strokeOpacity: 0.5,
-            strokeWeight: 1
-          });
-          
-          if (locationInfo) {
-            locationInfo.textContent = `📍 您的位置 - 精確度：約 ${Math.round(accuracy)} 公尺`;
-            locationInfo.style.display = 'block';
-            setTimeout(() => locationInfo.style.display = 'none', 5000);
-          }
-          
-          if (loadingEl) loadingEl.style.display = 'none';
-
-          // 取得位置後自動規劃路線（如果有目的地）
-          if (currentDestinationPosition) {
-            calculateAndDisplayRoute(currentPos, currentDestinationPosition, currentTravelMode);
-          } else {
-            // 提示可以搜尋目的地
-            const infoWindow = new google.maps.InfoWindow({
-              content: '<div style="padding:8px;">🔍 現在可以搜尋目的地，路線會自動規劃</div>'
-            });
-            infoWindow.setPosition(currentPos);
-            infoWindow.open(map);
-          }
-        },
+        // 地圖變數
+        let map;
+        let geocoder;
+        let placesService;
+        let autocomplete;
+        let searchMarker;
+        let currentLocationMarker;
+        let userLocationCircle;
+        let meetingLocationMarker;
+        let meetingInfoWindow;
+        let directionsService;
+        let directionsRenderer;
+        let currentDestinationPosition = null;
+        let lastOriginPosition = null;
+        let currentTravelMode = 'DRIVING';
+        let isMapInitialized = false;
+        let resizeTimer;
+        let currentInfoWindow = null;
+        let nearbyMarkers = [];
         
-        function(error) {
-          console.error('地理位置錯誤:', error);
-          if (loadingEl) loadingEl.style.display = 'none';
-          
-          let errorMessage = '無法獲取您的位置：';
-          switch(error.code) {
-            case error.PERMISSION_DENIED:
-              errorMessage += '您拒絕了位置存取權限。';
-              break;
-            case error.POSITION_UNAVAILABLE:
-              errorMessage += '位置資訊不可用。';
-              break;
-            case error.TIMEOUT:
-              errorMessage += '擷取位置超時。';
-              break;
-            default:
-              errorMessage += '未知錯誤。';
-          }
-          alert(errorMessage);
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 15000,
-          maximumAge: 0
-        }
-      );
-    };
+        // 群組位置分享變數
+        let searchLocationType = 'center';
+        let currentUserLocation = null;
+        let currentGroupId = null;
+        let isSharingLocation = false;
+        let locationShareInterval = null;
+        let groupMembersMarkers = [];
+        let unsubscribeLocations = null;
 
-    // ==================== 顯示會合點 ====================
-    function showMeetingLocationFromStorage() {
-      try {
-        const savedLocation = localStorage.getItem('meetingLocation');
-        if (savedLocation && map) {
-          const locationData = JSON.parse(savedLocation);
-          const now = new Date().getTime();
-          
-          if (now - locationData.timestamp < 5 * 60 * 1000) {
+        // 顯示提示訊息
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast-message';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'slideUp 0.3s ease reverse';
+                setTimeout(() => {
+                    if (document.body.contains(toast)) {
+                        document.body.removeChild(toast);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // Google 地圖初始化
+        window.initMap = function() {
+            console.log('initMap 開始執行');
+            
+            const mapElement = document.getElementById("google-map");
+            if (!mapElement) {
+                console.error("找不到地圖容器");
+                return;
+            }
+
+            try {
+                map = new google.maps.Map(mapElement, {
+                    center: { lat: 25.0330, lng: 121.5654 },
+                    zoom: 12,
+                    mapTypeControl: true,
+                    fullscreenControl: true,
+                    streetViewControl: true,
+                    zoomControl: true,
+                    gestureHandling: 'greedy',
+                    mapId: 'YOUR_MAP_ID'
+                });
+
+                console.log("地圖建立成功");
+
+                geocoder = new google.maps.Geocoder();
+                placesService = new google.maps.places.PlacesService(map);
+                directionsService = new google.maps.DirectionsService();
+                directionsRenderer = new google.maps.DirectionsRenderer({
+                    map: map,
+                    suppressMarkers: false,
+                    preserveViewport: false,
+                    polylineOptions: {
+                        strokeColor: "#2CC5C2",
+                        strokeWeight: 5,
+                        strokeOpacity: 0.8
+                    }
+                });
+
+                initAutocomplete();
+                
+                isMapInitialized = true;
+                console.log("所有服務初始化完成");
+                
+                showMeetingLocationFromStorage();
+                
+                // 地圖中心點變更時更新資訊
+                google.maps.event.addListener(map, 'center_changed', function() {
+                    if (searchLocationType === 'center') {
+                        console.log('地圖中心點已移動');
+                    }
+                });
+                
+                // 載入群組資訊
+                loadCurrentGroup();
+                
+            } catch (error) {
+                console.error("地圖初始化錯誤:", error);
+                mapElement.innerHTML = `<div class="map-error">
+                    <h3>地圖載入失敗</h3>
+                    <p>${error.message}</p>
+                    <p>請檢查網路連線或重新整理頁面</p>
+                </div>`;
+            }
+        };
+
+        // 處理手機旋轉時地圖大小調整
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function() {
+                if (map) {
+                    google.maps.event.trigger(map, 'resize');
+                }
+            }, 250);
+        });
+
+        // 初始化 Google Places 自動完成
+        function initAutocomplete() {
+            const input = document.getElementById('searchInput');
+            if (!input) return;
+            
+            autocomplete = new google.maps.places.Autocomplete(input, {
+                types: ['establishment', 'geocode'],
+                fields: ['place_id', 'name', 'formatted_address', 'geometry']
+            });
+
+            autocomplete.addListener('place_changed', function() {
+                const place = autocomplete.getPlace();
+                if (place && place.geometry) {
+                    handlePlaceSelected(place);
+                }
+            });
+        }
+
+        // 清除所有附近設施標記
+        function clearNearbyMarkers() {
+            nearbyMarkers.forEach(marker => marker.setMap(null));
+            nearbyMarkers = [];
+            document.querySelectorAll('.nearby-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+        }
+
+        // 更新搜尋依據
+        window.updateSearchLocation = function() {
+            const radios = document.getElementsByName('searchLocation');
+            for (let radio of radios) {
+                if (radio.checked) {
+                    searchLocationType = radio.value;
+                    break;
+                }
+            }
+            
+            console.log(`搜尋依據切換為：${searchLocationType === 'center' ? '地圖中心點' : '我的位置'}`);
+            
+            if (searchLocationType === 'current' && !currentUserLocation) {
+                showToast('請先點擊定位按鈕獲取您的位置');
+            }
+        }
+
+        // 載入用戶的當前群組
+        async function loadCurrentGroup() {
+            const user = auth.currentUser;
+            if (!user) return;
+            
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const groupIdFromUrl = urlParams.get('groupId');
+                
+                if (groupIdFromUrl) {
+                    currentGroupId = groupIdFromUrl;
+                } else {
+                    const userDoc = await db.collection('users').doc(user.uid).get();
+                    if (userDoc.exists && userDoc.data().currentGroupId) {
+                        currentGroupId = userDoc.data().currentGroupId;
+                    }
+                }
+                
+                if (currentGroupId) {
+                    document.getElementById('shareLocationBtn').style.display = 'flex';
+                    listenGroupMembersLocation();
+                    loadGroupInfo();
+                }
+            } catch (error) {
+                console.error('載入群組錯誤:', error);
+            }
+        }
+
+        // 載入群組資訊
+        async function loadGroupInfo() {
+            if (!currentGroupId) return;
+            
+            try {
+                const groupDoc = await db.collection('groups').doc(currentGroupId).get();
+                if (groupDoc.exists) {
+                    const groupData = groupDoc.data();
+                    const headerDiv = document.getElementById('groupInfoHeader');
+                    headerDiv.innerHTML = `<span class="group-info-badge"><i>👥</i> ${groupData.name || '群組'}</span>`;
+                    headerDiv.style.display = 'inline-block';
+                }
+            } catch (error) {
+                console.error('載入群組資訊錯誤:', error);
+            }
+        }
+
+        // 監聽群組成員位置
+        function listenGroupMembersLocation() {
+            const user = auth.currentUser;
+            if (!user || !currentGroupId) return;
+            
+            if (unsubscribeLocations) {
+                unsubscribeLocations();
+            }
+            
+            const locationsRef = db.collection('groups')
+                .doc(currentGroupId)
+                .collection('locations');
+            
+            unsubscribeLocations = locationsRef.onSnapshot((snapshot) => {
+                // 更新在線人數
+                const onlineCount = snapshot.docs.length;
+                const badge = document.getElementById('memberCountBadge');
+                if (onlineCount > 0) {
+                    badge.style.display = 'inline-block';
+                    badge.textContent = `${onlineCount} 人在線`;
+                } else {
+                    badge.style.display = 'none';
+                }
+                
+                snapshot.docChanges().forEach((change) => {
+                    const data = change.doc.data();
+                    const memberId = change.doc.id;
+                    
+                    if (memberId === user.uid) return;
+                    
+                    if (change.type === 'added' || change.type === 'modified') {
+                        updateMemberMarker(memberId, data);
+                    } else if (change.type === 'removed') {
+                        removeMemberMarker(memberId);
+                    }
+                });
+            }, (error) => {
+                console.error('監聽位置錯誤:', error);
+            });
+        }
+
+        // 更新成員標記
+        function updateMemberMarker(memberId, locationData) {
+            const lastUpdate = locationData.timestamp?.toDate?.() || new Date(locationData.timestamp);
+            const now = new Date();
+            const diffMinutes = (now - lastUpdate) / 1000 / 60;
+            
+            if (diffMinutes > 1) {
+                removeMemberMarker(memberId);
+                return;
+            }
+            
             const position = {
-              lat: locationData.lat,
-              lng: locationData.lng
+                lat: locationData.latitude,
+                lng: locationData.longitude
+            };
+            
+            removeMemberMarker(memberId);
+            
+            const markerContent = document.createElement('div');
+            markerContent.style.position = 'relative';
+            markerContent.style.width = '36px';
+            markerContent.style.height = '36px';
+            markerContent.style.cursor = 'pointer';
+            
+            if (locationData.avatarUrl) {
+                const img = document.createElement('img');
+                img.src = locationData.avatarUrl;
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.borderRadius = '50%';
+                img.style.border = '2px solid var(--member-color)';
+                img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.2)';
+                img.style.objectFit = 'cover';
+                markerContent.appendChild(img);
+            } else {
+                const defaultIcon = document.createElement('div');
+                defaultIcon.style.width = '100%';
+                defaultIcon.style.height = '100%';
+                defaultIcon.style.borderRadius = '50%';
+                defaultIcon.style.background = 'linear-gradient(135deg, var(--member-color), var(--member-dark))';
+                defaultIcon.style.border = '2px solid white';
+                defaultIcon.style.boxShadow = '0 2px 8px rgba(0,0,0,0.2)';
+                defaultIcon.style.display = 'flex';
+                defaultIcon.style.alignItems = 'center';
+                defaultIcon.style.justifyContent = 'center';
+                defaultIcon.style.color = 'white';
+                defaultIcon.style.fontSize = '16px';
+                defaultIcon.style.fontWeight = 'bold';
+                defaultIcon.textContent = locationData.name ? locationData.name.charAt(0).toUpperCase() : '?';
+                markerContent.appendChild(defaultIcon);
+            }
+            
+            const pulse = document.createElement('div');
+            pulse.style.position = 'absolute';
+            pulse.style.top = '50%';
+            pulse.style.left = '50%';
+            pulse.style.transform = 'translate(-50%, -50%)';
+            pulse.style.width = '100%';
+            pulse.style.height = '100%';
+            pulse.style.borderRadius = '50%';
+            pulse.style.border = '2px solid var(--member-color)';
+            pulse.style.animation = 'pulse 2s ease-out infinite';
+            pulse.style.pointerEvents = 'none';
+            markerContent.appendChild(pulse);
+            
+            let marker;
+            if (google.maps.marker && google.maps.marker.AdvancedMarkerElement) {
+                marker = new google.maps.marker.AdvancedMarkerElement({
+                    map: map,
+                    position: position,
+                    content: markerContent,
+                    title: locationData.name || '群組成員'
+                });
+            } else {
+                marker = new google.maps.Marker({
+                    map: map,
+                    position: position,
+                    title: locationData.name || '群組成員',
+                    icon: {
+                        url: locationData.avatarUrl || 'data:image/svg+xml,' + encodeURIComponent(`
+                            <svg width="36" height="36" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="18" cy="18" r="16" fill="#FFB347" stroke="white" stroke-width="2"/>
+                                <text x="18" y="24" font-size="14" font-weight="bold" text-anchor="middle" fill="white">${locationData.name ? locationData.name.charAt(0).toUpperCase() : '?'}</text>
+                            </svg>
+                        `),
+                        scaledSize: new google.maps.Size(36, 36)
+                    }
+                });
+            }
+            
+            groupMembersMarkers.push({
+                memberId: memberId,
+                marker: marker,
+                content: markerContent
+            });
+            
+            markerContent.addEventListener('click', () => {
+                const infoWindow = new google.maps.InfoWindow({
+                    content: `
+                        <div style="padding:10px; text-align:center;">
+                            ${locationData.avatarUrl ? `<img src="${locationData.avatarUrl}" style="width:50px; height:50px; border-radius:50%; margin-bottom:10px; object-fit:cover;">` : ''}
+                            <div style="font-weight:bold; color:var(--accent-dark);">${locationData.name || '群組成員'}</div>
+                            <div style="font-size:12px; color:var(--muted);">最後更新: ${lastUpdate.toLocaleTimeString()}</div>
+                        </div>
+                    `
+                });
+                infoWindow.open(map, marker);
+            });
+        }
+
+        // 移除成員標記
+        function removeMemberMarker(memberId) {
+            const index = groupMembersMarkers.findIndex(m => m.memberId === memberId);
+            if (index !== -1) {
+                groupMembersMarkers[index].marker.setMap(null);
+                groupMembersMarkers.splice(index, 1);
+            }
+        }
+
+        // 切換位置分享
+        window.toggleLocationSharing = function() {
+            if (!currentUserLocation) {
+                showToast('請先獲取您的位置');
+                return;
+            }
+            
+            if (!currentGroupId) {
+                showToast('請先加入群組');
+                return;
+            }
+            
+            const btn = document.getElementById('shareLocationBtn');
+            
+            if (isSharingLocation) {
+                stopSharingLocation();
+                btn.classList.remove('sharing');
+                btn.style.background = 'white';
+                btn.style.color = 'var(--accent-dark)';
+            } else {
+                startSharingLocation();
+                btn.classList.add('sharing');
+                btn.style.background = 'var(--member-color)';
+                btn.style.color = 'white';
+            }
+        }
+
+        // 開始分享位置
+        function startSharingLocation() {
+            if (!currentUserLocation || !currentGroupId) {
+                showToast('請先獲取您的位置');
+                return;
+            }
+            
+            if (isSharingLocation) return;
+            
+            isSharingLocation = true;
+            
+            shareCurrentLocation();
+            locationShareInterval = setInterval(shareCurrentLocation, 30000);
+            
+            showToast('📍 正在分享您的位置給群組成員');
+        }
+
+        // 停止分享位置
+        function stopSharingLocation() {
+            if (locationShareInterval) {
+                clearInterval(locationShareInterval);
+                locationShareInterval = null;
+            }
+            
+            if (currentGroupId && auth.currentUser) {
+                db.collection('groups')
+                    .doc(currentGroupId)
+                    .collection('locations')
+                    .doc(auth.currentUser.uid)
+                    .delete()
+                    .catch(error => console.error('移除位置錯誤:', error));
+            }
+            
+            isSharingLocation = false;
+            showToast('🛑 已停止分享位置');
+        }
+
+        // 分享目前位置
+        async function shareCurrentLocation() {
+            if (!currentUserLocation || !currentGroupId || !auth.currentUser) return;
+            
+            try {
+                const userDoc = await db.collection('users').doc(auth.currentUser.uid).get();
+                const userData = userDoc.exists ? userDoc.data() : {};
+                
+                const locationData = {
+                    userId: auth.currentUser.uid,
+                    name: userData.username || auth.currentUser.displayName || '用戶',
+                    avatarUrl: userData.profileImageUrl || null,
+                    latitude: currentUserLocation.lat,
+                    longitude: currentUserLocation.lng,
+                    accuracy: currentUserLocation.accuracy || 0,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                await db.collection('groups')
+                    .doc(currentGroupId)
+                    .collection('locations')
+                    .doc(auth.currentUser.uid)
+                    .set(locationData);
+                    
+            } catch (error) {
+                console.error('分享位置錯誤:', error);
+            }
+        }
+
+        // 建立自定義頭像標記
+        function createCustomAvatarMarker(position, avatarUrl, accuracy, username) {
+            const markerContent = document.createElement('div');
+            markerContent.style.position = 'relative';
+            markerContent.style.width = '40px';
+            markerContent.style.height = '40px';
+            markerContent.style.cursor = 'pointer';
+            
+            if (avatarUrl) {
+                const img = document.createElement('img');
+                img.src = avatarUrl;
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.borderRadius = '50%';
+                img.style.border = '3px solid white';
+                img.style.boxShadow = '0 2px 10px rgba(0,0,0,0.3)';
+                img.style.objectFit = 'cover';
+                markerContent.appendChild(img);
+            } else {
+                const defaultIcon = document.createElement('div');
+                defaultIcon.style.width = '100%';
+                defaultIcon.style.height = '100%';
+                defaultIcon.style.borderRadius = '50%';
+                defaultIcon.style.background = 'linear-gradient(135deg, #4285F4, #2CC5C2)';
+                defaultIcon.style.border = '3px solid white';
+                defaultIcon.style.boxShadow = '0 2px 10px rgba(0,0,0,0.3)';
+                defaultIcon.style.display = 'flex';
+                defaultIcon.style.alignItems = 'center';
+                defaultIcon.style.justifyContent = 'center';
+                defaultIcon.style.color = 'white';
+                defaultIcon.style.fontSize = '18px';
+                defaultIcon.style.fontWeight = 'bold';
+                defaultIcon.textContent = username ? username.charAt(0).toUpperCase() : '?';
+                markerContent.appendChild(defaultIcon);
+            }
+            
+            const pulse = document.createElement('div');
+            pulse.style.position = 'absolute';
+            pulse.style.top = '50%';
+            pulse.style.left = '50%';
+            pulse.style.transform = 'translate(-50%, -50%)';
+            pulse.style.width = '100%';
+            pulse.style.height = '100%';
+            pulse.style.borderRadius = '50%';
+            pulse.style.border = '2px solid #4285F4';
+            pulse.style.animation = 'pulse 1.5s ease-out infinite';
+            pulse.style.pointerEvents = 'none';
+            markerContent.appendChild(pulse);
+            
+            if (google.maps.marker && google.maps.marker.AdvancedMarkerElement) {
+                currentLocationMarker = new google.maps.marker.AdvancedMarkerElement({
+                    map: map,
+                    position: position,
+                    content: markerContent,
+                    title: '您的位置'
+                });
+            } else {
+                currentLocationMarker = new google.maps.Marker({
+                    map: map,
+                    position: position,
+                    title: '您的位置',
+                    icon: {
+                        url: avatarUrl || 'data:image/svg+xml,' + encodeURIComponent(`
+                            <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="20" cy="20" r="18" fill="#4285F4" stroke="white" stroke-width="3"/>
+                                <text x="20" y="26" font-size="18" font-weight="bold" text-anchor="middle" fill="white">${username ? username.charAt(0).toUpperCase() : '?'}</text>
+                            </svg>
+                        `),
+                        scaledSize: new google.maps.Size(40, 40)
+                    }
+                });
+            }
+            
+            userLocationCircle = new google.maps.Circle({
+                map: map,
+                center: position,
+                radius: accuracy,
+                fillColor: '#4285F4',
+                fillOpacity: 0.1,
+                strokeColor: '#4285F4',
+                strokeOpacity: 0.5,
+                strokeWeight: 1
+            });
+            
+            markerContent.addEventListener('click', () => {
+                const infoWindow = new google.maps.InfoWindow({
+                    content: `
+                        <div style="padding:10px; text-align:center;">
+                            ${avatarUrl ? `<img src="${avatarUrl}" style="width:50px; height:50px; border-radius:50%; margin-bottom:10px; object-fit:cover;">` : ''}
+                            <div style="font-weight:bold; color:var(--accent-dark);">您的位置</div>
+                            <div style="font-size:12px; color:var(--muted);">${username || '用戶'}</div>
+                            <div style="font-size:12px; color:var(--muted);">精確度: ${Math.round(accuracy)}公尺</div>
+                        </div>
+                    `
+                });
+                infoWindow.open(map, currentLocationMarker);
+            });
+        }
+
+        // 獲取目前位置
+        window.getCurrentLocationAndCenter = function() {
+            if (!map) {
+                alert('地圖尚未初始化完成，請稍後再試');
+                return;
+            }
+            
+            if (!navigator.geolocation) {
+                alert('您的瀏覽器不支援地理位置功能');
+                return;
+            }
+
+            const loadingEl = document.getElementById('locationLoading');
+            const locationInfo = document.getElementById('locationInfo');
+            
+            if (loadingEl) loadingEl.style.display = 'block';
+
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    const currentPos = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude,
+                        accuracy: position.coords.accuracy
+                    };
+                    
+                    currentUserLocation = currentPos;
+                    lastOriginPosition = currentPos;
+                    
+                    map.setCenter(currentPos);
+                    map.setZoom(17);
+                    
+                    if (currentLocationMarker) currentLocationMarker.setMap(null);
+                    if (userLocationCircle) userLocationCircle.setMap(null);
+                    
+                    const user = auth.currentUser;
+                    
+                    if (user) {
+                        db.collection('users').doc(user.uid).get().then((doc) => {
+                            let avatarUrl = null;
+                            let username = user.displayName || user.email?.split('@')[0] || '用戶';
+                            
+                            if (doc.exists) {
+                                if (doc.data().profileImageUrl) {
+                                    avatarUrl = doc.data().profileImageUrl;
+                                }
+                                if (doc.data().username) {
+                                    username = doc.data().username;
+                                }
+                            }
+                            
+                            createCustomAvatarMarker(currentPos, avatarUrl, position.coords.accuracy, username);
+                            
+                            if (isSharingLocation) {
+                                shareCurrentLocation();
+                            }
+                        }).catch((error) => {
+                            console.error('獲取用戶資料錯誤:', error);
+                            createCustomAvatarMarker(currentPos, null, position.coords.accuracy, '用戶');
+                        });
+                    } else {
+                        createCustomAvatarMarker(currentPos, null, position.coords.accuracy, '訪客');
+                    }
+                    
+                    if (locationInfo) {
+                        locationInfo.textContent = `📍 您的位置 - 精確度：約 ${Math.round(position.coords.accuracy)} 公尺`;
+                        locationInfo.style.display = 'block';
+                        setTimeout(() => locationInfo.style.display = 'none', 5000);
+                    }
+                    
+                    if (loadingEl) loadingEl.style.display = 'none';
+
+                    if (currentDestinationPosition) {
+                        calculateAndDisplayRoute(currentPos, currentDestinationPosition, currentTravelMode);
+                    } else {
+                        const infoWindow = new google.maps.InfoWindow({
+                            content: '<div style="padding:8px;">🔍 現在可以搜尋目的地，路線會自動規劃</div>'
+                        });
+                        infoWindow.setPosition(currentPos);
+                        infoWindow.open(map);
+                    }
+                },
+                
+                function(error) {
+                    console.error('地理位置錯誤:', error);
+                    if (loadingEl) loadingEl.style.display = 'none';
+                    
+                    let errorMessage = '無法獲取您的位置：';
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMessage += '您拒絕了位置存取權限。';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMessage += '位置資訊不可用。';
+                            break;
+                        case error.TIMEOUT:
+                            errorMessage += '擷取位置超時。';
+                            break;
+                        default:
+                            errorMessage += '未知錯誤。';
+                    }
+                    alert(errorMessage);
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 15000,
+                    maximumAge: 0
+                }
+            );
+        };
+
+        // 搜尋附近設施
+        window.searchNearby = function(type) {
+            if (!map || !placesService) {
+                alert('地圖尚未準備好，請稍後再試');
+                return;
+            }
+
+            clearNearbyMarkers();
+
+            const btn = document.getElementById(getButtonId(type));
+            if (btn) btn.classList.add('active');
+
+            let searchCenter;
+            if (searchLocationType === 'current') {
+                if (!currentUserLocation) {
+                    showToast('請先點擊定位按鈕獲取您的位置');
+                    return;
+                }
+                searchCenter = {
+                    lat: currentUserLocation.lat,
+                    lng: currentUserLocation.lng
+                };
+            } else {
+                const center = map.getCenter();
+                searchCenter = {
+                    lat: center.lat(),
+                    lng: center.lng()
+                };
+            }
+
+            const typeNames = {
+                'restaurant': { name: '餐廳', icon: '🍽️' },
+                'hotel': { name: '酒店', icon: '🏨' },
+                'convenience_store': { name: '便利店', icon: '🏪' },
+                'cafe': { name: '咖啡廳', icon: '☕' },
+                'gas_station': { name: '加油站', icon: '⛽' },
+                'parking': { name: '停車場', icon: '🅿️' },
+                'hospital': { name: '醫院', icon: '🏥' },
+                'atm': { name: '提款機', icon: '🏧' }
+            };
+
+            showToast(`正在搜尋 ${searchLocationType === 'current' ? '您附近' : '地圖中心附近'} 1公里內的${typeNames[type].name}...`);
+
+            const request = {
+                location: new google.maps.LatLng(searchCenter.lat, searchCenter.lng),
+                radius: 1000,
+                type: type
+            };
+
+            placesService.nearbySearch(request, (results, status) => {
+                if (status === google.maps.places.PlacesServiceStatus.OK && results && results.length > 0) {
+                    
+                    const sortedResults = results.sort((a, b) => {
+                        const distA = google.maps.geometry.spherical.computeDistanceBetween(
+                            new google.maps.LatLng(searchCenter.lat, searchCenter.lng), 
+                            a.geometry.location
+                        );
+                        const distB = google.maps.geometry.spherical.computeDistanceBetween(
+                            new google.maps.LatLng(searchCenter.lat, searchCenter.lng), 
+                            b.geometry.location
+                        );
+                        return distA - distB;
+                    });
+
+                    const oneKmResults = sortedResults.filter(place => {
+                        const distance = google.maps.geometry.spherical.computeDistanceBetween(
+                            new google.maps.LatLng(searchCenter.lat, searchCenter.lng), 
+                            place.geometry.location
+                        );
+                        return distance <= 1000;
+                    });
+
+                    if (oneKmResults.length === 0) {
+                        showToast(`${searchLocationType === 'current' ? '您附近' : '地圖中心附近'} 1公里內找不到${typeNames[type].name}`);
+                        return;
+                    }
+
+                    const top20Results = oneKmResults.slice(0, 20);
+
+                    showToast(`在1公里內找到 ${top20Results.length} 間${typeNames[type].name}`);
+
+                    top20Results.forEach((place) => {
+                        createNearbyMarker(place, typeNames[type], searchCenter);
+                    });
+
+                    if (top20Results.length > 0) {
+                        const bounds = new google.maps.LatLngBounds();
+                        top20Results.forEach(place => {
+                            bounds.extend(place.geometry.location);
+                        });
+                        
+                        if (top20Results.length === 1) {
+                            map.setCenter(top20Results[0].geometry.location);
+                            map.setZoom(16);
+                        } else {
+                            map.fitBounds(bounds);
+                            
+                            const listener = google.maps.event.addListener(map, 'bounds_changed', function() {
+                                if (map.getZoom() > 18) map.setZoom(18);
+                                google.maps.event.removeListener(listener);
+                            });
+                        }
+                    }
+                } else if (status === google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
+                    showToast(`${searchLocationType === 'current' ? '您附近' : '地圖中心附近'} 1公里內找不到${typeNames[type].name}`);
+                } else {
+                    console.error('附近搜尋失敗:', status);
+                    let errorMsg = '搜尋失敗';
+                    switch(status) {
+                        case 'OVER_QUERY_LIMIT':
+                            errorMsg = '查詢次數超過限制，請稍後再試';
+                            break;
+                        case 'REQUEST_DENIED':
+                            errorMsg = '請求被拒絕';
+                            break;
+                        case 'INVALID_REQUEST':
+                            errorMsg = '無效的請求';
+                            break;
+                        default:
+                            errorMsg = `搜尋失敗：${status}`;
+                    }
+                    showToast(errorMsg);
+                }
+            });
+        };
+
+        // 建立附近設施標記
+        function createNearbyMarker(place, typeInfo, center) {
+            let distanceText = '';
+            let distance = 0;
+            
+            if (center) {
+                distance = google.maps.geometry.spherical.computeDistanceBetween(
+                    new google.maps.LatLng(center.lat, center.lng), 
+                    place.geometry.location
+                );
+                if (distance < 1000) {
+                    distanceText = `<div style="font-size: 11px; color: var(--muted); margin-bottom: 5px;">📏 距離 ${Math.round(distance)} 公尺</div>`;
+                } else {
+                    distanceText = `<div style="font-size: 11px; color: var(--muted); margin-bottom: 5px;">📏 距離 ${(distance/1000).toFixed(1)} 公里</div>`;
+                }
+            }
+
+            const markerColors = {
+                'restaurant': '#FF6B6B',
+                'hotel': '#4ECDC4',
+                'convenience_store': '#45B7D1',
+                'cafe': '#FFB347',
+                'gas_station': '#96CEB4',
+                'parking': '#FFE194',
+                'hospital': '#DDA0DD',
+                'atm': '#FF9999'
+            };
+
+            let colorKey = 'restaurant';
+            if (typeInfo.icon === '🏨') colorKey = 'hotel';
+            else if (typeInfo.icon === '🏪') colorKey = 'convenience_store';
+            else if (typeInfo.icon === '☕') colorKey = 'cafe';
+            else if (typeInfo.icon === '⛽') colorKey = 'gas_station';
+            else if (typeInfo.icon === '🅿️') colorKey = 'parking';
+            else if (typeInfo.icon === '🏥') colorKey = 'hospital';
+            else if (typeInfo.icon === '🏧') colorKey = 'atm';
+
+            const marker = new google.maps.Marker({
+                map: map,
+                position: place.geometry.location,
+                title: place.name,
+                icon: {
+                    path: google.maps.SymbolPath.CIRCLE,
+                    scale: 10,
+                    fillColor: markerColors[colorKey],
+                    fillOpacity: 0.9,
+                    strokeColor: 'white',
+                    strokeWeight: 2
+                },
+                animation: google.maps.Animation.DROP
+            });
+
+            marker.addListener('click', () => {
+                if (currentInfoWindow) {
+                    currentInfoWindow.close();
+                }
+
+                const loadingInfoWindow = new google.maps.InfoWindow({
+                    content: '<div style="padding:10px;">載入詳細資訊中...</div>'
+                });
+                loadingInfoWindow.open(map, marker);
+                currentInfoWindow = loadingInfoWindow;
+
+                const request = {
+                    placeId: place.place_id,
+                    fields: ['name', 'formatted_address', 'formatted_phone_number', 'rating', 'website', 
+                            'opening_hours', 'price_level', 'vicinity', 'user_ratings_total',
+                            'types']
+                };
+
+                placesService.getDetails(request, (placeDetails, status) => {
+                    if (status === google.maps.places.PlacesServiceStatus.OK && placeDetails) {
+                        let ratingHtml = '';
+                        if (placeDetails.rating) {
+                            const fullStars = Math.round(placeDetails.rating);
+                            const stars = '★'.repeat(fullStars) + '☆'.repeat(5 - fullStars);
+                            ratingHtml = `<div class="info-window-rating">${stars} ${placeDetails.rating} (${placeDetails.user_ratings_total || 0} 則評論)</div>`;
+                        }
+
+                        let hoursHtml = '';
+                        if (placeDetails.opening_hours) {
+                            const isOpen = placeDetails.opening_hours.isOpen ? placeDetails.opening_hours.isOpen() : false;
+                            const openStatus = isOpen ? '營業中' : '休息中';
+                            const statusColor = isOpen ? '#28a745' : '#dc3545';
+                            hoursHtml = `<div style="font-size: 11px; color: ${statusColor}; margin-bottom: 5px;">${openStatus}</div>`;
+                            
+                            if (placeDetails.opening_hours.weekday_text) {
+                                const today = new Date().getDay();
+                                const dayIndex = today === 0 ? 6 : today - 1;
+                                hoursHtml += `<div style="font-size: 10px; color: var(--muted);">${placeDetails.opening_hours.weekday_text[dayIndex]}</div>`;
+                            }
+                        }
+
+                        let priceHtml = '';
+                        if (placeDetails.price_level) {
+                            const priceLevel = '💰'.repeat(placeDetails.price_level);
+                            priceHtml = `<div style="font-size: 11px; margin-bottom: 5px;">價格: ${priceLevel}</div>`;
+                        }
+
+                        let typesHtml = '';
+                        if (placeDetails.types) {
+                            const typeMap = {
+                                'chinese_restaurant': '中式',
+                                'japanese_restaurant': '日式',
+                                'italian_restaurant': '義式',
+                                'french_restaurant': '法式',
+                                'thai_restaurant': '泰式',
+                                'vietnamese_restaurant': '越式',
+                                'korean_restaurant': '韓式',
+                                'fast_food_restaurant': '速食',
+                                'pizza_restaurant': '披薩',
+                                'burger_restaurant': '漢堡',
+                                'seafood_restaurant': '海鮮',
+                                'steak_house': '牛排',
+                                'sushi_restaurant': '壽司',
+                                'ramen_restaurant': '拉麵',
+                                'bakery': '麵包店',
+                                'bar': '酒吧',
+                                'cafe': '咖啡廳'
+                            };
+                            
+                            const matchedTypes = placeDetails.types
+                                .filter(t => typeMap[t])
+                                .map(t => typeMap[t])
+                                .slice(0, 3);
+                            
+                            if (matchedTypes.length > 0) {
+                                typesHtml = `<div style="font-size: 10px; color: var(--accent); margin-bottom: 5px;">${matchedTypes.join(' · ')}</div>`;
+                            }
+                        }
+
+                        const infoWindowContent = `
+                            <div class="info-window" style="max-width: 250px;">
+                                <div class="info-window-title" style="font-size: 16px; margin-bottom: 8px;">${typeInfo.icon} ${placeDetails.name}</div>
+                                ${typesHtml}
+                                ${hoursHtml}
+                                ${ratingHtml}
+                                ${priceHtml}
+                                ${distanceText}
+                                <div class="info-window-address" style="font-size: 11px; margin: 8px 0;">📍 ${placeDetails.formatted_address || place.vicinity || '地址不詳'}</div>
+                                ${placeDetails.formatted_phone_number ? `<div style="font-size: 11px; margin: 5px 0;"><a href="tel:${placeDetails.formatted_phone_number}" style="color: var(--accent); text-decoration: none;">📞 ${placeDetails.formatted_phone_number}</a></div>` : ''}
+                                <button class="info-window-btn" onclick="setDestination(${place.geometry.location.lat()}, ${place.geometry.location.lng()}, '${placeDetails.name.replace(/'/g, "\\'")}')">
+                                    設為目的地
+                                </button>
+                            </div>
+                        `;
+
+                        const infoWindow = new google.maps.InfoWindow({
+                            content: infoWindowContent
+                        });
+
+                        infoWindow.open(map, marker);
+                        currentInfoWindow = infoWindow;
+                    } else {
+                        const infoWindowContent = `
+                            <div class="info-window">
+                                <div class="info-window-title">${typeInfo.icon} ${place.name}</div>
+                                ${distanceText}
+                                <div class="info-window-address">📍 ${place.vicinity || '地址不詳'}</div>
+                                <button class="info-window-btn" onclick="setDestination(${place.geometry.location.lat()}, ${place.geometry.location.lng()}, '${place.name.replace(/'/g, "\\'")}')">
+                                    設為目的地
+                                </button>
+                            </div>
+                        `;
+
+                        const infoWindow = new google.maps.InfoWindow({
+                            content: infoWindowContent
+                        });
+
+                        infoWindow.open(map, marker);
+                        currentInfoWindow = infoWindow;
+                    }
+                });
+            });
+
+            nearbyMarkers.push(marker);
+        }
+
+        function getButtonId(type) {
+            const map = {
+                'restaurant': 'btnRestaurant',
+                'hotel': 'btnHotel',
+                'convenience_store': 'btnStore',
+                'cafe': 'btnCafe',
+                'gas_station': 'btnGas',
+                'parking': 'btnParking',
+                'hospital': 'btnHospital',
+                'atm': 'btnATM'
+            };
+            return map[type] || '';
+        }
+
+        window.setDestination = function(lat, lng, name) {
+            currentDestinationPosition = { lat, lng };
+            
+            clearNearbyMarkers();
+            
+            map.setCenter({ lat, lng });
+            map.setZoom(17);
+            
+            if (searchMarker) {
+                searchMarker.setMap(null);
+            }
+            
+            searchMarker = new google.maps.Marker({
+                map: map,
+                position: { lat, lng },
+                title: name,
+                animation: google.maps.Animation.DROP
+            });
+            
+            const infoWindow = new google.maps.InfoWindow({
+                content: `
+                    <div class="info-window">
+                        <div class="info-window-title">📍 目的地</div>
+                        <div class="info-window-address">${name}</div>
+                        <small style="color:var(--accent);">✅ 已設為目的地，選擇交通模式規劃路線</small>
+                    </div>
+                `
+            });
+            
+            infoWindow.open(map, searchMarker);
+            
+            if (lastOriginPosition) {
+                calculateAndDisplayRoute(lastOriginPosition, currentDestinationPosition, currentTravelMode);
+            }
+
+            if (currentInfoWindow) {
+                currentInfoWindow.close();
+            }
+        };
+
+        function handlePlaceSelected(place) {
+            if (!map) {
+                alert('地圖尚未初始化完成，請稍後再試');
+                return;
+            }
+            
+            const position = place.geometry.location;
+            
+            currentDestinationPosition = {
+                lat: position.lat(),
+                lng: position.lng()
             };
             
             map.setCenter(position);
             map.setZoom(17);
             
-            if (meetingLocationMarker) meetingLocationMarker.setMap(null);
+            if (searchMarker) {
+                searchMarker.setMap(null);
+            }
             
-            meetingLocationMarker = new google.maps.Marker({
-              map: map,
-              position: position,
-              title: '會合點',
-              icon: {
-                path: google.maps.SymbolPath.CIRCLE,
-                scale: 12,
-                fillColor: '#FF4444',
-                fillOpacity: 1,
-                strokeColor: 'white',
-                strokeWeight: 3
-              }
+            searchMarker = new google.maps.Marker({
+                map: map,
+                position: position,
+                title: place.name,
+                animation: google.maps.Animation.DROP
             });
             
-            if (meetingInfoWindow) meetingInfoWindow.close();
-            
-            meetingInfoWindow = new google.maps.InfoWindow({
-              content: `
-                <div class="meeting-info-window">
-                  <div class="meeting-info-title">🎯 會合點</div>
-                  <div class="meeting-info-address">📍 ${locationData.address || '未知地址'}</div>
-                </div>
-              `
+            const infoWindow = new google.maps.InfoWindow({
+                content: `
+                    <div class="info-window">
+                        <div class="info-window-title">${place.name}</div>
+                        <div class="info-window-address">${place.formatted_address || ''}</div>
+                        <small style="color:var(--accent);">✅ 選擇交通模式自動規劃路線</small>
+                    </div>
+                `
             });
             
-            setTimeout(() => meetingInfoWindow.open(map, meetingLocationMarker), 500);
-            localStorage.removeItem('meetingLocation');
-          } else {
-            localStorage.removeItem('meetingLocation');
-          }
+            infoWindow.open(map, searchMarker);
+
+            if (directionsRenderer) directionsRenderer.setDirections({ routes: [] });
+            document.getElementById('routeSummary').classList.remove('show');
+            
+            if (lastOriginPosition) {
+                autoPlanRoute();
+            }
+
+            clearNearbyMarkers();
         }
-      } catch (error) {
-        console.error('讀取會合點資料錯誤:', error);
-        localStorage.removeItem('meetingLocation');
-      }
-    }
 
-    // ==================== 檢查登入狀態 ====================
-    auth.onAuthStateChanged(user => {
-      if (!user) {
-        console.log('用戶未登入，地圖以訪客模式顯示');
-      }
-    });
+        window.searchPlace = function() {
+            if (!map || !placesService) {
+                alert('地圖尚未準備好，請稍後再試');
+                return;
+            }
+            
+            const query = document.getElementById('searchInput').value.trim();
+            if (!query) return;
 
-    // 🔴 防止 iOS 上按鈕點擊問題
-    document.addEventListener('touchstart', function(e) {
-      // 不做任何事，只是為了啟用 touch 事件
-    }, { passive: true });
-  </script>
+            const request = {
+                query: query,
+                fields: ['name', 'geometry', 'formatted_address']
+            };
+
+            placesService.findPlaceFromQuery(request, (results, status) => {
+                if (status === google.maps.places.PlacesServiceStatus.OK && results.length > 0) {
+                    const place = results[0];
+                    const position = place.geometry.location;
+                    
+                    currentDestinationPosition = {
+                        lat: position.lat(),
+                        lng: position.lng()
+                    };
+                    
+                    map.setCenter(position);
+                    map.setZoom(17);
+                    
+                    if (searchMarker) searchMarker.setMap(null);
+                    
+                    searchMarker = new google.maps.Marker({
+                        map: map,
+                        position: position,
+                        title: place.name,
+                        animation: google.maps.Animation.DROP
+                    });
+                    
+                    const infoWindow = new google.maps.InfoWindow({
+                        content: `
+                            <div class="info-window">
+                                <div class="info-window-title">${place.name}</div>
+                                <div class="info-window-address">${place.formatted_address || ''}</div>
+                                <small style="color:var(--accent);">✅ 選擇交通模式自動規劃路線</small>
+                            </div>
+                        `
+                    });
+                    infoWindow.open(map, searchMarker);
+                    
+                    if (directionsRenderer) directionsRenderer.setDirections({ routes: [] });
+                    document.getElementById('routeSummary').classList.remove('show');
+                    
+                    if (lastOriginPosition) {
+                        autoPlanRoute();
+                    }
+
+                    clearNearbyMarkers();
+                } else {
+                    alert('找不到該地點，請嘗試其他關鍵字');
+                }
+            });
+        };
+
+        function autoPlanRoute() {
+            if (lastOriginPosition && currentDestinationPosition) {
+                calculateAndDisplayRoute(lastOriginPosition, currentDestinationPosition, currentTravelMode);
+            }
+        }
+
+        window.setTravelMode = function(mode) {
+            document.querySelectorAll('.route-mode-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`.route-mode-btn[data-mode="${mode}"]`).classList.add('active');
+            
+            currentTravelMode = mode;
+            
+            if (lastOriginPosition && currentDestinationPosition) {
+                calculateAndDisplayRoute(lastOriginPosition, currentDestinationPosition, mode);
+            } else if (!lastOriginPosition) {
+                if (map) {
+                    const infoWindow = new google.maps.InfoWindow({
+                        content: '<div style="padding:8px;">📍 請先點擊左下角按鈕獲取您的位置</div>'
+                    });
+                    infoWindow.setPosition(map.getCenter());
+                    infoWindow.open(map);
+                }
+            } else if (!currentDestinationPosition) {
+                if (map) {
+                    const infoWindow = new google.maps.InfoWindow({
+                        content: '<div style="padding:8px;">🔍 請先搜尋目的地</div>'
+                    });
+                    infoWindow.setPosition(map.getCenter());
+                    infoWindow.open(map);
+                }
+            }
+        };
+
+        function getGoogleTravelMode(mode) {
+            switch(mode) {
+                case 'DRIVING': return google.maps.TravelMode.DRIVING;
+                case 'TRANSIT': return google.maps.TravelMode.TRANSIT;
+                case 'WALKING': return google.maps.TravelMode.WALKING;
+                case 'BICYCLING': return google.maps.TravelMode.BICYCLING;
+                default: return google.maps.TravelMode.DRIVING;
+            }
+        }
+
+        function calculateAndDisplayRoute(origin, destination, mode) {
+            if (!directionsService || !directionsRenderer) return;
+
+            const travelMode = getGoogleTravelMode(mode);
+
+            const request = {
+                origin: origin,
+                destination: destination,
+                travelMode: travelMode,
+                unitSystem: google.maps.UnitSystem.METRIC
+            };
+
+            if (mode === 'TRANSIT') {
+                request.transitOptions = {
+                    modes: [google.maps.TransitMode.BUS, google.maps.TransitMode.RAIL],
+                    routingPreference: google.maps.TransitRoutePreference.FEWER_TRANSFERS
+                };
+            }
+
+            directionsService.route(request, (result, status) => {
+                if (status === google.maps.DirectionsStatus.OK) {
+                    directionsRenderer.setDirections(result);
+                    
+                    const route = result.routes[0];
+                    if (route && route.legs.length > 0) {
+                        const leg = route.legs[0];
+                        const distance = leg.distance.text;
+                        const duration = leg.duration.text;
+                        
+                        let modeIcon = '🚗';
+                        if (mode === 'TRANSIT') modeIcon = '🚆';
+                        else if (mode === 'WALKING') modeIcon = '🚶';
+                        else if (mode === 'BICYCLING') modeIcon = '🚲';
+                        
+                        let summaryHtml = `
+                            <strong>${modeIcon} 最佳路線 (${getModeName(mode)})</strong><br>
+                            <span>距離: ${distance} | 時間: ${duration}</span><br>
+                            <small>起點: ${leg.start_address.split(',')[0]}</small><br>
+                            <small>終點: ${leg.end_address.split(',')[0]}</small>
+                        `;
+                        document.getElementById('routeSummaryContent').innerHTML = summaryHtml;
+
+                        if (mode === 'TRANSIT' && leg.steps) {
+                            let transitStepsHtml = '<hr style="margin:8px 0"><strong>🚉 轉乘資訊</strong>';
+                            leg.steps.forEach((step) => {
+                                if (step.travel_mode === 'TRANSIT' && step.transit) {
+                                    const line = step.transit.line;
+                                    const vehicle = line.vehicle;
+                                    const icon = vehicle && vehicle.type === 'BUS' ? '🚌' : '🚆';
+                                    const departureStop = step.transit.departure_stop.name;
+                                    const arrivalStop = step.transit.arrival_stop.name;
+                                    transitStepsHtml += `
+                                        <div class="transit-step">
+                                            <span>${icon} ${line.short_name || line.name || ''}</span>
+                                            <span>${departureStop} → ${arrivalStop}</span>
+                                            <small>(${step.duration.text})</small>
+                                        </div>
+                                    `;
+                                } else if (step.travel_mode === 'WALKING') {
+                                    transitStepsHtml += `<div class="transit-step"><span>🚶 步行 ${step.distance.text} (${step.duration.text})</span></div>`;
+                                }
+                            });
+                            document.getElementById('transitDetailed').innerHTML = transitStepsHtml;
+                        } else {
+                            document.getElementById('transitDetailed').innerHTML = '';
+                        }
+
+                        document.getElementById('routeSummary').classList.add('show');
+                    }
+                } else {
+                    console.log('路線規劃失敗:', status);
+                }
+            });
+        }
+
+        function getModeName(mode) {
+            switch(mode) {
+                case 'DRIVING': return '開車';
+                case 'TRANSIT': return '大眾運輸';
+                case 'WALKING': return '步行';
+                case 'BICYCLING': return '單車';
+                default: return '未知';
+            }
+        }
+
+        window.closeRoutePanel = function() {
+            document.getElementById('routeSummary').classList.remove('show');
+            if (directionsRenderer) directionsRenderer.setDirections({ routes: [] });
+        };
+
+        function showMeetingLocationFromStorage() {
+            try {
+                const savedLocation = localStorage.getItem('meetingLocation');
+                if (savedLocation && map) {
+                    const locationData = JSON.parse(savedLocation);
+                    const now = new Date().getTime();
+                    
+                    if (now - locationData.timestamp < 5 * 60 * 1000) {
+                        const position = {
+                            lat: locationData.lat,
+                            lng: locationData.lng
+                        };
+                        
+                        map.setCenter(position);
+                        map.setZoom(17);
+                        
+                        if (meetingLocationMarker) meetingLocationMarker.setMap(null);
+                        
+                        meetingLocationMarker = new google.maps.Marker({
+                            map: map,
+                            position: position,
+                            title: '會合點',
+                            icon: {
+                                path: google.maps.SymbolPath.CIRCLE,
+                                scale: 12,
+                                fillColor: '#FF4444',
+                                fillOpacity: 1,
+                                strokeColor: 'white',
+                                strokeWeight: 3
+                            }
+                        });
+                        
+                        if (meetingInfoWindow) meetingInfoWindow.close();
+                        
+                        meetingInfoWindow = new google.maps.InfoWindow({
+                            content: `
+                                <div class="meeting-info-window">
+                                    <div class="meeting-info-title">🎯 會合點</div>
+                                    <div class="meeting-info-address">📍 ${locationData.address || '未知地址'}</div>
+                                </div>
+                            `
+                        });
+                        
+                        setTimeout(() => meetingInfoWindow.open(map, meetingLocationMarker), 500);
+                        localStorage.removeItem('meetingLocation');
+                    } else {
+                        localStorage.removeItem('meetingLocation');
+                    }
+                }
+            } catch (error) {
+                console.error('讀取會合點資料錯誤:', error);
+                localStorage.removeItem('meetingLocation');
+            }
+        }
+
+        // 檢查登入狀態
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                console.log('用戶已登入');
+                if (isMapInitialized) {
+                    loadCurrentGroup();
+                }
+            } else {
+                console.log('用戶未登入，地圖以訪客模式顯示');
+            }
+        });
+
+        // 頁面卸載時停止分享
+        window.addEventListener('beforeunload', () => {
+            stopSharingLocation();
+            if (unsubscribeLocations) {
+                unsubscribeLocations();
+            }
+        });
+
+        document.addEventListener('touchstart', function(e) {
+        }, { passive: true });
+    </script>
 </body>
 </html>

@@ -13,7 +13,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent; /* 移除觸摸高亮 */
+            -webkit-tap-highlight-color: transparent;
         }
 
         :root {
@@ -29,8 +29,104 @@
             font-family: 'Noto Sans', 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #f2fbfb 0%, #ebf8f8 100%);
             min-height: 100vh;
-            padding: 20px;
-            touch-action: pan-y pinch-zoom; /* 允許垂直滑動和縮放 */
+            padding: 20px 20px 20px 100px;
+            touch-action: pan-y pinch-zoom;
+        }
+
+        /* ==================== 側邊導航 - 寬度減少版 ==================== */
+        .side-nav {
+            position: fixed;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.98));
+            width: 60px;
+            border-radius: 30px;
+            box-shadow: 0 10px 30px rgba(12,52,78,0.08);
+            z-index: 1000;
+            padding: 15px 0;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(44, 197, 194, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .side-nav:hover {
+            width: 160px;
+            box-shadow: 0 15px 40px rgba(44, 197, 194, 0.15);
+        }
+
+        .nav-items {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .side-nav:hover .nav-items {
+            align-items: flex-start;
+            padding-left: 15px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            width: 100%;
+            color: var(--muted);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-radius: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .side-nav:not(:hover) .nav-item {
+            justify-content: center;
+        }
+
+        .nav-item:hover {
+            color: var(--accent-dark);
+            background: rgba(44, 197, 194, 0.1);
+        }
+
+        .nav-item:active {
+            background: rgba(44, 197, 194, 0.2);
+        }
+
+        .nav-item.active {
+            color: var(--accent-dark);
+            font-weight: 600;
+        }
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 18px;
+            background: var(--accent);
+            border-radius: 0 3px 3px 0;
+        }
+
+        .nav-icon {
+            font-size: 18px;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .nav-label {
+            font-size: 13px;
+            font-weight: 500;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.2s ease 0.1s;
+        }
+
+        .side-nav:hover .nav-label {
+            opacity: 1;
         }
 
         .header {
@@ -41,6 +137,7 @@
             max-width: 1000px;
             margin-left: auto;
             margin-right: auto;
+            padding-left: 100px;
             flex-wrap: wrap;
         }
 
@@ -52,7 +149,6 @@
             color: var(--accent);
             text-decoration: none;
             font-weight: 600;
-            transition: all 0.3s ease;
             -webkit-tap-highlight-color: transparent;
         }
 
@@ -68,6 +164,7 @@
         .container {
             max-width: 1000px;
             margin: 0 auto;
+            padding-left: 100px;
         }
 
         .search-card {
@@ -161,7 +258,6 @@
             transform: scale(0.95);
         }
 
-        /* Google Places 自動完成下拉選單 */
         .pac-container {
             border-radius: 12px;
             margin-top: 5px;
@@ -382,13 +478,32 @@
             color: var(--muted);
         }
 
-        /* 🔴 手機版優化 */
+        /* 手機版優化 */
         @media (max-width: 768px) {
             body {
-                padding: 15px;
+                padding: 15px 15px 15px 80px;
+            }
+
+            .side-nav {
+                left: 5px;
+                width: 50px;
+            }
+
+            .side-nav:hover {
+                width: 130px;
+            }
+
+            .nav-icon {
+                font-size: 16px;
+                min-width: 30px;
+            }
+
+            .nav-label {
+                font-size: 12px;
             }
 
             .header {
+                padding-left: 80px;
                 margin-bottom: 20px;
                 gap: 15px;
             }
@@ -400,6 +515,10 @@
             .back-btn {
                 padding: 8px 16px;
                 font-size: 14px;
+            }
+
+            .container {
+                padding-left: 80px;
             }
 
             .search-card {
@@ -417,7 +536,6 @@
             }
             
             .search-input {
-                width: 100%;
                 padding: 14px 16px;
                 font-size: 15px;
             }
@@ -492,9 +610,23 @@
             }
         }
 
-        /* 🔴 小手機專用 */
         @media (max-width: 480px) {
+            body {
+                padding-left: 70px;
+                padding-right: 10px;
+            }
+
+            .side-nav {
+                width: 45px;
+            }
+
+            .nav-icon {
+                font-size: 14px;
+                min-width: 25px;
+            }
+
             .header {
+                padding-left: 70px;
                 margin-bottom: 15px;
             }
 
@@ -601,7 +733,6 @@
             }
         }
 
-        /* 極小螢幕 (如 iPhone SE) */
         @media (max-width: 375px) {
             .header h1 {
                 font-size: 18px;
@@ -623,6 +754,32 @@
     </style>
 </head>
 <body>
+    <!-- 側邊導航 -->
+    <div class="side-nav">
+        <div class="nav-items">
+            <a href="index.html" class="nav-item">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">主頁</span>
+            </a>
+            <a href="map.html" class="nav-item">
+                <span class="nav-icon">🗺️</span>
+                <span class="nav-label">地圖</span>
+            </a>
+            <a href="groups.html" class="nav-item">
+                <span class="nav-icon">👥</span>
+                <span class="nav-label">群組</span>
+            </a>
+            <a href="ChatMessage.html" class="nav-item">
+                <span class="nav-icon">💬</span>
+                <span class="nav-label">聊天</span>
+            </a>
+            <a href="profile.html" class="nav-item">
+                <span class="nav-icon">👤</span>
+                <span class="nav-label">帳號</span>
+            </a>
+        </div>
+    </div>
+
     <div class="header">
         <a href="index.html" class="back-btn">← 返回</a>
         <h1>天氣查詢</h1>
@@ -685,16 +842,13 @@
             console.log('Google Places API 初始化成功');
             
             try {
-                // 檢查必要元素
                 const input = document.getElementById('placeInput');
                 if (!input) {
                     throw new Error('找不到輸入框元素');
                 }
 
-                // 初始化 Geocoder
                 geocoder = new google.maps.Geocoder();
                 
-                // 初始化 Places Autocomplete
                 autocomplete = new google.maps.places.Autocomplete(input, {
                     types: ['(cities)'],
                     fields: ['place_id', 'name', 'formatted_address', 'geometry', 'address_components']
@@ -709,18 +863,15 @@
 
                 mapsInitialized = true;
                 
-                // 啟用輸入框和按鈕
                 document.getElementById('placeInput').disabled = false;
                 document.getElementById('searchBtn').disabled = false;
                 document.getElementById('useLocationBtn').disabled = false;
                 
-                // 隱藏狀態提示
                 const apiStatus = document.getElementById('apiStatus');
                 if (apiStatus) {
                     apiStatus.style.display = 'none';
                 }
                 
-                // 載入最近搜尋記錄
                 loadRecentSearches();
                 
                 console.log('Places Autocomplete 初始化成功');
@@ -731,7 +882,6 @@
             }
         };
 
-        // 處理初始化錯誤
         function handleInitError(message) {
             const apiStatus = document.getElementById('apiStatus');
             if (apiStatus) {
@@ -742,12 +892,10 @@
             }
         }
 
-        // ==================== API 驗證錯誤處理 ====================
         window.gm_authFailure = function() {
             handleInitError('API 金鑰驗證失敗，請檢查金鑰設定');
         };
 
-        // ==================== 載入最近搜尋 ====================
         function loadRecentSearches() {
             try {
                 const saved = localStorage.getItem('recentWeatherSearches');
@@ -760,7 +908,6 @@
             }
         }
 
-        // ==================== 處理選擇的地點 ====================
         function handlePlaceSelected(place) {
             const lat = place.geometry.location.lat();
             const lng = place.geometry.location.lng();
@@ -768,7 +915,6 @@
             let displayName = place.name;
             let fullAddress = place.formatted_address || displayName;
             
-            // 嘗試取得更好的顯示名稱
             if (place.address_components) {
                 for (const component of place.address_components) {
                     if (component.types.includes('locality')) {
@@ -783,7 +929,6 @@
             fetchWeather(displayName, lat, lng, fullAddress);
         }
 
-        // ==================== 搜尋地點 ====================
         function searchPlace() {
             const input = document.getElementById('placeInput').value.trim();
             
@@ -797,7 +942,6 @@
                 return;
             }
 
-            // 顯示載入中
             document.getElementById('weatherDisplay').style.display = 'block';
             document.getElementById('weatherGrid').innerHTML = `
                 <div class="loading" style="grid-column: 1/-1;">
@@ -806,7 +950,6 @@
                 </div>
             `;
 
-            // 使用 Geocoder 進行地理編碼
             geocoder.geocode(
                 { 
                     address: input,
@@ -819,11 +962,9 @@
                         const lat = place.geometry.location.lat();
                         const lng = place.geometry.location.lng();
                         
-                        // 取得顯示名稱
                         let displayName = input;
                         let fullAddress = place.formatted_address;
                         
-                        // 從 address_components 取得更好的名稱
                         if (place.address_components) {
                             for (const component of place.address_components) {
                                 if (component.types.includes('locality')) {
@@ -858,7 +999,6 @@
             );
         }
 
-        // ==================== 使用目前位置 ====================
         function getLocationWeather() {
             if (!navigator.geolocation) {
                 alert('您的瀏覽器不支援地理位置功能');
@@ -893,7 +1033,6 @@
                     const lat = position.coords.latitude;
                     const lng = position.coords.longitude;
 
-                    // 反向地理編碼取得地點名稱
                     geocoder.geocode(
                         { 
                             location: { lat, lng },
@@ -905,7 +1044,6 @@
                                 let displayName = '目前位置';
                                 let fullAddress = place.formatted_address;
                                 
-                                // 嘗試取得城市名稱
                                 if (place.address_components) {
                                     for (const component of place.address_components) {
                                         if (component.types.includes('locality')) {
@@ -956,7 +1094,6 @@
             );
         }
 
-        // ==================== 取得天氣資料 ====================
         async function fetchWeather(displayName, lat, lon, fullAddress) {
             document.getElementById('weatherDisplay').style.display = 'block';
             document.getElementById('weatherGrid').innerHTML = `
@@ -967,7 +1104,6 @@
             `;
 
             try {
-                // 使用 Open-Meteo API 取得天氣資料
                 const response = await fetch(
                     `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=7`
                 );
@@ -978,11 +1114,9 @@
                 
                 const data = await response.json();
 
-                // 更新位置資訊
                 document.getElementById('locationName').textContent = displayName;
                 document.getElementById('locationDetail').textContent = fullAddress || `${displayName} · 7 天天氣預報`;
 
-                // 取得今天的天氣
                 const today = data.daily;
                 const todayWeatherCode = today.weathercode[0];
                 const todayMax = Math.round(today.temperature_2m_max[0]);
@@ -991,7 +1125,6 @@
                 document.getElementById('currentTemp').innerHTML = `${todayMax}°<span style="font-size:16px; color:var(--muted);">/${todayMin}°</span>`;
                 document.getElementById('currentDesc').textContent = getWeatherDescription(todayWeatherCode);
 
-                // 產生 7 天預報
                 const weekdays = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
                 let weatherHtml = '';
 
@@ -1021,7 +1154,6 @@
 
                 document.getElementById('weatherGrid').innerHTML = weatherHtml;
 
-                // 儲存到最近搜尋
                 addToRecentSearches(displayName, lat, lon, fullAddress || displayName);
 
             } catch (error) {
@@ -1035,7 +1167,6 @@
             }
         }
 
-        // ==================== 天氣輔助函數 ====================
         function getWeatherIcon(code) {
             if (code === 0 || code === 1) return '☀️';
             if (code === 2) return '⛅';
@@ -1063,25 +1194,19 @@
             return '未知';
         }
 
-        // ==================== 最近搜尋功能 ====================
         function addToRecentSearches(name, lat, lon, address) {
             const search = { name, lat, lon, address: address || '' };
             
-            // 移除重複的
             recentSearches = recentSearches.filter(s => s.name !== name);
             
-            // 加到最前面
             recentSearches.unshift(search);
             
-            // 只保留最近5筆
             if (recentSearches.length > 5) {
                 recentSearches.pop();
             }
             
-            // 儲存到 localStorage
             localStorage.setItem('recentWeatherSearches', JSON.stringify(recentSearches));
             
-            // 更新顯示
             updateRecentSearches();
         }
 
@@ -1114,9 +1239,7 @@
             }
         }
 
-        // 🔴 防止 iOS 上按鈕點擊問題
         document.addEventListener('touchstart', function(e) {
-            // 不做任何事，只是為了啟用 touch 事件
         }, { passive: true });
     </script>
 </body>

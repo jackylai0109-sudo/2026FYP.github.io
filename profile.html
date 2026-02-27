@@ -16,7 +16,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent; /* 移除觸摸高亮 */
+            -webkit-tap-highlight-color: transparent;
         }
 
         :root {
@@ -33,27 +33,28 @@
             background: linear-gradient(135deg, #f2fbfb 0%, #ebf8f8 100%);
             min-height: 100vh;
             padding: 20px 20px 20px 100px;
-            touch-action: pan-y pinch-zoom; /* 允許垂直滑動和縮放 */
+            touch-action: pan-y pinch-zoom;
         }
 
+        /* ==================== 側邊導航 - 寬度減少版 ==================== */
         .side-nav {
             position: fixed;
-            left: 20px;
+            left: 10px;
             top: 50%;
             transform: translateY(-50%);
             background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.98));
-            width: 80px;
-            border-radius: 40px;
+            width: 60px;
+            border-radius: 30px;
             box-shadow: 0 10px 30px rgba(12,52,78,0.08);
-            z-index: 1000; /* 提高 z-index */
-            padding: 20px 0;
+            z-index: 1000;
+            padding: 15px 0;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(44, 197, 194, 0.2);
             transition: all 0.3s ease;
         }
 
         .side-nav:hover {
-            width: 200px;
+            width: 160px;
             box-shadow: 0 15px 40px rgba(44, 197, 194, 0.15);
         }
 
@@ -61,19 +62,19 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 15px;
+            gap: 10px;
         }
 
         .side-nav:hover .nav-items {
             align-items: flex-start;
-            padding-left: 20px;
+            padding-left: 15px;
         }
 
         .nav-item {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 12px 0;
+            gap: 10px;
+            padding: 8px 0;
             width: 100%;
             color: var(--muted);
             text-decoration: none;
@@ -92,6 +93,10 @@
             background: rgba(44, 197, 194, 0.1);
         }
 
+        .nav-item:active {
+            background: rgba(44, 197, 194, 0.2);
+        }
+
         .nav-item.active {
             color: var(--accent-dark);
             font-weight: 600;
@@ -103,20 +108,20 @@
             left: 0;
             top: 50%;
             transform: translateY(-50%);
-            width: 4px;
-            height: 20px;
+            width: 3px;
+            height: 18px;
             background: var(--accent);
-            border-radius: 0 4px 4px 0;
+            border-radius: 0 3px 3px 0;
         }
 
         .nav-icon {
-            font-size: 20px;
-            min-width: 40px;
+            font-size: 18px;
+            min-width: 30px;
             text-align: center;
         }
 
         .nav-label {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 500;
             white-space: nowrap;
             opacity: 0;
@@ -135,6 +140,7 @@
             max-width: 600px;
             margin-left: auto;
             margin-right: auto;
+            padding-left: 100px;
             flex-wrap: wrap;
         }
 
@@ -161,6 +167,7 @@
         .container {
             max-width: 600px;
             margin: 0 auto;
+            padding-left: 100px;
         }
 
         .profile-card {
@@ -231,7 +238,7 @@
             border: 2px solid white;
             transition: all 0.3s ease;
             z-index: 10;
-            pointer-events: none; /* 讓點擊穿透到頭像容器 */
+            pointer-events: none;
         }
 
         .avatar-container:hover .avatar-edit-icon {
@@ -586,31 +593,32 @@
             }
         }
 
-        /* 🔴 手機版優化 */
+        /* 手機版優化 */
         @media (max-width: 768px) {
             body {
                 padding: 15px 15px 15px 80px;
             }
             
             .side-nav {
-                left: 10px;
-                width: 60px;
+                left: 5px;
+                width: 50px;
             }
             
             .side-nav:hover {
-                width: 140px;
+                width: 130px;
             }
             
             .nav-icon {
-                font-size: 18px;
-                min-width: 35px;
+                font-size: 16px;
+                min-width: 30px;
             }
             
             .nav-label {
-                font-size: 13px;
+                font-size: 12px;
             }
             
             .header {
+                padding-left: 80px;
                 margin-bottom: 20px;
                 gap: 15px;
             }
@@ -625,6 +633,7 @@
             }
             
             .container {
+                padding-left: 80px;
                 max-width: 100%;
             }
             
@@ -734,7 +743,6 @@
             }
         }
 
-        /* 🔴 小手機專用 */
         @media (max-width: 480px) {
             body {
                 padding-left: 70px;
@@ -744,15 +752,16 @@
             }
             
             .side-nav {
-                width: 55px;
+                width: 45px;
             }
             
             .nav-icon {
-                font-size: 16px;
-                min-width: 30px;
+                font-size: 14px;
+                min-width: 25px;
             }
             
             .header {
+                padding-left: 70px;
                 margin-bottom: 15px;
             }
             
@@ -871,7 +880,6 @@
                     
                     <div class="profile-name" id="userName"></div>
                     <div class="profile-email" id="userEmail"></div>
-                    <!-- ID 已移除 -->
                 </div>
 
                 <div class="username-input-group">
@@ -970,7 +978,6 @@
                 async () => {
                     const downloadURL = await imageRef.getDownloadURL();
                     
-                    // 🔴 修正：先檢查用戶文件是否存在
                     const userRef = db.collection('users').doc(currentUid);
                     const userDoc = await userRef.get();
                     
@@ -979,7 +986,6 @@
                             profileImageUrl: downloadURL
                         });
                     } else {
-                        // 如果文件不存在，建立新文件
                         await userRef.set({
                             profileImageUrl: downloadURL,
                             username: auth.currentUser.displayName || '用戶',
@@ -1047,7 +1053,6 @@
             const userRef = db.collection('users').doc(user.uid);
             let userDoc = await userRef.get();
             
-            // 🔴 修正：如果用戶文件不存在，自動建立
             if (!userDoc.exists) {
                 const userData = {
                     username: user.displayName || user.email.split('@')[0] || '用戶',
@@ -1058,7 +1063,7 @@
                 };
                 
                 await userRef.set(userData);
-                userDoc = await userRef.get(); // 重新讀取
+                userDoc = await userRef.get();
                 console.log('已為新用戶建立文件');
             }
             
@@ -1128,7 +1133,6 @@
         }
     }
 
-    // 🔴 修正：儲存用戶名稱時，如果文件不存在就建立
     document.getElementById('saveUsernameBtn').addEventListener('click', async function() {
         const newUsername = document.getElementById('usernameInput').value.trim();
         if (!newUsername) {
@@ -1147,12 +1151,10 @@
             const userDoc = await userRef.get();
             
             if (userDoc.exists) {
-                // 文件存在，更新
                 await userRef.update({
                     username: newUsername
                 });
             } else {
-                // 文件不存在，建立新文件
                 await userRef.set({
                     username: newUsername,
                     email: auth.currentUser.email || '',
@@ -1306,9 +1308,7 @@
         }
     });
 
-    // 🔴 防止 iOS 上按鈕點擊問題
     document.addEventListener('touchstart', function(e) {
-        // 不做任何事，只是為了啟用 touch 事件
     }, { passive: true });
 </script>
 </body>

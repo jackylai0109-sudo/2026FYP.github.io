@@ -11,12 +11,11 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     
     <style>
-        /* 所有樣式保持不變 */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent; /* 移除觸摸高亮 */
+            -webkit-tap-highlight-color: transparent;
         }
 
         :root {
@@ -35,28 +34,28 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            touch-action: pan-y pinch-zoom; /* 允許垂直滑動和縮放 */
+            touch-action: pan-y pinch-zoom;
         }
 
-        /* ==================== 側邊導航 ==================== */
+        /* ==================== 側邊導航 - 寬度減少版 ==================== */
         .side-nav {
             position: fixed;
-            left: 20px;
+            left: 10px;
             top: 50%;
             transform: translateY(-50%);
             background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.98));
-            width: 80px;
-            border-radius: 40px;
+            width: 60px;
+            border-radius: 30px;
             box-shadow: 0 10px 30px rgba(12,52,78,0.08);
-            z-index: 1000; /* 提高 z-index */
-            padding: 20px 0;
+            z-index: 1000;
+            padding: 15px 0;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(44, 197, 194, 0.2);
             transition: all 0.3s ease;
         }
 
         .side-nav:hover {
-            width: 200px;
+            width: 160px;
             box-shadow: 0 15px 40px rgba(44, 197, 194, 0.15);
         }
 
@@ -64,19 +63,19 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 15px;
+            gap: 10px;
         }
 
         .side-nav:hover .nav-items {
             align-items: flex-start;
-            padding-left: 20px;
+            padding-left: 15px;
         }
 
         .nav-item {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 12px 0;
+            gap: 10px;
+            padding: 8px 0;
             width: 100%;
             color: var(--muted);
             text-decoration: none;
@@ -106,20 +105,20 @@
             left: 0;
             top: 50%;
             transform: translateY(-50%);
-            width: 4px;
-            height: 20px;
+            width: 3px;
+            height: 18px;
             background: var(--accent);
-            border-radius: 0 4px 4px 0;
+            border-radius: 0 3px 3px 0;
         }
 
         .nav-icon {
-            font-size: 20px;
-            min-width: 40px;
+            font-size: 18px;
+            min-width: 30px;
             text-align: center;
         }
 
         .nav-label {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 500;
             white-space: nowrap;
             opacity: 0;
@@ -236,7 +235,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 18px 18px 18px 120px;
+            padding: 18px 18px 18px 100px;
             background: transparent;
             flex-wrap: wrap;
             gap: 10px;
@@ -880,7 +879,7 @@
             margin: 14px auto;
             padding: 16px;
             width: 100%;
-            padding-left: 100px;
+            padding-left: 80px;
         }
 
         .layout {
@@ -907,32 +906,32 @@
             width: min(920px, 96%); z-index: 70; display: none;
         }
 
-        /* 🔴 手機版專用優化 */
+        /* 手機版響應式 */
         @media (max-width: 768px) {
             body {
-                padding: 10px 10px 10px 70px; /* 調整左邊距 */
+                padding: 10px 10px 10px 60px;
             }
 
             .side-nav {
                 left: 5px;
-                width: 55px;
+                width: 50px;
             }
 
             .side-nav:hover {
-                width: 140px;
+                width: 130px;
             }
 
             .nav-icon {
-                font-size: 18px;
-                min-width: 35px;
+                font-size: 16px;
+                min-width: 30px;
             }
 
             .nav-label {
-                font-size: 13px;
+                font-size: 12px;
             }
 
             header.appbar {
-                padding: 10px 10px 10px 70px;
+                padding: 10px 10px 10px 60px;
                 flex-direction: column;
                 align-items: flex-start;
             }
@@ -966,7 +965,7 @@
             }
 
             .container {
-                padding-left: 70px;
+                padding-left: 60px;
                 padding-right: 10px;
             }
 
@@ -1138,27 +1137,26 @@
             }
         }
 
-        /* 小手機專用 */
         @media (max-width: 480px) {
             body {
-                padding-left: 60px;
+                padding-left: 50px;
             }
 
             .side-nav {
-                width: 50px;
+                width: 45px;
             }
 
             .nav-icon {
-                font-size: 16px;
-                min-width: 30px;
+                font-size: 14px;
+                min-width: 25px;
             }
 
             header.appbar {
-                padding-left: 60px;
+                padding-left: 50px;
             }
 
             .container {
-                padding-left: 60px;
+                padding-left: 50px;
             }
 
             .hero-section {
@@ -1360,7 +1358,6 @@
                     <a href="groups.html" class="view-all-link">查看全部 →</a>
                 </div>
                 <div id="groupPreviewContainer">
-                    <!-- 群組預覽會由 JavaScript 動態載入 -->
                     <div class="loading-members" style="text-align:center; padding:20px;">載入群組資訊中...</div>
                 </div>
             </div>
@@ -1409,14 +1406,12 @@
             appId: "YOUR_APP_ID"
         };
 
-        // 初始化 Firebase
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // ==================== 載入群組預覽 (修正版) ====================
         async function loadGroupPreview() {
             const user = auth.currentUser;
             const container = document.getElementById('groupPreviewContainer');
@@ -1435,7 +1430,6 @@
                 const userDoc = await db.collection('users').doc(user.uid).get();
                 
                 if (!userDoc.exists) {
-                    // 🔴 用戶文件不存在，顯示「還沒有加入任何群組」
                     container.innerHTML = `
                         <div class="no-group-preview">
                             <p>📭 還沒有加入任何群組</p>
@@ -1446,11 +1440,8 @@
                 }
 
                 const userData = userDoc.data();
-                
-                // 🔴 檢查 groups 是否存在且為陣列
                 const groups = userData.groups || [];
                 
-                // 檢查 groups 是否為空
                 if (groups.length === 0) {
                     container.innerHTML = `
                         <div class="no-group-preview">
@@ -1461,20 +1452,17 @@
                     return;
                 }
 
-                // 只顯示最近的3個群組
                 const recentGroups = groups.slice(0, 3);
                 let previewHtml = '';
 
                 for (const group of recentGroups) {
                     try {
-                        // 確保 group 是物件且有 groupId
                         if (!group || !group.groupId) continue;
                         
                         const groupDoc = await db.collection('groups').doc(group.groupId).get();
                         if (groupDoc.exists) {
                             const groupData = groupDoc.data();
                             
-                            // 獲取最新訊息
                             let latestMessage = '暫無訊息';
                             let messageSender = '';
                             let messageTime = '';
@@ -1510,7 +1498,6 @@
                                 console.log('無法獲取最新訊息');
                             }
 
-                            // 獲取成員數量
                             let memberCount = 1;
                             try {
                                 const membersSnapshot = await db.collection('groups')
@@ -1545,11 +1532,9 @@
                         }
                     } catch (e) {
                         console.error('載入單一群組錯誤:', e);
-                        // 繼續載入下一個群組，不要讓整個功能失敗
                     }
                 }
 
-                // 檢查是否有成功載入任何群組
                 if (previewHtml === '') {
                     container.innerHTML = `
                         <div class="no-group-preview">
@@ -1572,7 +1557,6 @@
 
             } catch (error) {
                 console.error('載入群組預覽錯誤:', error);
-                // 🔴 錯誤時也顯示友好的提示，而不是 ❌ 載入失敗
                 container.innerHTML = `
                     <div class="no-group-preview">
                         <p>📭 還沒有加入任何群組</p>
@@ -1582,9 +1566,6 @@
             }
         }
 
-        // ==================== 其他函數保持不變 ====================
-        
-        // 天氣預報功能
         window.getWeatherForecast = function() {
             console.log('getWeatherForecast 函數被呼叫');
             
@@ -1748,7 +1729,6 @@
             return '未知';
         }
 
-        // 集合點功能
         let selectedGroupId = null;
         let selectedGroupName = null;
         let selectedLocation = null;
@@ -1886,7 +1866,6 @@
             alert('請先在地圖上選擇位置');
         }
 
-        // 處理個人資料點擊
         window.handleProfileTabClick = function() {
             console.log('點擊底部帳號按鈕');
             const user = auth.currentUser;
@@ -1897,7 +1876,6 @@
             }
         };
 
-        // 處理頂部按鈕點擊
         window.handleAuthAction = function() {
             const user = auth.currentUser;
             if (user) {
@@ -1907,7 +1885,6 @@
             }
         };
 
-        // 登出確認
         window.showLogoutConfirm = function() {
             if (confirm('確定要登出嗎？')) {
                 auth.signOut().then(() => {
@@ -1916,7 +1893,6 @@
             }
         };
 
-        // 隱藏所有浮層
         window.hideAllOverlays = function() {
             const createJoin = document.getElementById('createJoin');
             const groupScreen = document.getElementById('groupScreen');
@@ -1927,7 +1903,6 @@
             if (auth) auth.style.display = 'none';
         };
 
-        // 監聽登入狀態變化
         auth.onAuthStateChanged((user) => {
             const authButton = document.getElementById('authButton');
             const logoutButton = document.getElementById('logoutButton');
@@ -1940,16 +1915,12 @@
                 logoutButton.style.display = 'none';
             }
             
-            // 載入群組預覽
             loadGroupPreview();
         });
 
-        // 初始化
         hideAllOverlays();
 
-        // 🔴 防止 iOS 上按鈕點擊問題
         document.addEventListener('touchstart', function(e) {
-            // 不做任何事，只是為了啟用 touch 事件
         }, { passive: true });
     </script>
 </body>

@@ -10,7 +10,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent; /* 移除觸摸高亮 */
+            -webkit-tap-highlight-color: transparent;
         }
 
         :root {
@@ -31,7 +31,7 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
-            touch-action: pan-y pinch-zoom; /* 允許垂直滑動和縮放 */
+            touch-action: pan-y pinch-zoom;
         }
 
         .download-container {
@@ -309,7 +309,7 @@
             margin-bottom: 5px;
         }
 
-        /* 🔴 手機版優化 */
+        /* 手機版優化 */
         @media (max-width: 768px) {
             body {
                 padding: 10px;
@@ -412,7 +412,6 @@
             }
         }
 
-        /* 🔴 小手機專用 */
         @media (max-width: 480px) {
             .download-header {
                 padding: 25px;
@@ -497,7 +496,6 @@
             }
         }
 
-        /* 極小螢幕 (如 iPhone SE) */
         @media (max-width: 375px) {
             .download-header {
                 padding: 20px;
@@ -563,28 +561,28 @@
             </div>
 
             <div class="features">
-                <div class="feature-item" onclick="alert('離線地圖功能說明')">
+                <div class="feature-item" onclick="alert('離線地圖功能說明：即使沒有網路，也能查看已下載的地圖和行程')">
                     <div class="feature-icon">🗺️</div>
                     <div class="feature-text">
                         <div class="feature-title">離線地圖</div>
                         <div class="feature-desc">無網路也能查看行程</div>
                     </div>
                 </div>
-                <div class="feature-item" onclick="alert('即時同步功能說明')">
+                <div class="feature-item" onclick="alert('即時同步功能說明：訊息和位置更新會即時推送給所有群組成員')">
                     <div class="feature-icon">⚡</div>
                     <div class="feature-text">
                         <div class="feature-title">即時同步</div>
                         <div class="feature-desc">訊息即時推送</div>
                     </div>
                 </div>
-                <div class="feature-item" onclick="alert('原生體驗說明')">
+                <div class="feature-item" onclick="alert('原生體驗功能說明：針對 Android 系統優化，操作更流暢')">
                     <div class="feature-icon">📱</div>
                     <div class="feature-text">
                         <div class="feature-title">原生體驗</div>
                         <div class="feature-desc">更流暢的操作</div>
                     </div>
                 </div>
-                <div class="feature-item" onclick="alert('推播通知功能說明')">
+                <div class="feature-item" onclick="alert('推播通知功能說明：群組有新訊息時會即時通知')">
                     <div class="feature-icon">🔔</div>
                     <div class="feature-text">
                         <div class="feature-title">推播通知</div>
@@ -630,35 +628,19 @@
     </div>
 
     <script>
-        // 下載處理函數
         function handleDownload(type) {
             if (type === 'direct') {
-                // 這裡可以放實際的 APK 下載連結
-                // 例如：window.location.href = 'https://your-server.com/app-release.apk';
                 alert('📥 APK 下載功能準備中\n\n預計上線日期：2025年6月');
-                
-                // 模擬下載（實際使用時替換為真實連結）
-                // const apkUrl = 'https://example.com/travelsync-v1.0.0.apk';
-                // window.location.href = apkUrl;
             } else if (type === 'google') {
-                // 這裡可以放 Google Play 商店連結
-                // 例如：window.location.href = 'https://play.google.com/store/apps/details?id=com.travelsync.app';
                 alert('▶️ Google Play 商店頁面準備中\n\n即將上架，敬請期待！');
-                
-                // 模擬商店連結
-                // const playStoreUrl = 'https://play.google.com/store/apps/details?id=com.travelsync.app';
-                // window.location.href = playStoreUrl;
             }
         }
 
-        // 模擬 QR Code 掃描（實際使用時替換為真實的 QR Code 圖片）
         function simulateQRDownload() {
             alert('📱 請使用手機相機掃描 QR Code\n\n或點擊下方按鈕直接下載');
         }
 
-        // 🔴 防止 iOS 上按鈕點擊問題
         document.addEventListener('touchstart', function(e) {
-            // 不做任何事，只是為了啟用 touch 事件
         }, { passive: true });
     </script>
 </body>

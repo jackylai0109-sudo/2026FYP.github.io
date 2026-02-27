@@ -15,7 +15,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent; /* 移除觸摸高亮 */
+            -webkit-tap-highlight-color: transparent;
         }
 
         :root {
@@ -36,7 +36,7 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
-            touch-action: pan-y pinch-zoom; /* 允許垂直滑動和縮放 */
+            touch-action: pan-y pinch-zoom;
         }
 
         .auth-container {
@@ -143,7 +143,7 @@
             border: 1px solid #e6eef0;
             border-radius: 10px;
             font-size: 15px;
-            transition: border-color 0.3s;
+            transition: all 0.3s;
             background: white;
             -webkit-appearance: none;
         }
@@ -291,7 +291,6 @@
             opacity: 0.8;
         }
 
-        /* 載入中動畫 */
         .loading {
             display: none;
             text-align: center;
@@ -313,7 +312,7 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* 🔴 手機版優化 */
+        /* 手機版優化 */
         @media (max-width: 768px) {
             body {
                 padding: 10px;
@@ -397,7 +396,6 @@
             }
         }
 
-        /* 🔴 小手機專用 */
         @media (max-width: 480px) {
             body {
                 padding: 5px;
@@ -474,7 +472,6 @@
             }
         }
 
-        /* 針對 iPhone SE 等更小螢幕 */
         @media (max-width: 375px) {
             .auth-header {
                 padding: 15px;
@@ -554,7 +551,6 @@
 
                 <button class="btn" onclick="handleLogin()">登入</button>
                 
-                <!-- 對應 Android 的 tvError -->
                 <div id="loginError" style="color: #ff5a5f; font-size: 13px; margin-top: 10px; text-align: center;"></div>
 
                 <div class="divider">
@@ -580,7 +576,7 @@
                 </div>
             </div>
 
-            <!-- 註冊表單 (預設隱藏) -->
+            <!-- 註冊表單 -->
             <div id="registerForm" style="display: none;">
                 <div class="form-group">
                     <label>姓名</label>
@@ -624,7 +620,6 @@
     </div>
 
     <script>
-        // Firebase 配置 (請替換為您的 Firebase 配置)
         const firebaseConfig = {
             apiKey: "AIzaSyBhvbTPl-hGv1MWtrua55LuvIUpdabqy4M",
             authDomain: "YOUR_AUTH_DOMAIN",
@@ -634,20 +629,16 @@
             appId: "YOUR_APP_ID"
         };
 
-        // 初始化 Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // 檢查是否已登入
         auth.onAuthStateChanged((user) => {
             if (user) {
-                // 已登入，跳轉到主頁面
                 window.location.href = 'index.html';
             }
         });
 
-        // ==================== 頁籤切換 ====================
         function switchTab(tab) {
             const loginTab = document.getElementById('loginTab');
             const registerTab = document.getElementById('registerTab');
@@ -667,7 +658,6 @@
             }
         }
 
-        // ==================== 顯示錯誤訊息 ====================
         function showError(elementId, message) {
             const element = document.getElementById(elementId);
             if (element) {
@@ -686,20 +676,17 @@
             btns.forEach(btn => btn.disabled = show);
         }
 
-        // ==================== 登入功能 (對應 Android handleLogin) ====================
         async function handleLogin() {
             clearErrors();
             
             const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value.trim();
             
-            // 對應 Android 的 TextUtils.isEmpty
             if (!email || !password) {
                 document.getElementById('loginError').textContent = '請輸入電子郵件與密碼';
                 return;
             }
 
-            // 對應 Android 的 Patterns.EMAIL_ADDRESS.matcher
             const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailPattern.test(email)) {
                 document.getElementById('loginError').textContent = '電子郵件格式不正確';
@@ -710,22 +697,14 @@
             document.getElementById('loginError').textContent = '';
 
             try {
-                // 對應 Android 的 signInWithEmailAndPassword
                 const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                
-                // 登入成功
                 console.log('登入成功:', userCredential.user.uid);
-                
-                // 儲存登入狀態 (可選)
                 localStorage.setItem('userId', userCredential.user.uid);
-                
-                // 跳轉到主頁面
                 window.location.href = 'index.html';
                 
             } catch (error) {
                 console.error('登入錯誤:', error);
                 
-                // 對應 Android 的錯誤訊息處理
                 let errorMessage = '登入失敗';
                 switch (error.code) {
                     case 'auth/invalid-email':
@@ -750,7 +729,6 @@
             }
         }
 
-        // ==================== 註冊功能 ====================
         async function handleRegister() {
             clearErrors();
     
@@ -759,7 +737,6 @@
             const password = document.getElementById('registerPassword').value.trim();
             const confirmPassword = document.getElementById('registerConfirmPassword').value.trim();
     
-    // 驗證輸入
             let hasError = false;
 
             if (!name) {
@@ -794,16 +771,13 @@
             showLoading(true);
 
             try {
-        // 建立 Firebase 帳號
                 const userCredential = await auth.createUserWithEmailAndPassword(email, password);
                 const user = userCredential.user;
 
-        // 更新用戶顯示名稱 (這會設定 auth 的 displayName)
                 await user.updateProfile({
                     displayName: name
                 });
 
-        // 儲存用戶資料到 Firestore
                 await db.collection('users').doc(user.uid).set({
                     username: name,
                     email: email,
@@ -812,8 +786,6 @@
                 });
 
                 console.log('註冊成功:', user.uid, '名稱:', name);
-        
-        // 跳轉到首頁
                 window.location.href = 'index.html';
 
             } catch (error) {
@@ -843,39 +815,6 @@
             }
         }
 
-// Google 登入
-async function googleLogin() {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    
-    try {
-        showLoading(true);
-        const result = await auth.signInWithPopup(provider);
-        const user = result.user;
-
-        // 檢查是否已存在用戶資料
-        const userDoc = await db.collection('users').doc(user.uid).get();
-        
-        if (!userDoc.exists) {
-            // 新用戶，建立資料
-            await db.collection('users').doc(user.uid).set({
-                username: user.displayName || 'Google 用戶',
-                email: user.email,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                currentGroupId: null
-            });
-        }
-
-        window.location.href = 'index.html';
-        
-    } catch (error) {
-        console.error('Google 登入錯誤:', error);
-        document.getElementById('loginError').textContent = 'Google 登入失敗';
-    } finally {
-        showLoading(false);
-    }
-}
-
-        // ==================== Google 登入 ====================
         async function googleLogin() {
             const provider = new firebase.auth.GoogleAuthProvider();
             
@@ -884,11 +823,9 @@ async function googleLogin() {
                 const result = await auth.signInWithPopup(provider);
                 const user = result.user;
 
-                // 檢查是否已存在用戶資料
                 const userDoc = await db.collection('users').doc(user.uid).get();
                 
                 if (!userDoc.exists) {
-                    // 新用戶，建立資料
                     await db.collection('users').doc(user.uid).set({
                         username: user.displayName || 'Google 用戶',
                         email: user.email,
@@ -898,6 +835,7 @@ async function googleLogin() {
                 }
 
                 window.location.href = 'index.html';
+                
             } catch (error) {
                 console.error('Google 登入錯誤:', error);
                 document.getElementById('loginError').textContent = 'Google 登入失敗';
@@ -906,13 +844,10 @@ async function googleLogin() {
             }
         }
 
-        // ==================== Apple 登入 ====================
         async function appleLogin() {
             alert('Apple 登入功能需要 Apple Developer 帳號才能使用');
-            // 實際整合需要 Apple Developer 帳號
         }
 
-        // ==================== 忘記密碼功能 ====================
         async function resetPassword() {
             const email = document.getElementById('loginEmail').value.trim();
             
@@ -930,7 +865,6 @@ async function googleLogin() {
             }
         }
 
-        // Enter 鍵觸發登入
         document.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 const activeTab = document.querySelector('.tab.active').textContent;
@@ -942,9 +876,7 @@ async function googleLogin() {
             }
         });
 
-        // 🔴 防止 iOS 上按鈕點擊問題
         document.addEventListener('touchstart', function(e) {
-            // 不做任何事，只是為了啟用 touch 事件
         }, { passive: true });
     </script>
 </body>
