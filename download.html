@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>TravelSync · 下載 Android App</title>
     
     <style>
@@ -10,6 +10,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent; /* 移除觸摸高亮 */
         }
 
         :root {
@@ -30,6 +31,7 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
+            touch-action: pan-y pinch-zoom; /* 允許垂直滑動和縮放 */
         }
 
         .download-container {
@@ -73,6 +75,11 @@
             font-weight: bold;
             color: var(--accent-dark);
             box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .download-header .logo:active {
+            transform: scale(0.95);
         }
 
         .download-header h1 {
@@ -105,6 +112,7 @@
             color: var(--muted);
             line-height: 1.6;
             margin-bottom: 10px;
+            font-size: 15px;
         }
 
         .features {
@@ -119,11 +127,17 @@
             padding: 20px;
             background: var(--bg);
             border-radius: var(--radius);
-            transition: transform 0.3s ease;
+            transition: all 0.3s ease;
+            cursor: pointer;
         }
 
         .feature-item:hover {
             transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(44, 197, 194, 0.2);
+        }
+
+        .feature-item:active {
+            transform: scale(0.95);
         }
 
         .feature-icon {
@@ -135,11 +149,13 @@
             font-weight: 600;
             color: var(--accent-dark);
             margin-bottom: 5px;
+            font-size: 16px;
         }
 
         .feature-desc {
             font-size: 13px;
             color: var(--muted);
+            line-height: 1.4;
         }
 
         .download-options {
@@ -163,12 +179,17 @@
             text-decoration: none;
             color: inherit;
             display: block;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .download-card:hover {
             transform: translateY(-5px);
             border-color: var(--accent);
             box-shadow: 0 10px 25px rgba(44, 197, 194, 0.2);
+        }
+
+        .download-card:active {
+            transform: scale(0.98);
         }
 
         .download-icon {
@@ -186,6 +207,7 @@
             color: var(--muted);
             font-size: 14px;
             margin-bottom: 15px;
+            line-height: 1.5;
         }
 
         .download-badge {
@@ -196,6 +218,11 @@
             border-radius: 30px;
             font-weight: 600;
             font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .download-card:hover .download-badge {
+            background: var(--accent-dark);
         }
 
         .qr-section {
@@ -212,6 +239,17 @@
             border-radius: 15px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .qr-code:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .qr-code:active {
+            transform: scale(0.95);
         }
 
         .qr-placeholder {
@@ -225,6 +263,9 @@
             justify-content: center;
             font-size: 24px;
             color: var(--muted);
+            text-align: center;
+            word-break: break-word;
+            padding: 10px;
         }
 
         .qr-note {
@@ -243,11 +284,18 @@
             text-decoration: none;
             font-weight: 600;
             transition: all 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .back-btn:hover {
             background: var(--accent);
             color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(44, 197, 194, 0.3);
+        }
+
+        .back-btn:active {
+            transform: scale(0.95);
         }
 
         .version-info {
@@ -257,17 +305,243 @@
             font-size: 13px;
         }
 
+        .version-info p {
+            margin-bottom: 5px;
+        }
+
+        /* 🔴 手機版優化 */
         @media (max-width: 768px) {
+            body {
+                padding: 10px;
+                justify-content: flex-start;
+                padding-top: 20px;
+            }
+
             .download-header {
                 padding: 30px;
             }
-            
+
+            .download-header .logo {
+                width: 80px;
+                height: 80px;
+                font-size: 32px;
+                border-radius: 20px;
+            }
+
+            .download-header h1 {
+                font-size: 28px;
+            }
+
+            .download-header p {
+                font-size: 14px;
+            }
+
             .download-body {
                 padding: 30px;
             }
-            
+
+            .app-info h2 {
+                font-size: 22px;
+            }
+
+            .app-info p {
+                font-size: 14px;
+            }
+
+            .features {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+                margin: 25px 0;
+            }
+
+            .feature-item {
+                padding: 15px;
+            }
+
+            .feature-icon {
+                font-size: 32px;
+            }
+
+            .feature-title {
+                font-size: 15px;
+            }
+
+            .feature-desc {
+                font-size: 12px;
+            }
+
+            .download-options {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .download-card {
+                min-width: auto;
+                padding: 20px;
+            }
+
+            .download-icon {
+                font-size: 40px;
+            }
+
+            .download-card h3 {
+                font-size: 18px;
+            }
+
+            .download-card p {
+                font-size: 13px;
+            }
+
+            .qr-code {
+                padding: 12px;
+            }
+
+            .qr-placeholder {
+                width: 130px;
+                height: 130px;
+                font-size: 18px;
+            }
+
+            .qr-note {
+                font-size: 13px;
+            }
+
+            .back-btn {
+                padding: 10px 25px;
+                font-size: 14px;
+            }
+        }
+
+        /* 🔴 小手機專用 */
+        @media (max-width: 480px) {
+            .download-header {
+                padding: 25px;
+            }
+
+            .download-header .logo {
+                width: 70px;
+                height: 70px;
+                font-size: 28px;
+                border-radius: 18px;
+            }
+
+            .download-header h1 {
+                font-size: 24px;
+            }
+
+            .download-body {
+                padding: 20px;
+            }
+
+            .app-info h2 {
+                font-size: 20px;
+            }
+
+            .app-info p {
+                font-size: 13px;
+            }
+
             .features {
                 grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .feature-item {
+                padding: 12px;
+                display: flex;
+                align-items: center;
+                text-align: left;
+                gap: 15px;
+            }
+
+            .feature-icon {
+                font-size: 30px;
+                margin-bottom: 0;
+            }
+
+            .feature-text {
+                flex: 1;
+            }
+
+            .feature-title {
+                font-size: 14px;
+                margin-bottom: 2px;
+            }
+
+            .feature-desc {
+                font-size: 12px;
+            }
+
+            .download-card {
+                padding: 15px;
+            }
+
+            .download-icon {
+                font-size: 36px;
+                margin-bottom: 10px;
+            }
+
+            .download-card h3 {
+                font-size: 16px;
+            }
+
+            .qr-section {
+                margin-top: 30px;
+                padding-top: 20px;
+            }
+
+            .qr-placeholder {
+                width: 120px;
+                height: 120px;
+                font-size: 16px;
+            }
+        }
+
+        /* 極小螢幕 (如 iPhone SE) */
+        @media (max-width: 375px) {
+            .download-header {
+                padding: 20px;
+            }
+
+            .download-header .logo {
+                width: 60px;
+                height: 60px;
+                font-size: 24px;
+                border-radius: 15px;
+            }
+
+            .download-header h1 {
+                font-size: 22px;
+            }
+
+            .download-body {
+                padding: 15px;
+            }
+
+            .app-info h2 {
+                font-size: 18px;
+            }
+
+            .feature-item {
+                padding: 10px;
+            }
+
+            .feature-icon {
+                font-size: 28px;
+            }
+
+            .qr-placeholder {
+                width: 100px;
+                height: 100px;
+                font-size: 14px;
+            }
+
+            .qr-note {
+                font-size: 12px;
+            }
+
+            .version-info {
+                font-size: 11px;
             }
         }
     </style>
@@ -289,25 +563,33 @@
             </div>
 
             <div class="features">
-                <div class="feature-item">
+                <div class="feature-item" onclick="alert('離線地圖功能說明')">
                     <div class="feature-icon">🗺️</div>
-                    <div class="feature-title">離線地圖</div>
-                    <div class="feature-desc">無網路也能查看行程</div>
+                    <div class="feature-text">
+                        <div class="feature-title">離線地圖</div>
+                        <div class="feature-desc">無網路也能查看行程</div>
+                    </div>
                 </div>
-                <div class="feature-item">
+                <div class="feature-item" onclick="alert('即時同步功能說明')">
                     <div class="feature-icon">⚡</div>
-                    <div class="feature-title">即時同步</div>
-                    <div class="feature-desc">訊息即時推送</div>
+                    <div class="feature-text">
+                        <div class="feature-title">即時同步</div>
+                        <div class="feature-desc">訊息即時推送</div>
+                    </div>
                 </div>
-                <div class="feature-item">
+                <div class="feature-item" onclick="alert('原生體驗說明')">
                     <div class="feature-icon">📱</div>
-                    <div class="feature-title">原生體驗</div>
-                    <div class="feature-desc">更流暢的操作</div>
+                    <div class="feature-text">
+                        <div class="feature-title">原生體驗</div>
+                        <div class="feature-desc">更流暢的操作</div>
+                    </div>
                 </div>
-                <div class="feature-item">
+                <div class="feature-item" onclick="alert('推播通知功能說明')">
                     <div class="feature-icon">🔔</div>
-                    <div class="feature-title">推播通知</div>
-                    <div class="feature-desc">不錯過任何更新</div>
+                    <div class="feature-text">
+                        <div class="feature-title">推播通知</div>
+                        <div class="feature-desc">不錯過任何更新</div>
+                    </div>
                 </div>
             </div>
 
@@ -328,12 +610,12 @@
             </div>
 
             <div class="qr-section">
-                <div class="qr-code">
+                <div class="qr-code" onclick="simulateQRDownload()">
                     <div class="qr-placeholder">
-                        📱 掃描下載
+                        📱<br>掃描下載
                     </div>
                 </div>
-                <div class="qr-note">使用手機掃描 QR Code 下載 Android App</div>
+                <div class="qr-note">點擊 QR Code 或使用手機相機掃描</div>
             </div>
 
             <div style="text-align: center;">
@@ -353,7 +635,7 @@
             if (type === 'direct') {
                 // 這裡可以放實際的 APK 下載連結
                 // 例如：window.location.href = 'https://your-server.com/app-release.apk';
-                alert('APK 下載功能準備中\n\n預計上線日期：2025年6月');
+                alert('📥 APK 下載功能準備中\n\n預計上線日期：2025年6月');
                 
                 // 模擬下載（實際使用時替換為真實連結）
                 // const apkUrl = 'https://example.com/travelsync-v1.0.0.apk';
@@ -361,7 +643,7 @@
             } else if (type === 'google') {
                 // 這裡可以放 Google Play 商店連結
                 // 例如：window.location.href = 'https://play.google.com/store/apps/details?id=com.travelsync.app';
-                alert('Google Play 商店頁面準備中\n\n即將上架，敬請期待！');
+                alert('▶️ Google Play 商店頁面準備中\n\n即將上架，敬請期待！');
                 
                 // 模擬商店連結
                 // const playStoreUrl = 'https://play.google.com/store/apps/details?id=com.travelsync.app';
@@ -371,8 +653,13 @@
 
         // 模擬 QR Code 掃描（實際使用時替換為真實的 QR Code 圖片）
         function simulateQRDownload() {
-            alert('請使用手機相機掃描 QR Code\n\n或點擊下方按鈕直接下載');
+            alert('📱 請使用手機相機掃描 QR Code\n\n或點擊下方按鈕直接下載');
         }
+
+        // 🔴 防止 iOS 上按鈕點擊問題
+        document.addEventListener('touchstart', function(e) {
+            // 不做任何事，只是為了啟用 touch 事件
+        }, { passive: true });
     </script>
 </body>
 </html>

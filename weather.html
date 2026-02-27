@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>TravelSync · 天氣查詢</title>
     
     <!-- 使用較新的 Places API -->
@@ -13,6 +13,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent; /* 移除觸摸高亮 */
         }
 
         :root {
@@ -29,6 +30,7 @@
             background: linear-gradient(135deg, #f2fbfb 0%, #ebf8f8 100%);
             min-height: 100vh;
             padding: 20px;
+            touch-action: pan-y pinch-zoom; /* 允許垂直滑動和縮放 */
         }
 
         .header {
@@ -39,6 +41,7 @@
             max-width: 1000px;
             margin-left: auto;
             margin-right: auto;
+            flex-wrap: wrap;
         }
 
         .back-btn {
@@ -49,11 +52,17 @@
             color: var(--accent);
             text-decoration: none;
             font-weight: 600;
+            transition: all 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .back-btn:hover {
             background: var(--accent);
             color: white;
+        }
+
+        .back-btn:active {
+            transform: scale(0.95);
         }
 
         .container {
@@ -80,17 +89,23 @@
             gap: 10px;
             margin-bottom: 20px;
             position: relative;
-            width: 100%; /* 確保容器佔滿寬度 */
+            width: 100%;
+        }
+
+        .search-container {
+            position: relative;
+            flex: 1;
+            min-width: 0;
         }
 
         .search-input {
-            flex: 1;
-            padding: 16px 18px; /* 增加 padding 讓輸入框更高 */
+            width: 100%;
+            padding: 16px 18px;
             border: 1px solid #e6eef0;
-            border-radius: 12px; /* 稍微增加圓角 */
+            border-radius: 12px;
             font-size: 16px;
             transition: all 0.3s ease;
-            min-width: 300px; /* 設定最小寬度 */
+            -webkit-appearance: none;
         }
 
         .search-input:focus {
@@ -100,7 +115,7 @@
         }
 
         .search-btn {
-            padding: 16px 32px; /* 增加按鈕大小配合輸入框 */
+            padding: 16px 32px;
             background: var(--accent);
             color: white;
             border: none;
@@ -109,12 +124,17 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            white-space: nowrap; /* 防止文字換行 */
+            white-space: nowrap;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .search-btn:hover {
             background: #28b5b2;
             transform: translateY(-2px);
+        }
+
+        .search-btn:active {
+            transform: scale(0.95);
         }
 
         .use-location-btn {
@@ -129,11 +149,16 @@
             transition: all 0.3s ease;
             width: 100%;
             margin-bottom: 20px;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .use-location-btn:hover {
             background: #f0fcfc;
             transform: translateY(-2px);
+        }
+
+        .use-location-btn:active {
+            transform: scale(0.95);
         }
 
         /* Google Places 自動完成下拉選單 */
@@ -144,11 +169,11 @@
             border: 1px solid #e6eef0;
             font-family: 'Noto Sans', 'Segoe UI', Roboto, sans-serif;
             z-index: 1000;
-            width: 100% !important; /* 確保下拉選單寬度與輸入框一致 */
+            width: 100% !important;
         }
 
         .pac-item {
-            padding: 12px 16px; /* 增加項目高度 */
+            padding: 12px 16px;
             cursor: pointer;
             border-top: 1px solid #eef2f2;
             font-size: 15px;
@@ -156,6 +181,10 @@
 
         .pac-item:hover {
             background: #f0fcfc;
+        }
+
+        .pac-item:active {
+            background: #e0f5f5;
         }
 
         .pac-item:first-child {
@@ -187,12 +216,17 @@
             cursor: pointer;
             transition: all 0.3s ease;
             border: 1px solid transparent;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .recent-tag:hover {
             background: white;
             border-color: var(--accent);
             transform: scale(1.05);
+        }
+
+        .recent-tag:active {
+            transform: scale(0.95);
         }
 
         .weather-display {
@@ -210,6 +244,8 @@
             margin-bottom: 20px;
             padding-bottom: 20px;
             border-bottom: 1px solid #eef2f2;
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
         .location-info h3 {
@@ -221,6 +257,7 @@
         .location-info p {
             color: var(--muted);
             font-size: 14px;
+            word-break: break-word;
         }
 
         .current-weather {
@@ -253,12 +290,17 @@
             text-align: center;
             transition: all 0.3s ease;
             border: 1px solid #e6eef0;
+            cursor: pointer;
         }
 
         .weather-card:hover {
             transform: translateY(-5px);
             border-color: var(--accent);
             box-shadow: 0 8px 20px rgba(44, 197, 194, 0.1);
+        }
+
+        .weather-card:active {
+            transform: scale(0.95);
         }
 
         .weather-day {
@@ -340,25 +382,242 @@
             color: var(--muted);
         }
 
-        .search-container {
-            position: relative;
-            flex: 1;
-            min-width: 0; /* 防止 flex 子項目溢出 */
-        }
-
-        /* 響應式設計：手機版時調整 */
+        /* 🔴 手機版優化 */
         @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+
+            .header {
+                margin-bottom: 20px;
+                gap: 15px;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .back-btn {
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+
+            .search-card {
+                padding: 20px;
+            }
+
+            h2 {
+                font-size: 1.3rem;
+                margin-bottom: 15px;
+            }
+
             .search-box {
                 flex-direction: column;
+                gap: 12px;
             }
             
             .search-input {
                 width: 100%;
-                min-width: auto;
+                padding: 14px 16px;
+                font-size: 15px;
             }
             
             .search-btn {
                 width: 100%;
+                padding: 14px;
+                font-size: 15px;
+            }
+
+            .use-location-btn {
+                padding: 14px;
+                font-size: 15px;
+            }
+
+            .pac-item {
+                padding: 10px 14px;
+                font-size: 14px;
+            }
+
+            .recent-tag {
+                padding: 6px 14px;
+                font-size: 13px;
+            }
+
+            .weather-display {
+                padding: 20px;
+            }
+
+            .weather-header {
+                flex-direction: column;
+                align-items: flex-start;
+                text-align: left;
+            }
+
+            .current-weather {
+                text-align: left;
+                width: 100%;
+            }
+
+            .location-info h3 {
+                font-size: 22px;
+            }
+
+            .current-temp {
+                font-size: 42px;
+            }
+
+            .weather-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .weather-card {
+                padding: 15px 10px;
+            }
+
+            .weather-day {
+                font-size: 14px;
+            }
+
+            .weather-icon {
+                font-size: 40px;
+            }
+
+            .weather-temp {
+                font-size: 18px;
+            }
+
+            .weather-desc {
+                font-size: 12px;
+            }
+        }
+
+        /* 🔴 小手機專用 */
+        @media (max-width: 480px) {
+            .header {
+                margin-bottom: 15px;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .search-card {
+                padding: 15px;
+            }
+
+            h2 {
+                font-size: 1.2rem;
+            }
+
+            .search-input {
+                padding: 12px 14px;
+                font-size: 14px;
+            }
+
+            .search-btn {
+                padding: 12px;
+                font-size: 14px;
+            }
+
+            .use-location-btn {
+                padding: 12px;
+                font-size: 14px;
+                margin-bottom: 15px;
+            }
+
+            .recent-title {
+                font-size: 13px;
+            }
+
+            .recent-tag {
+                padding: 5px 12px;
+                font-size: 12px;
+            }
+
+            .weather-display {
+                padding: 15px;
+            }
+
+            .location-info h3 {
+                font-size: 20px;
+            }
+
+            .location-info p {
+                font-size: 12px;
+            }
+
+            .current-temp {
+                font-size: 36px;
+            }
+
+            .current-desc {
+                font-size: 14px;
+            }
+
+            .weather-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .weather-card {
+                display: flex;
+                align-items: center;
+                text-align: left;
+                padding: 12px;
+                gap: 15px;
+            }
+
+            .weather-card > div {
+                flex: 1;
+            }
+
+            .weather-day {
+                margin-bottom: 0;
+                font-size: 14px;
+            }
+
+            .weather-date {
+                margin-bottom: 0;
+            }
+
+            .weather-icon {
+                font-size: 36px;
+                margin-bottom: 0;
+            }
+
+            .weather-temp {
+                font-size: 18px;
+                margin-bottom: 0;
+            }
+
+            .weather-temp-range {
+                font-size: 13px;
+            }
+
+            .weather-desc {
+                margin-top: 0;
+                text-align: right;
+            }
+        }
+
+        /* 極小螢幕 (如 iPhone SE) */
+        @media (max-width: 375px) {
+            .header h1 {
+                font-size: 18px;
+            }
+
+            .weather-card {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .weather-card > div {
+                min-width: 80px;
+            }
+
+            .weather-icon {
+                order: -1;
             }
         }
     </style>
@@ -381,7 +640,7 @@
                     <input type="text" 
                            class="search-input" 
                            id="placeInput" 
-                           placeholder="輸入城市、景點或地址，例如：台北101、東京鐵塔、紐約時代廣場"
+                           placeholder="輸入城市或景點"
                            autocomplete="off"
                            disabled>
                 </div>
@@ -749,7 +1008,7 @@
                     const minTemp = Math.round(today.temperature_2m_min[i]);
                     
                     weatherHtml += `
-                        <div class="weather-card">
+                        <div class="weather-card" onclick="alert('${displayName} ${weekday} ${dateStr}：${weatherDesc}，最高 ${maxTemp}° / 最低 ${minTemp}°')">
                             <div class="weather-day">${weekday}</div>
                             <div class="weather-date">${dateStr}</div>
                             <div class="weather-icon">${weatherIcon}</div>
@@ -854,6 +1113,11 @@
                 console.error('更新最近搜尋顯示錯誤:', error);
             }
         }
+
+        // 🔴 防止 iOS 上按鈕點擊問題
+        document.addEventListener('touchstart', function(e) {
+            // 不做任何事，只是為了啟用 touch 事件
+        }, { passive: true });
     </script>
 </body>
 </html>

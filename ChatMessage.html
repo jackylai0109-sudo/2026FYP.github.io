@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>TravelSync 聊天室</title>
     
     <!-- Firebase SDK -->
@@ -15,6 +15,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent; /* 移除觸摸高亮 */
         }
 
         :root {
@@ -36,7 +37,8 @@
             min-height: 100vh;
             display: flex;
             justify-content: center;
-            padding: 20px 20px 20px 100px; /* 左側留白給導航 */
+            padding: 20px 20px 20px 100px;
+            touch-action: pan-y pinch-zoom; /* 允許垂直滑動和縮放 */
         }
 
         /* ==================== 側邊導航 ==================== */
@@ -49,7 +51,7 @@
             width: 80px;
             border-radius: 40px;
             box-shadow: 0 10px 30px rgba(12,52,78,0.08);
-            z-index: 100;
+            z-index: 1000;
             padding: 20px 0;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(44, 197, 194, 0.2);
@@ -96,6 +98,10 @@
             background: rgba(44, 197, 194, 0.1);
         }
 
+        .nav-item:active {
+            background: rgba(44, 197, 194, 0.2);
+        }
+
         .nav-item.active {
             color: var(--primary-dark);
             font-weight: 600;
@@ -131,7 +137,7 @@
             opacity: 1;
         }
 
-        /* 聊天容器 - 調整寬度以適應導航 */
+        /* 聊天容器 */
         .chat-container {
             max-width: 1000px;
             width: 100%;
@@ -168,6 +174,7 @@
             justify-content: center;
             cursor: pointer;
             transition: all 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .back-button:hover {
@@ -181,6 +188,7 @@
 
         .header-content {
             flex: 1;
+            min-width: 0; /* 防止 flex 溢出 */
         }
 
         .chat-header h2 {
@@ -212,6 +220,7 @@
             transition: all 0.3s ease;
             border: 1px solid rgba(255, 255, 255, 0.3);
             margin-left: 10px;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .invite-code:hover {
@@ -264,6 +273,7 @@
             overflow-y: auto;
             padding: 20px;
             background: var(--bg-light);
+            -webkit-overflow-scrolling: touch; /* iOS 流暢滑動 */
         }
 
         /* 單則訊息 */
@@ -328,7 +338,7 @@
             word-break: break-word;
         }
 
-        /* 會合點訊息樣式 - 可點擊 */
+        /* 會合點訊息樣式 */
         .meeting-message {
             background: var(--meeting-bg) !important;
             border-left: 4px solid var(--meeting-border);
@@ -343,7 +353,7 @@
         }
 
         .meeting-message:active {
-            transform: translateY(0);
+            transform: scale(0.98);
         }
 
         .own-message .meeting-message {
@@ -389,6 +399,7 @@
         .meeting-detail-value {
             flex: 1;
             color: var(--text-dark);
+            word-break: break-word;
         }
 
         .meeting-address {
@@ -397,7 +408,7 @@
             margin-top: 5px;
             padding-top: 5px;
             border-top: 1px solid #ffe0b2;
-            word-break: break-all;
+            word-break: break-word;
         }
 
         .meeting-notes {
@@ -408,6 +419,7 @@
             font-size: 12px;
             color: var(--text-dark);
             font-style: italic;
+            word-break: break-word;
         }
 
         .meeting-time {
@@ -423,7 +435,6 @@
             font-size: 14px;
         }
 
-        /* 點擊提示 */
         .click-hint {
             display: flex;
             align-items: center;
@@ -439,7 +450,7 @@
             font-size: 12px;
         }
 
-        /* 不同類型的訊息樣式 */
+        /* 訊息類型樣式 */
         .message-image {
             max-width: 200px;
             border-radius: 8px;
@@ -447,6 +458,7 @@
             background: #f0f0f0;
             padding: 10px;
             text-align: center;
+            word-break: break-word;
         }
 
         .message-location {
@@ -454,6 +466,7 @@
             padding: 8px;
             border-radius: 8px;
             margin-top: 5px;
+            word-break: break-word;
         }
 
         .message-file {
@@ -463,6 +476,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            word-break: break-word;
         }
 
         /* 發送區域 */
@@ -486,6 +500,7 @@
             font-size: 0.95rem;
             outline: none;
             transition: border-color 0.3s;
+            -webkit-appearance: none;
         }
 
         #messageInput:focus {
@@ -495,6 +510,7 @@
         .toolbar {
             display: flex;
             gap: 8px;
+            flex-wrap: wrap;
         }
 
         .tool-btn {
@@ -505,12 +521,17 @@
             cursor: pointer;
             font-size: 0.9rem;
             transition: all 0.3s;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .tool-btn:hover {
             background: var(--primary);
             color: white;
             border-color: var(--primary);
+        }
+
+        .tool-btn:active {
+            transform: scale(0.95);
         }
 
         .send-btn {
@@ -521,7 +542,8 @@
             border-radius: 24px;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: all 0.2s;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .send-btn:hover {
@@ -538,6 +560,7 @@
             background: white;
             border-left: 1px solid var(--border);
             padding: 20px;
+            overflow-y: auto;
         }
 
         .members-sidebar h3 {
@@ -573,6 +596,7 @@
         .member-name {
             font-weight: 600;
             color: var(--text-dark);
+            font-size: 14px;
         }
 
         .member-status {
@@ -628,6 +652,10 @@
             color: var(--primary-dark);
         }
 
+        .load-more-btn:active {
+            transform: scale(0.95);
+        }
+
         /* 載入中動畫 */
         .loading {
             text-align: center;
@@ -649,10 +677,10 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* 響應式設計 */
+        /* 🔴 手機版優化 */
         @media (max-width: 768px) {
             body {
-                padding-left: 80px;
+                padding: 10px 10px 10px 80px;
             }
             
             .side-nav {
@@ -661,11 +689,21 @@
             }
             
             .side-nav:hover {
-                width: 160px;
+                width: 140px;
             }
             
-            .members-sidebar {
-                display: none;
+            .nav-icon {
+                font-size: 18px;
+                min-width: 35px;
+            }
+            
+            .chat-container {
+                height: 95vh;
+                border-radius: 20px;
+            }
+            
+            .chat-header {
+                padding: 15px;
             }
             
             .back-button {
@@ -678,14 +716,168 @@
                 font-size: 1.2rem;
             }
             
+            .invite-code {
+                padding: 3px 8px;
+                font-size: 12px;
+            }
+            
+            .invite-code .code {
+                font-size: 13px;
+            }
+            
+            .group-info {
+                font-size: 0.8rem;
+            }
+            
+            .members-sidebar {
+                display: none; /* 手機版隱藏成員列表 */
+            }
+            
+            .messages-area {
+                padding: 15px;
+            }
+            
             .message-bubble {
                 max-width: 85%;
+                padding: 10px 14px;
+            }
+            
+            .message-content {
+                font-size: 0.9rem;
+            }
+            
+            .meeting-detail-item {
+                font-size: 12px;
+            }
+            
+            .meeting-detail-label {
+                width: 65px;
+            }
+            
+            .tool-btn {
+                padding: 6px 12px;
+                font-size: 0.85rem;
+            }
+            
+            .send-btn {
+                padding: 10px 20px;
+                font-size: 0.95rem;
+            }
+            
+            .message-input-area {
+                padding: 15px;
+            }
+        }
+
+        /* 🔴 小手機專用 */
+        @media (max-width: 480px) {
+            body {
+                padding-left: 70px;
+                padding-right: 5px;
+                padding-top: 5px;
+                padding-bottom: 5px;
+            }
+            
+            .side-nav {
+                width: 55px;
+            }
+            
+            .nav-icon {
+                font-size: 16px;
+                min-width: 30px;
+            }
+            
+            .chat-header {
+                padding: 12px;
+            }
+            
+            .chat-header h2 {
+                font-size: 1.1rem;
+            }
+            
+            .invite-code {
+                margin-left: 5px;
+                padding: 2px 6px;
+            }
+            
+            .invite-code .code {
+                font-size: 12px;
+            }
+            
+            .message-bubble {
+                max-width: 90%;
+            }
+            
+            .message-header {
+                font-size: 0.8rem;
+            }
+            
+            .message-time {
+                font-size: 0.7rem;
+            }
+            
+            .toolbar {
+                justify-content: space-between;
+            }
+            
+            .tool-btn {
+                flex: 1;
+                text-align: center;
+                padding: 8px 4px;
+                font-size: 0.8rem;
+            }
+            
+            .input-wrapper {
+                gap: 8px;
+            }
+            
+            #messageInput {
+                padding: 10px;
+                font-size: 0.9rem;
+            }
+            
+            .send-btn {
+                padding: 8px 16px;
+                font-size: 0.9rem;
+            }
+            
+            .meeting-detail-item {
+                flex-direction: column;
+                gap: 2px;
+            }
+            
+            .meeting-detail-label {
+                width: 100%;
+            }
+        }
+
+        /* 極小螢幕 (如 iPhone SE) */
+        @media (max-width: 375px) {
+            .chat-header h2 {
+                font-size: 1rem;
+            }
+            
+            .invite-code {
+                padding: 2px 4px;
+            }
+            
+            .invite-code .code {
+                font-size: 11px;
+            }
+            
+            .tool-btn {
+                padding: 6px 2px;
+                font-size: 0.75rem;
+            }
+            
+            .message-bubble {
+                padding: 8px 12px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- 側邊導航 (與其他頁面一致) -->
+    <!-- 側邊導航 -->
     <div class="side-nav">
         <div class="nav-items">
             <a href="index.html" class="nav-item">
@@ -752,7 +944,7 @@
                 </div>
             </div>
 
-            <!-- 成員列表 -->
+            <!-- 成員列表 - 手機版隱藏 -->
             <div class="members-sidebar">
                 <h3>群組成員</h3>
                 <div id="membersList">
@@ -1406,6 +1598,11 @@
 
         // ==================== 全域函數 ====================
         window.openLocationOnMap = openLocationOnMap;
+
+        // 🔴 防止 iOS 上按鈕點擊問題
+        document.addEventListener('touchstart', function(e) {
+            // 不做任何事，只是為了啟用 touch 事件
+        }, { passive: true });
     </script>
 </body>
 </html>

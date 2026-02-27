@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
   <title>TravelSync · 地圖＋多元交通</title>
   
   <!-- Firebase SDK -->
@@ -31,6 +31,8 @@
       background: linear-gradient(135deg, #f2fbfb 0%, #ebf8f8 100%);
       min-height: 100vh;
       padding: 20px 20px 20px 100px;
+      position: relative;
+      touch-action: pan-y pinch-zoom; /* 允許垂直滑動和縮放 */
     }
 
     /* ==================== 側邊導航 ==================== */
@@ -43,11 +45,12 @@
       width: 80px;
       border-radius: 40px;
       box-shadow: 0 10px 30px rgba(12,52,78,0.08);
-      z-index: 100;
+      z-index: 1000; /* 提高 z-index */
       padding: 20px 0;
       backdrop-filter: blur(10px);
       border: 1px solid rgba(44, 197, 194, 0.2);
       transition: all 0.3s ease;
+      pointer-events: auto; /* 確保可以點擊 */
     }
 
     .side-nav:hover {
@@ -79,6 +82,7 @@
       border-radius: 30px;
       position: relative;
       overflow: hidden;
+      -webkit-tap-highlight-color: transparent; /* 移除觸摸高亮 */
     }
 
     .side-nav:not(:hover) .nav-item {
@@ -134,6 +138,8 @@
       margin-left: auto;
       margin-right: auto;
       padding-left: 0;
+      position: relative;
+      z-index: 10;
     }
 
     .back-btn {
@@ -144,6 +150,7 @@
       color: var(--accent);
       text-decoration: none;
       font-weight: 600;
+      -webkit-tap-highlight-color: transparent;
     }
 
     .back-btn:hover {
@@ -156,6 +163,8 @@
       margin: 0 auto;
       height: calc(100vh - 150px);
       padding-left: 0;
+      position: relative;
+      z-index: 1;
     }
 
     .map-card {
@@ -166,6 +175,7 @@
       box-shadow: 0 6px 20px rgba(6, 30, 38, 0.06);
       display: flex;
       flex-direction: column;
+      position: relative;
     }
 
     .map-header {
@@ -176,6 +186,8 @@
       border-bottom: 1px solid #eef2f2;
       flex-wrap: wrap;
       gap: 15px;
+      background: white;
+      z-index: 5;
     }
 
     .map-header h2 {
@@ -202,6 +214,7 @@
       font-size: 14px;
       transition: all 0.3s ease;
       background: white;
+      -webkit-appearance: none; /* 移除 iOS 預設樣式 */
     }
 
     .search-input:focus {
@@ -220,6 +233,7 @@
       font-weight: 600;
       cursor: pointer;
       transition: all 0.3s ease;
+      -webkit-tap-highlight-color: transparent;
     }
 
     .search-btn:hover {
@@ -271,6 +285,7 @@
       font-size: 13px;
       cursor: pointer;
       transition: all 0.3s ease;
+      -webkit-tap-highlight-color: transparent;
     }
 
     .map-action-btn:hover {
@@ -286,7 +301,9 @@
       padding: 4px;
       border-radius: 30px;
       margin-right: 5px;
+      flex-wrap: wrap;
     }
+    
     .route-mode-btn {
       padding: 6px 12px;
       border: none;
@@ -300,12 +317,15 @@
       display: flex;
       align-items: center;
       gap: 4px;
+      -webkit-tap-highlight-color: transparent;
     }
+    
     .route-mode-btn.active {
       background: white;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       color: var(--accent);
     }
+    
     .route-mode-btn i { font-style: normal; font-size: 16px; }
 
     .map-container {
@@ -313,6 +333,8 @@
       position: relative;
       min-height: 500px;
       background-color: #f0f0f0;
+      touch-action: pan-y pinch-zoom; /* 允許地圖操作 */
+      overflow: hidden;
     }
 
     #google-map {
@@ -322,28 +344,40 @@
       background-color: #e8eef0;
     }
 
-    .location-button {
+    /* 🔴 修正：定位按鈕容器 */
+    .location-button-container {
       position: absolute;
       bottom: 20px;
       left: 20px;
+      z-index: 1001; /* 高於地圖 */
+      pointer-events: auto;
+    }
+
+    .location-button {
+      width: 50px;
+      height: 50px;
       background: white;
       border: none;
       border-radius: 50%;
-      width: 50px;
-      height: 50px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.2);
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 24px;
-      z-index: 10;
       transition: all 0.3s ease;
+      -webkit-tap-highlight-color: transparent;
+      outline: none;
+      padding: 0;
     }
 
     .location-button:hover {
       transform: scale(1.1);
       box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+
+    .location-button:active {
+      transform: scale(0.95);
     }
 
     .location-info {
@@ -359,6 +393,7 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       z-index: 2001;
       display: none;
+      white-space: nowrap;
     }
 
     .location-loading {
@@ -406,6 +441,7 @@
       font-size: 12px;
       color: var(--text-muted);
       margin-bottom: 8px;
+      word-break: break-word;
     }
 
     .route-summary {
@@ -416,15 +452,18 @@
       border-radius: 30px;
       padding: 15px 22px;
       box-shadow: 0 6px 25px rgba(0,0,0,0.2);
-      z-index: 20;
+      z-index: 1001; /* 高於地圖 */
       max-width: 340px;
       font-size: 13px;
       border-left: 5px solid var(--accent);
       display: none;
       backdrop-filter: blur(10px);
       background: rgba(255,255,255,0.98);
+      pointer-events: auto;
     }
+    
     .route-summary.show { display: block; }
+    
     .route-summary .close-route {
       float: right;
       cursor: pointer;
@@ -432,9 +471,12 @@
       margin-left: 10px;
       color: #aaa;
       font-size: 18px;
+      -webkit-tap-highlight-color: transparent;
     }
+    
     .route-summary .close-route:hover { color: #333; }
     .route-summary strong { color: var(--accent-dark); }
+    
     .route-summary .transit-details {
       margin-top: 8px;
       border-top: 1px dashed #ccc;
@@ -443,6 +485,7 @@
       overflow-y: auto;
       font-size: 12px;
     }
+    
     .route-summary .transit-step {
       display: flex;
       gap: 6px;
@@ -463,32 +506,147 @@
       margin-bottom: 10px;
     }
 
+    /* 🔴 手機版專用修正 */
     @media (max-width: 768px) {
       body {
-        padding-left: 80px;
+        padding-left: 70px; /* 稍微縮小左邊距 */
+        padding-right: 10px;
+        padding-top: 10px;
+        padding-bottom: 10px;
       }
       
       .side-nav {
-        left: 10px;
-        width: 60px;
+        left: 5px;
+        width: 50px;
       }
       
       .side-nav:hover {
-        width: 160px;
+        width: 140px;
+      }
+      
+      .nav-icon {
+        font-size: 18px;
+        min-width: 30px;
+      }
+      
+      .header {
+        margin-bottom: 15px;
+        gap: 10px;
+      }
+      
+      .header h1 {
+        font-size: 18px;
+      }
+      
+      .back-btn {
+        padding: 6px 12px;
+        font-size: 14px;
       }
       
       .map-header {
-        flex-direction: column;
-        align-items: stretch;
+        padding: 10px;
       }
       
-      .search-container {
-        max-width: 100%;
+      .map-header h2 {
+        font-size: 16px;
+      }
+      
+      .search-input {
+        padding: 8px 12px;
+        font-size: 13px;
+      }
+      
+      .search-btn {
+        padding: 8px 12px;
+        font-size: 13px;
+      }
+      
+      .map-action-btn {
+        padding: 6px 12px;
+        font-size: 12px;
+      }
+      
+      .route-mode-btn {
+        padding: 4px 8px;
+        font-size: 12px;
+      }
+      
+      .route-mode-btn i {
+        font-size: 14px;
+      }
+      
+      .container {
+        height: calc(100vh - 120px);
+      }
+      
+      .map-container {
+        min-height: 400px;
+      }
+      
+      #google-map {
+        min-height: 400px;
+      }
+      
+      .location-button {
+        width: 44px;
+        height: 44px;
+        font-size: 20px;
+      }
+      
+      .route-summary {
+        left: 10px;
+        right: 10px;
+        max-width: none;
+        font-size: 12px;
+        padding: 12px 15px;
+      }
+      
+      .location-info {
+        font-size: 11px;
+        padding: 6px 12px;
+        white-space: normal;
+        max-width: 90%;
+        text-align: center;
+      }
+    }
+
+    /* 小手機專用 */
+    @media (max-width: 480px) {
+      body {
+        padding-left: 60px;
+      }
+      
+      .side-nav {
+        width: 45px;
+      }
+      
+      .nav-icon {
+        font-size: 16px;
+        min-width: 25px;
       }
       
       .map-actions {
-        justify-content: flex-start;
-        flex-wrap: wrap;
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+      }
+      
+      .route-mode-group {
+        width: 100%;
+        justify-content: center;
+      }
+      
+      .map-action-btn {
+        width: 100%;
+        text-align: center;
+      }
+      
+      .search-box {
+        flex-direction: column;
+      }
+      
+      .search-btn {
+        width: 100%;
       }
     }
   </style>
@@ -521,7 +679,7 @@
   </div>
 
   <div class="header">
-    <a href="index.html" class="back-btn">← 返回主頁</a>
+    <a href="index.html" class="back-btn">← 返回</a>
     <h1>地圖 · 多元交通</h1>
   </div>
 
@@ -564,18 +722,24 @@
           <button class="map-action-btn" onclick="window.location.href='weather.html'">☀️ 天氣查詢</button>
         </div>
       </div>
-      <div class="map-container">
+      
+      <!-- 🔴 修正：將定位按鈕放在地圖容器外但絕對定位 -->
+      <div class="map-container" id="mapContainer">
         <div id="google-map"></div>
-        <!-- 目前位置按鈕 -->
-        <button class="location-button" onclick="getCurrentLocationAndCenter()" title="顯示我的位置">
-          <span>📍</span>
-        </button>
+        
         <!-- 路線摘要卡片 -->
         <div class="route-summary" id="routeSummary">
           <span class="close-route" onclick="closeRoutePanel()">✕</span>
           <div id="routeSummaryContent"></div>
           <div id="transitDetailed" class="transit-details"></div>
         </div>
+      </div>
+      
+      <!-- 🔴 定位按鈕獨立放在地圖容器外，確保可點擊 -->
+      <div class="location-button-container">
+        <button class="location-button" onclick="getCurrentLocationAndCenter()" title="顯示我的位置">
+          <span>📍</span>
+        </button>
       </div>
     </div>
   </div>
@@ -616,6 +780,7 @@
     let lastOriginPosition = null;
     let currentTravelMode = 'DRIVING';
     let isMapInitialized = false;
+    let resizeTimer;
 
     // ==================== Google 地圖初始化 ====================
     window.initMap = function() {
@@ -636,6 +801,7 @@
           fullscreenControl: true,
           streetViewControl: true,
           zoomControl: true,
+          gestureHandling: 'greedy', // 🔴 讓手機觸控更靈敏
         });
 
         console.log("地圖建立成功");
@@ -673,6 +839,16 @@
         </div>`;
       }
     };
+
+    // 🔴 處理手機旋轉時地圖大小調整
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function() {
+        if (map) {
+          google.maps.event.trigger(map, 'resize');
+        }
+      }, 250);
+    });
 
     // ==================== 初始化 Google Places 自動完成 ====================
     function initAutocomplete() {
@@ -826,18 +1002,22 @@
         calculateAndDisplayRoute(lastOriginPosition, currentDestinationPosition, mode);
       } else if (!lastOriginPosition) {
         // 如果沒有起點，提示使用者
-        const infoWindow = new google.maps.InfoWindow({
-          content: '<div style="padding:8px;">📍 請先點擊左下角按鈕獲取您的位置</div>'
-        });
-        infoWindow.setPosition(map.getCenter());
-        infoWindow.open(map);
+        if (map) {
+          const infoWindow = new google.maps.InfoWindow({
+            content: '<div style="padding:8px;">📍 請先點擊左下角按鈕獲取您的位置</div>'
+          });
+          infoWindow.setPosition(map.getCenter());
+          infoWindow.open(map);
+        }
       } else if (!currentDestinationPosition) {
         // 如果沒有終點，提示使用者
-        const infoWindow = new google.maps.InfoWindow({
-          content: '<div style="padding:8px;">🔍 請先搜尋目的地</div>'
-        });
-        infoWindow.setPosition(map.getCenter());
-        infoWindow.open(map);
+        if (map) {
+          const infoWindow = new google.maps.InfoWindow({
+            content: '<div style="padding:8px;">🔍 請先搜尋目的地</div>'
+          });
+          infoWindow.setPosition(map.getCenter());
+          infoWindow.open(map);
+        }
       }
     };
 
@@ -1114,6 +1294,11 @@
         console.log('用戶未登入，地圖以訪客模式顯示');
       }
     });
+
+    // 🔴 防止 iOS 上按鈕點擊問題
+    document.addEventListener('touchstart', function(e) {
+      // 不做任何事，只是為了啟用 touch 事件
+    }, { passive: true });
   </script>
 </body>
 </html>

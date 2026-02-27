@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>TravelSync · 登入/註冊</title>
     
     <!-- Firebase SDK -->
@@ -15,6 +15,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent; /* 移除觸摸高亮 */
         }
 
         :root {
@@ -35,6 +36,7 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
+            touch-action: pan-y pinch-zoom; /* 允許垂直滑動和縮放 */
         }
 
         .auth-container {
@@ -65,6 +67,11 @@
             font-size: 24px;
             font-weight: bold;
             color: var(--accent-dark);
+            transition: transform 0.3s ease;
+        }
+
+        .auth-header .logo:active {
+            transform: scale(0.95);
         }
 
         .auth-header h1 {
@@ -97,6 +104,11 @@
             cursor: pointer;
             transition: all 0.3s;
             position: relative;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .tab:active {
+            color: var(--accent);
         }
 
         .tab.active {
@@ -133,11 +145,16 @@
             font-size: 15px;
             transition: border-color 0.3s;
             background: white;
+            -webkit-appearance: none;
         }
 
         input:focus {
             outline: none;
             border-color: var(--accent);
+        }
+
+        input:active {
+            transform: scale(0.99);
         }
 
         .error-message {
@@ -157,17 +174,19 @@
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s, background 0.3s;
+            transition: all 0.3s ease;
             margin-top: 10px;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .btn:hover {
             background: #28b5b2;
             transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(44, 197, 194, 0.3);
         }
 
         .btn:active {
-            transform: translateY(0);
+            transform: scale(0.98);
         }
 
         .btn.secondary {
@@ -178,6 +197,12 @@
 
         .btn.secondary:hover {
             background: #f0fcfc;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
         }
 
         .divider {
@@ -228,14 +253,20 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
-            transition: background 0.3s;
+            transition: all 0.3s;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .social-btn:hover {
             background: #f5fbfb;
+            transform: translateY(-2px);
         }
 
-        .social-btn img {
+        .social-btn:active {
+            transform: scale(0.98);
+        }
+
+        .social-btn svg {
             width: 20px;
             height: 20px;
         }
@@ -254,6 +285,10 @@
 
         .terms a:hover {
             text-decoration: underline;
+        }
+
+        .terms a:active {
+            opacity: 0.8;
         }
 
         /* 載入中動畫 */
@@ -277,6 +312,213 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        /* 🔴 手機版優化 */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+                align-items: flex-start;
+                min-height: 100vh;
+                padding-top: 20px;
+                padding-bottom: 20px;
+            }
+
+            .auth-header {
+                padding: 25px 20px;
+            }
+
+            .auth-header .logo {
+                width: 60px;
+                height: 60px;
+                font-size: 22px;
+            }
+
+            .auth-header h1 {
+                font-size: 22px;
+            }
+
+            .auth-header p {
+                font-size: 13px;
+            }
+
+            .auth-body {
+                padding: 20px;
+            }
+
+            .tab {
+                padding: 10px;
+                font-size: 15px;
+            }
+
+            .form-group {
+                margin-bottom: 15px;
+            }
+
+            label {
+                font-size: 12px;
+                margin-bottom: 4px;
+            }
+
+            input {
+                padding: 12px;
+                font-size: 14px;
+            }
+
+            .btn {
+                padding: 12px;
+                font-size: 15px;
+            }
+
+            .error-message {
+                font-size: 12px;
+            }
+
+            .divider span {
+                font-size: 12px;
+            }
+
+            .social-btn {
+                padding: 10px;
+                font-size: 13px;
+            }
+
+            .social-btn svg {
+                width: 18px;
+                height: 18px;
+            }
+
+            .terms {
+                font-size: 11px;
+                margin-top: 15px;
+            }
+
+            .loading p {
+                font-size: 13px;
+            }
+        }
+
+        /* 🔴 小手機專用 */
+        @media (max-width: 480px) {
+            body {
+                padding: 5px;
+            }
+
+            .auth-header {
+                padding: 20px 15px;
+            }
+
+            .auth-header .logo {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+                border-radius: 15px;
+                margin-bottom: 10px;
+            }
+
+            .auth-header h1 {
+                font-size: 20px;
+            }
+
+            .auth-header p {
+                font-size: 12px;
+            }
+
+            .auth-body {
+                padding: 15px;
+            }
+
+            .tab-bar {
+                margin-bottom: 20px;
+                gap: 5px;
+            }
+
+            .tab {
+                padding: 8px;
+                font-size: 14px;
+            }
+
+            .form-group {
+                margin-bottom: 12px;
+            }
+
+            input {
+                padding: 10px;
+                font-size: 13px;
+            }
+
+            .btn {
+                padding: 10px;
+                font-size: 14px;
+            }
+
+            .social-login {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .social-btn {
+                padding: 10px;
+                font-size: 14px;
+            }
+
+            .divider {
+                margin: 15px 0;
+            }
+
+            .terms {
+                font-size: 10px;
+            }
+
+            .loading {
+                padding: 15px;
+            }
+        }
+
+        /* 針對 iPhone SE 等更小螢幕 */
+        @media (max-width: 375px) {
+            .auth-header {
+                padding: 15px;
+            }
+
+            .auth-header .logo {
+                width: 45px;
+                height: 45px;
+                font-size: 18px;
+            }
+
+            .auth-header h1 {
+                font-size: 18px;
+            }
+
+            .auth-body {
+                padding: 12px;
+            }
+
+            .tab {
+                font-size: 13px;
+                padding: 6px;
+            }
+
+            input {
+                padding: 8px;
+                font-size: 12px;
+            }
+
+            .btn {
+                padding: 8px;
+                font-size: 13px;
+            }
+
+            .social-btn {
+                padding: 8px;
+                font-size: 13px;
+            }
+
+            .social-btn svg {
+                width: 16px;
+                height: 16px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -298,7 +540,7 @@
             <div id="loginForm">
                 <div class="form-group">
                     <label>電子郵件</label>
-                    <input type="email" id="loginEmail" placeholder="example@email.com">
+                    <input type="email" id="loginEmail" placeholder="example@email.com" inputmode="email">
                     <div class="error-message" id="loginEmailError"></div>
                 </div>
 
@@ -342,13 +584,13 @@
             <div id="registerForm" style="display: none;">
                 <div class="form-group">
                     <label>姓名</label>
-                    <input type="text" id="registerName" placeholder="王小明">
+                    <input type="text" id="registerName" placeholder="王小明" inputmode="text">
                     <div class="error-message" id="registerNameError"></div>
                 </div>
 
                 <div class="form-group">
                     <label>電子郵件</label>
-                    <input type="email" id="registerEmail" placeholder="example@email.com">
+                    <input type="email" id="registerEmail" placeholder="example@email.com" inputmode="email">
                     <div class="error-message" id="registerEmailError"></div>
                 </div>
 
@@ -440,7 +682,8 @@
 
         function showLoading(show) {
             document.getElementById('loading').style.display = show ? 'block' : 'none';
-            document.querySelector('.btn').disabled = show;
+            const btns = document.querySelectorAll('.btn');
+            btns.forEach(btn => btn.disabled = show);
         }
 
         // ==================== 登入功能 (對應 Android handleLogin) ====================
@@ -698,6 +941,11 @@ async function googleLogin() {
                 }
             }
         });
+
+        // 🔴 防止 iOS 上按鈕點擊問題
+        document.addEventListener('touchstart', function(e) {
+            // 不做任何事，只是為了啟用 touch 事件
+        }, { passive: true });
     </script>
 </body>
 </html>

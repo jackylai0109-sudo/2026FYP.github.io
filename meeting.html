@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>TravelSync · 建立會合點</title>
     
     <!-- Firebase SDK -->
@@ -77,6 +77,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent; /* 移除觸摸高亮 */
         }
 
         :root {
@@ -93,6 +94,7 @@
             background: linear-gradient(135deg, #f2fbfb 0%, #ebf8f8 100%);
             min-height: 100vh;
             padding: 20px;
+            touch-action: pan-y pinch-zoom; /* 允許垂直滑動和縮放 */
         }
 
         .header {
@@ -103,6 +105,7 @@
             max-width: 1200px;
             margin-left: auto;
             margin-right: auto;
+            flex-wrap: wrap;
         }
 
         .back-btn {
@@ -210,6 +213,11 @@
             background: #f0fcfc;
         }
 
+        .group-item:active {
+            background: #e0f5f5;
+            transform: scale(0.98);
+        }
+
         .group-item.selected {
             background: #e0f5f5;
             border-left: 4px solid var(--accent);
@@ -268,6 +276,7 @@
             margin-bottom: 20px;
             background: white;
             cursor: pointer;
+            -webkit-appearance: none;
         }
 
         .date-input:focus {
@@ -325,6 +334,10 @@
             transform: translateY(-2px);
         }
 
+        .quick-time-btn:active {
+            transform: scale(0.95);
+        }
+
         .quick-time-btn.active {
             background: var(--accent);
             color: white;
@@ -358,6 +371,7 @@
             box-shadow: 0 6px 20px rgba(6, 30, 38, 0.06);
             display: flex;
             flex-direction: column;
+            position: relative;
         }
 
         .search-container {
@@ -378,6 +392,7 @@
             border-radius: 30px;
             font-size: 14px;
             transition: all 0.3s ease;
+            -webkit-appearance: none;
         }
 
         .search-input:focus {
@@ -404,7 +419,7 @@
         }
 
         .search-btn:active {
-            transform: translateY(0);
+            transform: scale(0.95);
         }
 
         /* Google Places 自動完成下拉選單 */
@@ -469,6 +484,12 @@
             animation: spin 1s linear infinite;
         }
 
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 🔴 地圖控制項容器 */
         .map-controls {
             position: absolute;
             bottom: 20px;
@@ -476,7 +497,7 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
-            z-index: 10;
+            z-index: 1001;
         }
 
         .map-btn {
@@ -499,6 +520,10 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
 
+        .map-btn:active {
+            transform: scale(0.95);
+        }
+
         .map-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
@@ -515,7 +540,7 @@
             padding: 12px 24px;
             border-radius: 30px;
             font-size: 14px;
-            z-index: 10;
+            z-index: 1000;
             pointer-events: none;
             animation: pulse 2s infinite;
             display: none;
@@ -566,6 +591,7 @@
             border-radius: 10px;
             font-size: 14px;
             resize: vertical;
+            -webkit-appearance: none;
         }
 
         .meeting-notes textarea:focus {
@@ -594,6 +620,10 @@
         .btn:hover {
             background: #28b5b2;
             transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
         }
 
         .btn.secondary {
@@ -630,11 +660,6 @@
             height: 40px;
             animation: spin 1s linear infinite;
             margin: 0 auto 15px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
         }
 
         .error-message {
@@ -690,6 +715,7 @@
             font-size: 12px;
             color: var(--muted);
             margin-bottom: 8px;
+            word-break: break-word;
         }
 
         .info-window-btn {
@@ -707,20 +733,8 @@
             background: #28b5b2;
         }
 
-        /* 響應式設計 */
-        @media (max-width: 768px) {
-            .container {
-                grid-template-columns: 1fr;
-                height: auto;
-            }
-            
-            .left-panel {
-                max-height: 400px;
-            }
-            
-            .right-panel {
-                height: 500px;
-            }
+        .info-window-btn:active {
+            transform: scale(0.95);
         }
 
         /* Flatpickr 客製化樣式 */
@@ -749,6 +763,233 @@
 
         .flatpickr-confirm:hover {
             background: #28b5b2;
+        }
+
+        /* 🔴 響應式設計 - 手機版 */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .header {
+                margin-bottom: 15px;
+                gap: 10px;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .back-btn {
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+
+            .container {
+                grid-template-columns: 1fr;
+                height: auto;
+                gap: 15px;
+            }
+            
+            .left-panel {
+                max-height: 450px;
+                padding: 20px;
+            }
+
+            .left-panel h2 {
+                font-size: 1.3rem;
+                margin-bottom: 15px;
+            }
+
+            .step-indicator {
+                margin-bottom: 20px;
+            }
+
+            .step-item {
+                padding: 8px;
+                font-size: 12px;
+            }
+
+            .step-title {
+                font-size: 16px;
+                margin-bottom: 12px;
+            }
+
+            .group-avatar {
+                width: 45px;
+                height: 45px;
+                font-size: 18px;
+                margin-right: 12px;
+            }
+
+            .group-name {
+                font-size: 15px;
+            }
+
+            .group-members {
+                font-size: 12px;
+            }
+
+            .datetime-container {
+                padding: 12px;
+            }
+
+            .datetime-label {
+                font-size: 13px;
+            }
+
+            .date-input {
+                padding: 10px;
+                font-size: 13px;
+                margin-bottom: 15px;
+            }
+
+            .time-selector {
+                gap: 10px;
+                margin-bottom: 15px;
+            }
+
+            .time-select {
+                padding: 10px;
+                font-size: 13px;
+            }
+
+            .quick-time-btn {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+
+            .selected-time-display {
+                padding: 12px;
+            }
+
+            .selected-time-value {
+                font-size: 16px;
+            }
+
+            .right-panel {
+                height: 450px;
+            }
+
+            .search-container {
+                padding: 10px;
+            }
+
+            .search-input {
+                padding: 10px;
+                font-size: 13px;
+            }
+
+            .search-btn {
+                padding: 10px 15px;
+                font-size: 13px;
+            }
+
+            .map-controls {
+                bottom: 15px;
+                right: 15px;
+                gap: 8px;
+            }
+
+            .map-btn {
+                width: 44px;
+                height: 44px;
+                font-size: 20px;
+            }
+
+            .map-hint {
+                top: 60px;
+                padding: 10px 20px;
+                font-size: 13px;
+            }
+
+            .location-info-panel {
+                padding: 15px;
+            }
+
+            .location-address {
+                font-size: 13px;
+            }
+
+            .action-buttons {
+                gap: 8px;
+            }
+
+            .btn {
+                padding: 10px;
+                font-size: 13px;
+            }
+
+            .meeting-notes textarea {
+                padding: 10px;
+                font-size: 13px;
+            }
+
+            .step-navigation {
+                margin-top: 15px;
+                padding-top: 12px;
+            }
+        }
+
+        /* 🔴 小手機專用 */
+        @media (max-width: 480px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .step-indicator {
+                flex-wrap: wrap;
+            }
+
+            .step-item {
+                min-width: 40px;
+            }
+
+            .group-avatar {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+                margin-right: 10px;
+            }
+
+            .time-selector {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .quick-time-buttons {
+                justify-content: center;
+            }
+
+            .quick-time-btn {
+                flex: 1;
+                min-width: 70px;
+                text-align: center;
+            }
+
+            .map-controls {
+                bottom: 10px;
+                right: 10px;
+            }
+
+            .map-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .step-navigation {
+                flex-direction: column;
+            }
+
+            .step-navigation .btn {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -941,6 +1182,7 @@
         let mapInitialized = false;
         let mapLoadAttempts = 0;
         const maxMapLoadAttempts = 30;
+        let resizeTimer;
 
         // 初始化日期選擇器
         let datePicker;
@@ -962,6 +1204,7 @@
                     fullscreenControl: false,
                     streetViewControl: true,
                     zoomControl: false,
+                    gestureHandling: 'greedy', // 🔴 讓手機觸控更靈敏
                 });
                 
                 geocoder = new google.maps.Geocoder();
@@ -992,6 +1235,16 @@
                 `;
             }
         };
+
+        // 🔴 處理手機旋轉時地圖大小調整
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function() {
+                if (map) {
+                    google.maps.event.trigger(map, 'resize');
+                }
+            }, 250);
+        });
 
         // ==================== 重試載入地圖 ====================
         window.retryMapLoad = function() {
@@ -1717,6 +1970,11 @@
                 window.location.href = 'loginPage.html';
             }
         });
+
+        // 🔴 防止 iOS 上按鈕點擊問題
+        document.addEventListener('touchstart', function(e) {
+            // 不做任何事，只是為了啟用 touch 事件
+        }, { passive: true });
     </script>
 </body>
 </html>

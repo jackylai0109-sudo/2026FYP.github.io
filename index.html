@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>TravelSync · 主頁</title>
     
     <!-- Firebase SDK -->
@@ -16,6 +16,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent; /* 移除觸摸高亮 */
         }
 
         :root {
@@ -34,6 +35,7 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            touch-action: pan-y pinch-zoom; /* 允許垂直滑動和縮放 */
         }
 
         /* ==================== 側邊導航 ==================== */
@@ -46,7 +48,7 @@
             width: 80px;
             border-radius: 40px;
             box-shadow: 0 10px 30px rgba(12,52,78,0.08);
-            z-index: 100;
+            z-index: 1000; /* 提高 z-index */
             padding: 20px 0;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(44, 197, 194, 0.2);
@@ -143,6 +145,7 @@
             transition: all 0.3s ease;
             margin-left: 15px;
             box-shadow: 0 4px 12px rgba(44, 197, 194, 0.3);
+            -webkit-tap-highlight-color: transparent;
         }
 
         .download-btn:hover {
@@ -235,6 +238,8 @@
             justify-content: space-between;
             padding: 18px 18px 18px 120px;
             background: transparent;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .brand {
@@ -261,6 +266,7 @@
             cursor: pointer;
             background: none;
             border: 0;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .group-preview-card {
@@ -278,6 +284,10 @@
             transform: translateY(-3px);
             border-color: var(--accent);
             box-shadow: 0 8px 20px rgba(44, 197, 194, 0.1);
+        }
+
+        .group-preview-card:active {
+            transform: scale(0.98);
         }
 
         .group-preview-header {
@@ -377,6 +387,7 @@
             flex-direction: column;
             align-items: center;
             gap: 4px;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .quick-action-btn:hover {
@@ -384,6 +395,10 @@
             color: white;
             border-color: var(--accent);
             transform: translateY(-2px);
+        }
+
+        .quick-action-btn:active {
+            transform: scale(0.95);
         }
 
         .quick-action-btn i {
@@ -458,6 +473,7 @@
             font-size: 20px;
             cursor: pointer;
             transition: all 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .close-btn:hover {
@@ -716,6 +732,7 @@
             border-radius: 10px;
             font-size: 13px;
             resize: vertical;
+            -webkit-appearance: none;
         }
 
         .meeting-notes textarea:focus {
@@ -745,11 +762,16 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .btn:hover {
             background: #28b5b2;
             transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
         }
 
         .btn.secondary {
@@ -794,11 +816,16 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .hero-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        }
+
+        .hero-btn:active {
+            transform: scale(0.98);
         }
 
         .features-row {
@@ -807,6 +834,7 @@
             margin-bottom: 20px;
             overflow-x: auto;
             padding-bottom: 5px;
+            -webkit-overflow-scrolling: touch;
         }
 
         .feature-item {
@@ -825,6 +853,10 @@
             box-shadow: 0 12px 30px rgba(44, 197, 194, 0.15);
         }
 
+        .feature-item:active {
+            transform: scale(0.98);
+        }
+
         .feature-icon {
             font-size: 32px;
             margin-bottom: 10px;
@@ -841,16 +873,6 @@
             font-size: 12px;
             color: var(--muted);
             line-height: 1.5;
-        }
-
-        @media (max-width: 768px) {
-            .features-row {
-                flex-wrap: wrap;
-            }
-            
-            .feature-item {
-                min-width: calc(50% - 8px);
-            }
         }
 
         .container {
@@ -873,12 +895,6 @@
             gap: 18px;
         }
 
-        @media (max-width: 768px) {
-            .right-col {
-                grid-template-columns: 1fr;
-            }
-        }
-
         .card {
             background: var(--card);
             border-radius: var(--radius);
@@ -889,6 +905,290 @@
         .overlay {
             position: fixed; left: 50%; transform: translateX(-50%);
             width: min(920px, 96%); z-index: 70; display: none;
+        }
+
+        /* 🔴 手機版專用優化 */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px 10px 10px 70px; /* 調整左邊距 */
+            }
+
+            .side-nav {
+                left: 5px;
+                width: 55px;
+            }
+
+            .side-nav:hover {
+                width: 140px;
+            }
+
+            .nav-icon {
+                font-size: 18px;
+                min-width: 35px;
+            }
+
+            .nav-label {
+                font-size: 13px;
+            }
+
+            header.appbar {
+                padding: 10px 10px 10px 70px;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .brand {
+                width: 100%;
+            }
+
+            .logo {
+                width: 36px;
+                height: 36px;
+                font-size: 14px;
+            }
+
+            .brand h1 {
+                font-size: 16px;
+            }
+
+            .brand p {
+                font-size: 11px;
+            }
+
+            .download-btn {
+                margin-left: 0;
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+
+            .download-btn i {
+                font-size: 14px;
+            }
+
+            .container {
+                padding-left: 70px;
+                padding-right: 10px;
+            }
+
+            .hero-section {
+                padding: 25px 15px;
+            }
+
+            .hero-section h1 {
+                font-size: 24px;
+            }
+
+            .hero-section p {
+                font-size: 14px;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .hero-btn {
+                width: 100%;
+                padding: 10px;
+                font-size: 14px;
+            }
+
+            .features-row {
+                gap: 10px;
+            }
+
+            .feature-item {
+                min-width: 130px;
+                padding: 15px 10px;
+            }
+
+            .feature-icon {
+                font-size: 24px;
+            }
+
+            .feature-title {
+                font-size: 13px;
+            }
+
+            .feature-desc {
+                font-size: 11px;
+            }
+
+            .right-col {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .card {
+                padding: 15px;
+            }
+
+            .section-title {
+                font-size: 15px;
+            }
+
+            .quick-action-btn {
+                padding: 10px 6px;
+                font-size: 12px;
+            }
+
+            .quick-action-btn i {
+                font-size: 18px;
+            }
+
+            .group-preview-card {
+                padding: 12px;
+            }
+
+            .group-preview-avatar {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+
+            .group-preview-name {
+                font-size: 14px;
+            }
+
+            .group-preview-meta {
+                font-size: 10px;
+            }
+
+            .preview-message {
+                padding: 8px;
+                font-size: 11px;
+            }
+
+            .weather-modal {
+                padding: 20px;
+                width: 95%;
+            }
+
+            .weather-header h2 {
+                font-size: 20px;
+            }
+
+            .weather-grid {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+                gap: 10px;
+            }
+
+            .weather-card {
+                padding: 10px;
+            }
+
+            .weather-day {
+                font-size: 12px;
+            }
+
+            .weather-icon {
+                font-size: 30px;
+            }
+
+            .weather-temp {
+                font-size: 16px;
+            }
+
+            .weather-desc {
+                font-size: 11px;
+            }
+
+            .meeting-modal {
+                padding: 20px;
+                width: 95%;
+            }
+
+            .meeting-header h2 {
+                font-size: 18px;
+            }
+
+            .group-avatar {
+                width: 35px;
+                height: 35px;
+                font-size: 14px;
+            }
+
+            .group-name {
+                font-size: 14px;
+            }
+
+            .group-members {
+                font-size: 11px;
+            }
+
+            .btn {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+
+            .location-info {
+                font-size: 11px;
+                padding: 6px 12px;
+                white-space: normal;
+                max-width: 90%;
+                text-align: center;
+            }
+
+            .step-navigation {
+                flex-direction: column;
+            }
+
+            .step-navigation .btn {
+                width: 100%;
+            }
+        }
+
+        /* 小手機專用 */
+        @media (max-width: 480px) {
+            body {
+                padding-left: 60px;
+            }
+
+            .side-nav {
+                width: 50px;
+            }
+
+            .nav-icon {
+                font-size: 16px;
+                min-width: 30px;
+            }
+
+            header.appbar {
+                padding-left: 60px;
+            }
+
+            .container {
+                padding-left: 60px;
+            }
+
+            .hero-section {
+                padding: 20px 10px;
+            }
+
+            .hero-section h1 {
+                font-size: 20px;
+            }
+
+            .features-row {
+                flex-wrap: wrap;
+            }
+
+            .feature-item {
+                min-width: calc(50% - 5px);
+            }
+
+            .quick-actions {
+                gap: 5px;
+            }
+
+            .quick-action-btn {
+                padding: 8px 4px;
+                font-size: 11px;
+            }
+
+            .quick-action-btn i {
+                font-size: 16px;
+            }
         }
     </style>
 </head>
@@ -931,7 +1231,7 @@
             <i>📱</i>
             下載 App
         </button>
-        <div style="display:flex; align-items:center; gap:10px">
+        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
             <div id="userSection" style="display:flex; align-items:center; gap:10px;">
                 <button class="muted-link" id="authButton" onclick="handleAuthAction()">註冊 / 登入</button>
                 <button class="muted-link" id="logoutButton" style="display:none;" onclick="showLogoutConfirm()">登出</button>
@@ -1646,6 +1946,11 @@
 
         // 初始化
         hideAllOverlays();
+
+        // 🔴 防止 iOS 上按鈕點擊問題
+        document.addEventListener('touchstart', function(e) {
+            // 不做任何事，只是為了啟用 touch 事件
+        }, { passive: true });
     </script>
 </body>
 </html>

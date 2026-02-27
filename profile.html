@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>TravelSync · 個人資料</title>
     
     <!-- Firebase SDK -->
@@ -16,6 +16,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent; /* 移除觸摸高亮 */
         }
 
         :root {
@@ -32,6 +33,7 @@
             background: linear-gradient(135deg, #f2fbfb 0%, #ebf8f8 100%);
             min-height: 100vh;
             padding: 20px 20px 20px 100px;
+            touch-action: pan-y pinch-zoom; /* 允許垂直滑動和縮放 */
         }
 
         .side-nav {
@@ -43,7 +45,7 @@
             width: 80px;
             border-radius: 40px;
             box-shadow: 0 10px 30px rgba(12,52,78,0.08);
-            z-index: 100;
+            z-index: 1000; /* 提高 z-index */
             padding: 20px 0;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(44, 197, 194, 0.2);
@@ -133,6 +135,7 @@
             max-width: 600px;
             margin-left: auto;
             margin-right: auto;
+            flex-wrap: wrap;
         }
 
         .back-btn {
@@ -143,11 +146,16 @@
             color: var(--accent);
             text-decoration: none;
             font-weight: 600;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .back-btn:hover {
             background: var(--accent);
             color: white;
+        }
+
+        .back-btn:active {
+            transform: scale(0.95);
         }
 
         .container {
@@ -196,6 +204,10 @@
             transform: scale(1.05);
         }
 
+        .profile-avatar:active {
+            transform: scale(0.98);
+        }
+
         .profile-avatar img {
             width: 100%;
             height: 100%;
@@ -219,6 +231,7 @@
             border: 2px solid white;
             transition: all 0.3s ease;
             z-index: 10;
+            pointer-events: none; /* 讓點擊穿透到頭像容器 */
         }
 
         .avatar-container:hover .avatar-edit-icon {
@@ -226,6 +239,10 @@
             color: white;
             transform: scale(1.1);
             box-shadow: 0 4px 12px rgba(44, 197, 194, 0.4);
+        }
+
+        .avatar-container:active .avatar-edit-icon {
+            transform: scale(0.95);
         }
 
         .profile-name {
@@ -237,6 +254,8 @@
         .profile-email {
             color: var(--muted);
             margin-bottom: 15px;
+            font-size: 14px;
+            word-break: break-word;
         }
 
         .info-section {
@@ -255,11 +274,16 @@
         .info-label {
             color: var(--muted);
             font-weight: 500;
+            font-size: 14px;
         }
 
         .info-value {
             color: var(--accent-dark);
             font-weight: 600;
+            font-size: 14px;
+            text-align: right;
+            word-break: break-word;
+            max-width: 60%;
         }
 
         .btn {
@@ -274,6 +298,7 @@
             cursor: pointer;
             margin-top: 10px;
             transition: all 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .btn:hover {
@@ -283,7 +308,7 @@
         }
 
         .btn:active {
-            transform: translateY(0);
+            transform: scale(0.98);
         }
 
         .btn.secondary {
@@ -324,6 +349,7 @@
             border-radius: 10px;
             font-size: 14px;
             transition: all 0.3s ease;
+            -webkit-appearance: none;
         }
 
         .username-input:focus {
@@ -447,6 +473,7 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .logout-btn.cancel {
@@ -457,6 +484,10 @@
         .logout-btn.cancel:hover {
             background: #e5eaea;
             transform: translateY(-2px);
+        }
+
+        .logout-btn.cancel:active {
+            transform: scale(0.98);
         }
 
         .logout-btn.confirm {
@@ -471,7 +502,7 @@
         }
 
         .logout-btn.confirm:active {
-            transform: translateY(0);
+            transform: scale(0.98);
         }
 
         .logout-btn.loading {
@@ -555,9 +586,10 @@
             }
         }
 
+        /* 🔴 手機版優化 */
         @media (max-width: 768px) {
             body {
-                padding-left: 80px;
+                padding: 15px 15px 15px 80px;
             }
             
             .side-nav {
@@ -566,16 +598,103 @@
             }
             
             .side-nav:hover {
-                width: 160px;
+                width: 140px;
+            }
+            
+            .nav-icon {
+                font-size: 18px;
+                min-width: 35px;
+            }
+            
+            .nav-label {
+                font-size: 13px;
             }
             
             .header {
-                flex-wrap: wrap;
+                margin-bottom: 20px;
+                gap: 15px;
+            }
+            
+            .header h1 {
+                font-size: 20px;
+            }
+            
+            .back-btn {
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+            
+            .container {
+                max-width: 100%;
+            }
+            
+            .profile-card {
+                padding: 20px;
+            }
+            
+            .avatar-container {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .profile-avatar {
+                font-size: 40px;
+            }
+            
+            .avatar-edit-icon {
+                width: 28px;
+                height: 28px;
+                font-size: 16px;
+                bottom: 3px;
+                right: 3px;
+            }
+            
+            .profile-name {
+                font-size: 20px;
+            }
+            
+            .profile-email {
+                font-size: 13px;
+            }
+            
+            .info-section {
+                margin: 20px 0;
+                padding: 15px 0;
+            }
+            
+            .info-item {
+                padding: 8px 0;
+            }
+            
+            .info-label, .info-value {
+                font-size: 13px;
+            }
+            
+            .username-input-group {
+                flex-direction: column;
+                gap: 8px;
+                margin-top: 15px;
+            }
+            
+            .username-input {
+                padding: 10px;
+                font-size: 13px;
+            }
+            
+            .btn {
+                padding: 12px;
+                font-size: 15px;
+            }
+            
+            .btn.secondary {
+                width: 100%;
+                margin: 0;
             }
             
             .logout-confirm-dialog {
                 padding: 24px;
-                width: 95%;
+                width: 90%;
+                max-width: 320px;
             }
             
             .logout-icon {
@@ -588,18 +707,107 @@
                 font-size: 20px;
             }
             
+            .logout-confirm-dialog p {
+                font-size: 14px;
+                margin-bottom: 25px;
+            }
+            
             .logout-button-group {
                 flex-direction: column;
+                gap: 10px;
             }
-
-            .username-input-group {
-                flex-direction: column;
+            
+            .logout-btn {
+                padding: 12px;
+                font-size: 15px;
             }
+            
+            .upload-progress {
+                top: 10px;
+                right: 10px;
+                padding: 10px 15px;
+                font-size: 13px;
+            }
+            
+            .progress-bar {
+                width: 120px;
+            }
+        }
 
-            .avatar-edit-icon {
-                width: 28px;
-                height: 28px;
+        /* 🔴 小手機專用 */
+        @media (max-width: 480px) {
+            body {
+                padding-left: 70px;
+                padding-right: 10px;
+                padding-top: 10px;
+                padding-bottom: 10px;
+            }
+            
+            .side-nav {
+                width: 55px;
+            }
+            
+            .nav-icon {
                 font-size: 16px;
+                min-width: 30px;
+            }
+            
+            .header {
+                margin-bottom: 15px;
+            }
+            
+            .profile-card {
+                padding: 15px;
+            }
+            
+            .avatar-container {
+                width: 90px;
+                height: 90px;
+            }
+            
+            .profile-avatar {
+                font-size: 36px;
+                border-width: 3px;
+            }
+            
+            .avatar-edit-icon {
+                width: 24px;
+                height: 24px;
+                font-size: 14px;
+            }
+            
+            .profile-name {
+                font-size: 18px;
+            }
+            
+            .profile-email {
+                font-size: 12px;
+            }
+            
+            .info-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+            
+            .info-value {
+                text-align: left;
+                max-width: 100%;
+            }
+            
+            .btn {
+                padding: 10px;
+                font-size: 14px;
+            }
+            
+            .logout-confirm-dialog {
+                padding: 20px;
+            }
+            
+            .logout-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 25px;
             }
         }
     </style>
@@ -1097,6 +1305,11 @@
             window.location.href = 'loginPage.html';
         }
     });
+
+    // 🔴 防止 iOS 上按鈕點擊問題
+    document.addEventListener('touchstart', function(e) {
+        // 不做任何事，只是為了啟用 touch 事件
+    }, { passive: true });
 </script>
 </body>
 </html>
