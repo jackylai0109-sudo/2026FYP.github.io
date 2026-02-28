@@ -39,6 +39,11 @@
             min-height: 100vh;
             padding: 10px 10px 10px 70px;
             touch-action: pan-y pinch-zoom;
+            transition: padding 0.3s ease;
+        }
+
+        body.fullscreen-mode {
+            padding: 0;
         }
 
         /* ==================== 側邊導航 ==================== */
@@ -56,6 +61,12 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(44, 197, 194, 0.2);
             transition: all 0.3s ease;
+        }
+
+        .side-nav.fullscreen-hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-50%) translateX(-20px);
         }
 
         .side-nav:hover {
@@ -147,6 +158,15 @@
             margin-right: auto;
             padding-left: 70px;
             flex-wrap: wrap;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .header.fullscreen-hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-20px);
+            margin-bottom: 0;
+            height: 0;
         }
 
         .back-btn {
@@ -177,6 +197,13 @@
             padding-left: 70px;
             position: relative;
             z-index: 1;
+            transition: all 0.3s ease;
+        }
+
+        .container.fullscreen-mode {
+            max-width: 100%;
+            height: 100vh;
+            padding-left: 0;
         }
 
         .map-card {
@@ -188,6 +215,11 @@
             display: flex;
             flex-direction: column;
             position: relative;
+            transition: border-radius 0.3s ease;
+        }
+
+        .map-card.fullscreen-mode {
+            border-radius: 0;
         }
 
         .map-header {
@@ -200,12 +232,59 @@
             gap: 12px;
             background: white;
             z-index: 5;
+            transition: transform 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
+        }
+
+        .map-header.fullscreen-hidden {
+            transform: translateY(-100%);
+            opacity: 0;
+            pointer-events: none;
+            margin: 0;
+            padding: 0;
+            height: 0;
+            border: none;
         }
 
         .map-header h2 {
             color: var(--accent-dark);
             font-size: 18px;
             white-space: nowrap;
+        }
+
+        /* ==================== 全螢幕控制按鈕 ==================== */
+        .fullscreen-control {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            z-index: 2002;
+            display: flex;
+            gap: 8px;
+        }
+
+        .fullscreen-btn {
+            width: 44px;
+            height: 44px;
+            background: white;
+            border: none;
+            border-radius: 50%;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            transition: all 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+
+        .fullscreen-btn:active {
+            transform: scale(0.95);
+        }
+
+        .fullscreen-btn.exit {
+            background: var(--accent-dark);
+            color: white;
         }
 
         /* ==================== 群組選擇器 ==================== */
@@ -217,6 +296,17 @@
             background: white;
             border-bottom: 1px solid #eef2f2;
             flex-wrap: wrap;
+            transition: transform 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
+        }
+
+        .group-selector.fullscreen-hidden {
+            transform: translateY(-100%);
+            opacity: 0;
+            pointer-events: none;
+            margin: 0;
+            padding: 0;
+            height: 0;
+            border: none;
         }
 
         .group-selector-label {
@@ -483,6 +573,18 @@
             background-color: #f0f0f0;
             touch-action: pan-y pinch-zoom;
             overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .map-container.fullscreen-mode {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 2000;
         }
 
         #google-map {
@@ -501,6 +603,13 @@
             flex-direction: column;
             gap: 10px;
             pointer-events: auto;
+            transition: bottom 0.3s ease;
+        }
+
+        .location-button-container.fullscreen-mode {
+            bottom: 30px;
+            left: 20px;
+            z-index: 2001;
         }
 
         .location-button {
@@ -518,7 +627,6 @@
             transition: all 0.3s ease;
             -webkit-tap-highlight-color: transparent;
             outline: none;
-            padding: 0;
         }
 
         .location-button:active {
@@ -1014,7 +1122,7 @@
 </head>
 <body>
     <!-- 側邊導航 -->
-    <div class="side-nav">
+    <div class="side-nav" id="sideNav">
         <div class="nav-items">
             <a href="index.html" class="nav-item">
                 <span class="nav-icon">🏠</span>
@@ -1039,7 +1147,7 @@
         </div>
     </div>
 
-    <div class="header">
+    <div class="header" id="header">
         <a href="index.html" class="back-btn">← 返回</a>
         <h1>地圖 · 多元交通</h1>
     </div>
@@ -1054,9 +1162,9 @@
     <!-- 位置資訊顯示 -->
     <div class="location-info" id="locationInfo"></div>
 
-    <div class="container">
-        <div class="map-card">
-            <div class="map-header">
+    <div class="container" id="container">
+        <div class="map-card" id="mapCard">
+            <div class="map-header" id="mapHeader">
                 <h2>🗺️ 即時地圖 <span id="memberCountBadge" class="member-count-badge" style="display: none;">0 人在線</span></h2>
                 
                 <!-- 搜尋列 -->
@@ -1085,7 +1193,7 @@
             </div>
 
             <!-- 群組選擇器 -->
-            <div class="group-selector">
+            <div class="group-selector" id="groupSelector">
                 <span class="group-selector-label">我的群組：</span>
                 <div class="group-badges" id="groupBadges">
                     <div class="group-badge loading-badge">
@@ -1096,7 +1204,7 @@
             </div>
 
             <!-- 附近設施按鈕列 + 搜尋依據（同一行） -->
-            <div class="button-row" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: white; border-bottom: 1px solid #eef2f2; flex-wrap: wrap; gap: 10px;">
+            <div class="button-row" id="buttonRow" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: white; border-bottom: 1px solid #eef2f2; flex-wrap: wrap; gap: 10px;">
                 <!-- 左側：附近設施按鈕 -->
                 <div class="nearby-buttons" style="display: flex; gap: 8px; flex-wrap: wrap; padding: 0; border-bottom: none; flex: 1;">
                     <button class="nearby-btn" onclick="searchNearby('restaurant')" id="btnRestaurant">
@@ -1141,6 +1249,12 @@
             
             <!-- 地圖容器 -->
             <div class="map-container" id="mapContainer">
+                <!-- 全螢幕控制按鈕 -->
+                <div class="fullscreen-control">
+                    <button class="fullscreen-btn" id="fullscreenBtn" onclick="toggleFullscreen()" title="全螢幕顯示地圖">
+                        <span>⛶</span>
+                    </button>
+                </div>
                 <div id="google-map"></div>
                 
                 <!-- 路線摘要卡片 -->
@@ -1152,7 +1266,7 @@
             </div>
             
             <!-- 定位按鈕容器 -->
-            <div class="location-button-container">
+            <div class="location-button-container" id="locationButtonContainer">
                 <button class="location-button" onclick="getCurrentLocationAndCenter()" title="顯示我的位置">
                     <span>📍</span>
                 </button>
@@ -1212,6 +1326,9 @@
         let unsubscribeLocations = null;
         let unsubscribeGroupLocations = null;
 
+        // 全螢幕狀態
+        let isFullscreen = false;
+
         // 顯示提示訊息
         function showToast(message) {
             const toast = document.createElement('div');
@@ -1229,6 +1346,67 @@
             }, 3000);
         }
 
+        // 切換全螢幕模式
+        window.toggleFullscreen = function() {
+            isFullscreen = !isFullscreen;
+            
+            const body = document.body;
+            const sideNav = document.getElementById('sideNav');
+            const header = document.getElementById('header');
+            const container = document.getElementById('container');
+            const mapCard = document.getElementById('mapCard');
+            const mapHeader = document.getElementById('mapHeader');
+            const groupSelector = document.getElementById('groupSelector');
+            const buttonRow = document.getElementById('buttonRow');
+            const mapContainer = document.getElementById('mapContainer');
+            const locationButtonContainer = document.getElementById('locationButtonContainer');
+            const fullscreenBtn = document.getElementById('fullscreenBtn');
+            
+            if (isFullscreen) {
+                body.classList.add('fullscreen-mode');
+                sideNav.classList.add('fullscreen-hidden');
+                header.classList.add('fullscreen-hidden');
+                container.classList.add('fullscreen-mode');
+                mapCard.classList.add('fullscreen-mode');
+                mapHeader.classList.add('fullscreen-hidden');
+                groupSelector.classList.add('fullscreen-hidden');
+                buttonRow.classList.add('fullscreen-hidden');
+                mapContainer.classList.add('fullscreen-mode');
+                locationButtonContainer.classList.add('fullscreen-mode');
+                fullscreenBtn.classList.add('exit');
+                fullscreenBtn.innerHTML = '<span>✕</span>';
+                fullscreenBtn.title = '退出全螢幕';
+                
+                // 觸發地圖 resize 事件
+                setTimeout(() => {
+                    if (map) {
+                        google.maps.event.trigger(map, 'resize');
+                    }
+                }, 100);
+            } else {
+                body.classList.remove('fullscreen-mode');
+                sideNav.classList.remove('fullscreen-hidden');
+                header.classList.remove('fullscreen-hidden');
+                container.classList.remove('fullscreen-mode');
+                mapCard.classList.remove('fullscreen-mode');
+                mapHeader.classList.remove('fullscreen-hidden');
+                groupSelector.classList.remove('fullscreen-hidden');
+                buttonRow.classList.remove('fullscreen-hidden');
+                mapContainer.classList.remove('fullscreen-mode');
+                locationButtonContainer.classList.remove('fullscreen-mode');
+                fullscreenBtn.classList.remove('exit');
+                fullscreenBtn.innerHTML = '<span>⛶</span>';
+                fullscreenBtn.title = '全螢幕顯示地圖';
+                
+                // 觸發地圖 resize 事件
+                setTimeout(() => {
+                    if (map) {
+                        google.maps.event.trigger(map, 'resize');
+                    }
+                }, 100);
+            }
+        };
+
         // Google 地圖初始化
         window.initMap = function() {
             console.log('initMap 開始執行');
@@ -1244,7 +1422,7 @@
                     center: { lat: 25.0330, lng: 121.5654 },
                     zoom: 12,
                     mapTypeControl: true,
-                    fullscreenControl: true,
+                    fullscreenControl: false, // 關閉內建全螢幕，使用自訂
                     streetViewControl: true,
                     zoomControl: true,
                     gestureHandling: 'greedy',
