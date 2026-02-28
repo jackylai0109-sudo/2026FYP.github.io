@@ -25,6 +25,7 @@
             --card: #ffffff;
             --muted: #6b7b86;
             --radius: 14px;
+            --safe-area-bottom: env(safe-area-inset-bottom, 0px);
         }
 
         body {
@@ -33,9 +34,10 @@
             min-height: 100vh;
             padding: 20px 20px 20px 100px;
             touch-action: pan-y pinch-zoom;
+            transition: padding 0.3s ease;
         }
 
-        /* ==================== 側邊導航 - 寬度減少版 ==================== */
+        /* ==================== 側邊導航 - 電腦版 ==================== */
         .side-nav {
             position: fixed;
             left: 10px;
@@ -129,6 +131,62 @@
 
         .side-nav:hover .nav-label {
             opacity: 1;
+        }
+
+        /* ==================== 底部導航 - 手機版 ==================== */
+        .bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.98));
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(44, 197, 194, 0.2);
+            box-shadow: 0 -5px 20px rgba(12,52,78,0.08);
+            z-index: 1000;
+            padding: 8px 0 calc(8px + var(--safe-area-bottom));
+            justify-content: space-around;
+            align-items: center;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 11px;
+            transition: all 0.3s ease;
+            padding: 5px 0;
+            flex: 1;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .bottom-nav-item:hover {
+            color: var(--accent-dark);
+            background: rgba(44, 197, 194, 0.1);
+        }
+
+        .bottom-nav-item:active {
+            transform: scale(0.95);
+        }
+
+        .bottom-nav-item.active {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .bottom-nav-icon {
+            font-size: 20px;
+            margin-bottom: 2px;
+        }
+
+        .bottom-nav-label {
+            font-size: 10px;
+            font-weight: 500;
         }
 
         .auto-fix-notice {
@@ -499,32 +557,22 @@
             transform: scale(0.95);
         }
 
-        /* 手機版優化 */
+        /* 手機版優化 - 導航移到下方 */
         @media (max-width: 768px) {
             body {
-                padding: 15px 15px 15px 80px;
+                padding: 15px 15px 70px 15px;
             }
 
             .side-nav {
-                left: 5px;
-                width: 50px;
+                display: none;
             }
 
-            .side-nav:hover {
-                width: 130px;
-            }
-
-            .nav-icon {
-                font-size: 16px;
-                min-width: 30px;
-            }
-
-            .nav-label {
-                font-size: 12px;
+            .bottom-nav {
+                display: flex;
             }
 
             .header {
-                padding-left: 80px;
+                padding-left: 0;
                 margin-bottom: 20px;
                 gap: 15px;
             }
@@ -544,7 +592,7 @@
             }
 
             .container {
-                padding-left: 80px;
+                padding-left: 0;
             }
 
             .groups-grid {
@@ -616,23 +664,10 @@
 
         @media (max-width: 480px) {
             body {
-                padding-left: 70px;
-                padding-right: 10px;
-                padding-top: 10px;
-                padding-bottom: 10px;
-            }
-
-            .side-nav {
-                width: 45px;
-            }
-
-            .nav-icon {
-                font-size: 14px;
-                min-width: 25px;
+                padding: 10px 10px 65px 10px;
             }
 
             .header {
-                padding-left: 70px;
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 10px;
@@ -651,10 +686,6 @@
             .btn.small {
                 padding: 5px 10px;
                 font-size: 12px;
-            }
-
-            .container {
-                padding-left: 70px;
             }
 
             .group-card {
@@ -710,9 +741,25 @@
                 padding: 8px 16px;
                 font-size: 12px;
             }
+
+            .bottom-nav-item {
+                font-size: 10px;
+            }
+
+            .bottom-nav-icon {
+                font-size: 18px;
+            }
+
+            .bottom-nav-label {
+                font-size: 9px;
+            }
         }
 
         @media (max-width: 375px) {
+            body {
+                padding: 8px 8px 60px 8px;
+            }
+
             .group-header {
                 gap: 10px;
             }
@@ -747,11 +794,30 @@
             .empty-state p {
                 font-size: 14px;
             }
+
+            .bottom-nav-item {
+                font-size: 9px;
+            }
+
+            .bottom-nav-icon {
+                font-size: 16px;
+            }
+
+            .bottom-nav-label {
+                font-size: 8px;
+            }
+        }
+
+        /* iOS 安全區域支援 */
+        @supports (padding: max(0px)) {
+            .bottom-nav {
+                padding-bottom: max(8px, env(safe-area-inset-bottom));
+            }
         }
     </style>
 </head>
 <body>
-    <!-- 側邊導航 -->
+    <!-- 側邊導航 - 電腦版 -->
     <div class="side-nav">
         <div class="nav-items">
             <a href="index.html" class="nav-item">
@@ -775,6 +841,30 @@
                 <span class="nav-label">帳號</span>
             </a>
         </div>
+    </div>
+
+    <!-- 底部導航 - 手機版 -->
+    <div class="bottom-nav">
+        <a href="index.html" class="bottom-nav-item">
+            <span class="bottom-nav-icon">🏠</span>
+            <span class="bottom-nav-label">主頁</span>
+        </a>
+        <a href="map.html" class="bottom-nav-item">
+            <span class="bottom-nav-icon">🗺️</span>
+            <span class="bottom-nav-label">地圖</span>
+        </a>
+        <a href="groups.html" class="bottom-nav-item active">
+            <span class="bottom-nav-icon">👥</span>
+            <span class="bottom-nav-label">群組</span>
+        </a>
+        <a href="ChatMessage.html" class="bottom-nav-item">
+            <span class="bottom-nav-icon">💬</span>
+            <span class="bottom-nav-label">聊天</span>
+        </a>
+        <a href="profile.html" class="bottom-nav-item">
+            <span class="bottom-nav-icon">👤</span>
+            <span class="bottom-nav-label">帳號</span>
+        </a>
     </div>
 
     <!-- 自動修復提示 -->

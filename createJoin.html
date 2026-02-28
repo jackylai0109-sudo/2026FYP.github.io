@@ -27,14 +27,168 @@
             --success: #28a745;
             --error: #ff5a5f;
             --radius: 14px;
+            --safe-area-bottom: env(safe-area-inset-bottom, 0px);
         }
 
         body {
             font-family: 'Noto Sans', 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #f2fbfb 0%, #ebf8f8 100%);
             min-height: 100vh;
-            padding: 20px;
+            padding: 20px 20px 20px 100px;
             touch-action: pan-y pinch-zoom;
+            transition: padding 0.3s ease;
+        }
+
+        /* ==================== 側邊導航 - 電腦版 ==================== */
+        .side-nav {
+            position: fixed;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.98));
+            width: 60px;
+            border-radius: 30px;
+            box-shadow: 0 10px 30px rgba(12,52,78,0.08);
+            z-index: 1000;
+            padding: 15px 0;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(44, 197, 194, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .side-nav:hover {
+            width: 160px;
+            box-shadow: 0 15px 40px rgba(44, 197, 194, 0.15);
+        }
+
+        .nav-items {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .side-nav:hover .nav-items {
+            align-items: flex-start;
+            padding-left: 15px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            width: 100%;
+            color: var(--muted);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-radius: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .side-nav:not(:hover) .nav-item {
+            justify-content: center;
+        }
+
+        .nav-item:hover {
+            color: var(--accent-dark);
+            background: rgba(44, 197, 194, 0.1);
+        }
+
+        .nav-item:active {
+            background: rgba(44, 197, 194, 0.2);
+        }
+
+        .nav-item.active {
+            color: var(--accent-dark);
+            font-weight: 600;
+        }
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 18px;
+            background: var(--accent);
+            border-radius: 0 3px 3px 0;
+        }
+
+        .nav-icon {
+            font-size: 18px;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .nav-label {
+            font-size: 13px;
+            font-weight: 500;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.2s ease 0.1s;
+        }
+
+        .side-nav:hover .nav-label {
+            opacity: 1;
+        }
+
+        /* ==================== 底部導航 - 手機版 ==================== */
+        .bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.98));
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(44, 197, 194, 0.2);
+            box-shadow: 0 -5px 20px rgba(12,52,78,0.08);
+            z-index: 1000;
+            padding: 8px 0 calc(8px + var(--safe-area-bottom));
+            justify-content: space-around;
+            align-items: center;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 11px;
+            transition: all 0.3s ease;
+            padding: 5px 0;
+            flex: 1;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .bottom-nav-item:hover {
+            color: var(--accent-dark);
+            background: rgba(44, 197, 194, 0.1);
+        }
+
+        .bottom-nav-item:active {
+            transform: scale(0.95);
+        }
+
+        .bottom-nav-item.active {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .bottom-nav-icon {
+            font-size: 20px;
+            margin-bottom: 2px;
+        }
+
+        .bottom-nav-label {
+            font-size: 10px;
+            font-weight: 500;
         }
 
         .header {
@@ -297,10 +451,18 @@
             word-break: break-all;
         }
 
-        /* 手機版優化 */
+        /* 手機版優化 - 導航移到下方 */
         @media (max-width: 768px) {
             body {
-                padding: 15px;
+                padding: 15px 15px 70px 15px;
+            }
+
+            .side-nav {
+                display: none;
+            }
+
+            .bottom-nav {
+                display: flex;
             }
 
             .header {
@@ -390,7 +552,7 @@
 
         @media (max-width: 480px) {
             body {
-                padding: 10px;
+                padding: 10px 10px 65px 10px;
             }
 
             .header {
@@ -457,9 +619,25 @@
             .loading p {
                 font-size: 13px;
             }
+
+            .bottom-nav-item {
+                font-size: 10px;
+            }
+
+            .bottom-nav-icon {
+                font-size: 18px;
+            }
+
+            .bottom-nav-label {
+                font-size: 9px;
+            }
         }
 
         @media (max-width: 375px) {
+            body {
+                padding: 8px 8px 60px 8px;
+            }
+
             .header h1 {
                 font-size: 16px;
             }
@@ -485,10 +663,79 @@
             .code-list {
                 gap: 5px;
             }
+
+            .bottom-nav-item {
+                font-size: 9px;
+            }
+
+            .bottom-nav-icon {
+                font-size: 16px;
+            }
+
+            .bottom-nav-label {
+                font-size: 8px;
+            }
+        }
+
+        /* iOS 安全區域支援 */
+        @supports (padding: max(0px)) {
+            .bottom-nav {
+                padding-bottom: max(8px, env(safe-area-inset-bottom));
+            }
         }
     </style>
 </head>
 <body>
+    <!-- 側邊導航 - 電腦版 -->
+    <div class="side-nav">
+        <div class="nav-items">
+            <a href="index.html" class="nav-item">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">主頁</span>
+            </a>
+            <a href="map.html" class="nav-item">
+                <span class="nav-icon">🗺️</span>
+                <span class="nav-label">地圖</span>
+            </a>
+            <a href="groups.html" class="nav-item">
+                <span class="nav-icon">👥</span>
+                <span class="nav-label">群組</span>
+            </a>
+            <a href="ChatMessage.html" class="nav-item">
+                <span class="nav-icon">💬</span>
+                <span class="nav-label">聊天</span>
+            </a>
+            <a href="profile.html" class="nav-item">
+                <span class="nav-icon">👤</span>
+                <span class="nav-label">帳號</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- 底部導航 - 手機版 -->
+    <div class="bottom-nav">
+        <a href="index.html" class="bottom-nav-item">
+            <span class="bottom-nav-icon">🏠</span>
+            <span class="bottom-nav-label">主頁</span>
+        </a>
+        <a href="map.html" class="bottom-nav-item">
+            <span class="bottom-nav-icon">🗺️</span>
+            <span class="bottom-nav-label">地圖</span>
+        </a>
+        <a href="groups.html" class="bottom-nav-item">
+            <span class="bottom-nav-icon">👥</span>
+            <span class="bottom-nav-label">群組</span>
+        </a>
+        <a href="ChatMessage.html" class="bottom-nav-item">
+            <span class="bottom-nav-icon">💬</span>
+            <span class="bottom-nav-label">聊天</span>
+        </a>
+        <a href="profile.html" class="bottom-nav-item">
+            <span class="bottom-nav-icon">👤</span>
+            <span class="bottom-nav-label">帳號</span>
+        </a>
+    </div>
+
     <div class="header">
         <a href="index.html" class="back-btn">← 返回</a>
         <h1>建立 / 加入群組</h1>
