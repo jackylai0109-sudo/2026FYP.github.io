@@ -739,10 +739,10 @@
             transform: scale(0.95);
         }
 
-        /* ==================== 路線摘要卡片 - 往上移動避免遮擋 ==================== */
+        /* ==================== 路線摘要卡片 - 可上下移動 ==================== */
         .route-summary {
             position: absolute;
-            bottom: 120px; /* 從 80px 增加到 120px，往上移動 */
+            bottom: 120px;
             left: 15px;
             right: 15px;
             background: white;
@@ -757,7 +757,7 @@
             backdrop-filter: blur(10px);
             background: rgba(255,255,255,0.98);
             pointer-events: auto;
-            transition: bottom 0.3s ease;
+            transition: bottom 0.3s ease, transform 0.3s ease, opacity 0.3s ease;
             margin-bottom: var(--safe-area-bottom);
         }
         
@@ -766,10 +766,79 @@
         }
         
         .route-summary.fullscreen-mode {
-            bottom: calc(140px + var(--safe-area-bottom)); /* 全螢幕時更往上 */
+            bottom: calc(140px + var(--safe-area-bottom));
             left: 10px;
             right: 10px;
             z-index: 2001;
+        }
+        
+        .route-summary.collapsed {
+            transform: translateY(calc(100% - 50px));
+            opacity: 0.9;
+        }
+        
+        .route-summary.collapsed .route-content {
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.3s ease;
+        }
+        
+        .route-summary .route-content {
+            max-height: 300px;
+            opacity: 1;
+            transition: max-height 0.3s ease, opacity 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .route-summary-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            cursor: pointer;
+            padding: 5px 0;
+            user-select: none;
+        }
+        
+        .route-summary-header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .route-summary-header-left strong {
+            color: var(--accent-dark);
+            font-size: 14px;
+        }
+        
+        .route-summary-arrow {
+            width: 36px;
+            height: 36px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .route-summary-arrow:active {
+            transform: scale(0.95);
+        }
+        
+        .route-summary-arrow.up {
+            background: var(--accent-dark);
+        }
+        
+        .route-summary.collapsed .route-summary-arrow {
+            transform: rotate(180deg);
         }
         
         .route-summary .close-route {
@@ -984,7 +1053,7 @@
             }
 
             .route-summary {
-                bottom: 100px; /* 手機版也往上移動 */
+                bottom: 100px;
                 left: 10px;
                 right: 10px;
                 padding: 12px 15px;
@@ -992,6 +1061,12 @@
             
             .route-summary.fullscreen-mode {
                 bottom: calc(120px + var(--safe-area-bottom));
+            }
+            
+            .route-summary-arrow {
+                width: 32px;
+                height: 32px;
+                font-size: 18px;
             }
 
             .group-badges {
@@ -1081,6 +1156,12 @@
             
             .route-summary.fullscreen-mode {
                 bottom: calc(110px + var(--safe-area-bottom));
+            }
+            
+            .route-summary-arrow {
+                width: 30px;
+                height: 30px;
+                font-size: 16px;
             }
         }
 
@@ -1322,9 +1403,19 @@
                 
                 <!-- 路線摘要卡片 -->
                 <div class="route-summary" id="routeSummary">
-                    <span class="close-route" onclick="closeRoutePanel()">✕</span>
-                    <div id="routeSummaryContent"></div>
-                    <div id="transitDetailed" class="transit-details"></div>
+                    <div class="route-summary-header" onclick="toggleRouteCollapse()">
+                        <div class="route-summary-header-left">
+                            <strong>📍 最佳路線</strong>
+                        </div>
+                        <button class="route-summary-arrow" id="routeArrow" onclick="event.stopPropagation(); toggleRouteCollapse()">
+                            ▼
+                        </button>
+                    </div>
+                    <div class="route-content" id="routeContent">
+                        <span class="close-route" onclick="closeRoutePanel()">✕</span>
+                        <div id="routeSummaryContent"></div>
+                        <div id="transitDetailed" class="transit-details"></div>
+                    </div>
                 </div>
             </div>
             
@@ -1391,6 +1482,9 @@
 
         // 全螢幕狀態
         let isFullscreen = false;
+        
+        // 路線摘要折疊狀態
+        let isRouteCollapsed = false;
 
         // 顯示提示訊息
         function showToast(message) {
@@ -1408,6 +1502,24 @@
                 }, 300);
             }, 3000);
         }
+
+        // 切換路線摘要折疊狀態
+        window.toggleRouteCollapse = function() {
+            const routeSummary = document.getElementById('routeSummary');
+            const routeArrow = document.getElementById('routeArrow');
+            
+            isRouteCollapsed = !isRouteCollapsed;
+            
+            if (isRouteCollapsed) {
+                routeSummary.classList.add('collapsed');
+                routeArrow.classList.add('up');
+                routeArrow.innerHTML = '▲';
+            } else {
+                routeSummary.classList.remove('collapsed');
+                routeArrow.classList.remove('up');
+                routeArrow.innerHTML = '▼';
+            }
+        };
 
         // 切換全螢幕模式
         window.toggleFullscreen = function() {
@@ -2788,6 +2900,9 @@
         window.closeRoutePanel = function() {
             document.getElementById('routeSummary').classList.remove('show');
             if (directionsRenderer) directionsRenderer.setDirections({ routes: [] });
+            
+            // 重置折疊狀態
+            isRouteCollapsed = false;
         };
 
         function showMeetingLocationFromStorage() {
