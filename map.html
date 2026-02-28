@@ -645,7 +645,7 @@
             background-color: #e8eef0;
         }
 
-        /* ==================== 定位按鈕容器 - 全螢幕模式往上移動 ==================== */
+        /* ==================== 定位按鈕容器 - 全螢幕模式大幅往上移動 ==================== */
         .location-button-container {
             position: absolute;
             bottom: 20px;
@@ -659,7 +659,7 @@
         }
 
         .location-button-container.fullscreen-mode {
-            bottom: calc(80px + var(--safe-area-bottom)); /* 從 20px 增加到 80px，往上移動 */
+            bottom: calc(140px + var(--safe-area-bottom)); /* 從 20px 增加到 140px，大幅往上移動 */
             left: 20px;
             z-index: 2001;
         }
@@ -803,7 +803,7 @@
             background: #FF8C00;
         }
 
-        /* ==================== 路線摘要卡片 - 全螢幕模式往上移動 ==================== */
+        /* ==================== 路線摘要卡片 - 全螢幕模式大幅往上移動 ==================== */
         .route-summary {
             position: absolute;
             bottom: 120px;
@@ -830,7 +830,7 @@
         }
         
         .route-summary.fullscreen-mode {
-            bottom: calc(180px + var(--safe-area-bottom)); /* 從 140px 增加到 180px，往上移動 */
+            bottom: calc(240px + var(--safe-area-bottom)); /* 從 140px 增加到 240px，大幅往上移動 */
             left: 10px;
             right: 10px;
             z-index: 2001;
@@ -1132,7 +1132,7 @@
             }
             
             .route-summary.fullscreen-mode {
-                bottom: calc(160px + var(--safe-area-bottom)); /* 手機版全螢幕也往上移動 */
+                bottom: calc(200px + var(--safe-area-bottom)); /* 手機版全螢幕也大幅往上移動 */
             }
             
             .route-summary-arrow {
@@ -1231,7 +1231,7 @@
             }
             
             .route-summary.fullscreen-mode {
-                bottom: calc(150px + var(--safe-area-bottom));
+                bottom: calc(180px + var(--safe-area-bottom));
             }
             
             .route-summary-arrow {
@@ -1322,7 +1322,7 @@
             }
             
             .route-summary.fullscreen-mode {
-                bottom: calc(140px + var(--safe-area-bottom));
+                bottom: calc(160px + var(--safe-area-bottom));
             }
 
             .bottom-nav-item {
@@ -1341,11 +1341,11 @@
         /* iOS 安全區域支援 */
         @supports (padding: max(0px)) {
             .route-summary.fullscreen-mode {
-                bottom: max(180px, calc(160px + env(safe-area-inset-bottom)));
+                bottom: max(240px, calc(220px + env(safe-area-inset-bottom)));
             }
             
             .location-button-container.fullscreen-mode {
-                bottom: max(80px, env(safe-area-inset-bottom));
+                bottom: max(140px, env(safe-area-inset-bottom));
             }
             
             .bottom-nav {
@@ -1354,31 +1354,31 @@
             
             @media (max-width: 768px) {
                 .route-summary.fullscreen-mode {
-                    bottom: max(160px, calc(140px + env(safe-area-inset-bottom)));
+                    bottom: max(200px, calc(180px + env(safe-area-inset-bottom)));
                 }
                 
                 .location-button-container.fullscreen-mode {
-                    bottom: max(70px, env(safe-area-inset-bottom));
+                    bottom: max(120px, env(safe-area-inset-bottom));
                 }
             }
             
             @media (max-width: 480px) {
                 .route-summary.fullscreen-mode {
-                    bottom: max(150px, calc(130px + env(safe-area-inset-bottom)));
+                    bottom: max(180px, calc(160px + env(safe-area-inset-bottom)));
                 }
                 
                 .location-button-container.fullscreen-mode {
-                    bottom: max(60px, env(safe-area-inset-bottom));
+                    bottom: max(100px, env(safe-area-inset-bottom));
                 }
             }
             
             @media (max-width: 375px) {
                 .route-summary.fullscreen-mode {
-                    bottom: max(140px, calc(120px + env(safe-area-inset-bottom)));
+                    bottom: max(160px, calc(140px + env(safe-area-inset-bottom)));
                 }
                 
                 .location-button-container.fullscreen-mode {
-                    bottom: max(50px, env(safe-area-inset-bottom));
+                    bottom: max(80px, env(safe-area-inset-bottom));
                 }
             }
         }
