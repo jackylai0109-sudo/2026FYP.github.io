@@ -37,19 +37,19 @@
             font-family: 'Noto Sans', 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #f2fbfb 0%, #ebf8f8 100%);
             min-height: 100vh;
-            padding: 10px 10px 10px 70px; /* 手機版調整 */
+            padding: 10px 10px 10px 70px;
             touch-action: pan-y pinch-zoom;
         }
 
-        /* ==================== 側邊導航 - 手機優化版 ==================== */
+        /* ==================== 側邊導航 ==================== */
         .side-nav {
             position: fixed;
             left: 5px;
             top: 50%;
             transform: translateY(-50%);
             background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.98));
-            width: 50px; /* 手機版寬度 */
-            border-radius: 25px;
+            width: 55px;
+            border-radius: 28px;
             box-shadow: 0 10px 30px rgba(12,52,78,0.08);
             z-index: 1000;
             padding: 12px 0;
@@ -59,7 +59,7 @@
         }
 
         .side-nav:hover {
-            width: 140px; /* 手機版懸停寬度 */
+            width: 150px;
         }
 
         .nav-items {
@@ -77,16 +77,16 @@
         .nav-item {
             display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 6px 0;
+            gap: 10px;
+            padding: 8px 0;
             width: 100%;
             color: var(--muted);
             text-decoration: none;
             transition: all 0.3s ease;
-            border-radius: 25px;
+            border-radius: 28px;
             position: relative;
             overflow: hidden;
-            font-size: 13px;
+            font-size: 14px;
         }
 
         .side-nav:not(:hover) .nav-item {
@@ -114,19 +114,19 @@
             top: 50%;
             transform: translateY(-50%);
             width: 3px;
-            height: 16px;
+            height: 18px;
             background: var(--accent);
             border-radius: 0 3px 3px 0;
         }
 
         .nav-icon {
-            font-size: 16px;
-            min-width: 28px;
+            font-size: 18px;
+            min-width: 30px;
             text-align: center;
         }
 
         .nav-label {
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 500;
             white-space: nowrap;
             opacity: 0;
@@ -140,24 +140,24 @@
         .header {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
             margin-bottom: 15px;
             max-width: 1200px;
             margin-left: auto;
             margin-right: auto;
-            padding-left: 70px; /* 配合側邊導航 */
+            padding-left: 70px;
             flex-wrap: wrap;
         }
 
         .back-btn {
-            padding: 8px 16px;
+            padding: 10px 18px;
             background: white;
             border: 1px solid var(--accent);
-            border-radius: 8px;
+            border-radius: 10px;
             color: var(--accent);
             text-decoration: none;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 15px;
             -webkit-tap-highlight-color: transparent;
         }
 
@@ -165,11 +165,16 @@
             transform: scale(0.95);
         }
 
+        .header h1 {
+            font-size: 22px;
+            color: var(--accent-dark);
+        }
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
             height: calc(100vh - 120px);
-            padding-left: 70px; /* 配合側邊導航 */
+            padding-left: 70px;
             position: relative;
             z-index: 1;
         }
@@ -189,33 +194,33 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 10px 12px; /* 手機版減少內邊距 */
+            padding: 12px 15px;
             border-bottom: 1px solid #eef2f2;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 12px;
             background: white;
             z-index: 5;
         }
 
         .map-header h2 {
             color: var(--accent-dark);
-            font-size: 16px; /* 手機版字體 */
+            font-size: 18px;
             white-space: nowrap;
         }
 
-        /* ==================== 群組選擇器 - 手機優化 ==================== */
+        /* ==================== 群組選擇器 ==================== */
         .group-selector {
             display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 8px 12px;
+            gap: 10px;
+            padding: 10px 15px;
             background: white;
             border-bottom: 1px solid #eef2f2;
             flex-wrap: wrap;
         }
 
         .group-selector-label {
-            font-size: 12px;
+            font-size: 14px;
             color: var(--accent-dark);
             font-weight: 500;
             white-space: nowrap;
@@ -223,24 +228,24 @@
 
         .group-badges {
             display: flex;
-            gap: 6px;
+            gap: 8px;
             flex-wrap: wrap;
             flex: 1;
         }
 
         .group-badge {
-            padding: 4px 10px;
+            padding: 6px 14px;
             background: #f0f8f8;
             border: 1px solid #e6eef0;
-            border-radius: 20px;
+            border-radius: 30px;
             color: var(--accent-dark);
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 6px;
             -webkit-tap-highlight-color: transparent;
         }
 
@@ -255,35 +260,35 @@
         }
 
         .group-badge i {
-            font-size: 12px;
+            font-size: 14px;
         }
 
         .group-badge .online-indicator {
-            width: 6px;
-            height: 6px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
             background: #4caf50;
             display: inline-block;
-            margin-left: 3px;
+            margin-left: 4px;
         }
 
         .search-container {
             flex: 1;
-            max-width: 400px;
+            max-width: 450px;
             position: relative;
         }
 
         .search-box {
             display: flex;
-            gap: 6px;
+            gap: 8px;
         }
 
         .search-input {
             flex: 1;
-            padding: 8px 12px;
+            padding: 10px 15px;
             border: 1px solid #e6eef0;
-            border-radius: 20px;
-            font-size: 13px;
+            border-radius: 30px;
+            font-size: 14px;
             transition: all 0.3s ease;
             background: white;
             -webkit-appearance: none;
@@ -292,16 +297,16 @@
         .search-input:focus {
             outline: none;
             border-color: var(--accent);
-            box-shadow: 0 0 0 2px rgba(44, 197, 194, 0.1);
+            box-shadow: 0 0 0 3px rgba(44, 197, 194, 0.1);
         }
 
         .search-btn {
-            padding: 8px 16px;
+            padding: 10px 20px;
             background: var(--accent);
             color: white;
             border: none;
-            border-radius: 20px;
-            font-size: 13px;
+            border-radius: 30px;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -323,26 +328,26 @@
         }
 
         .pac-item {
-            padding: 8px 12px;
+            padding: 10px 15px;
             cursor: pointer;
             border-top: 1px solid #eef2f2;
-            font-size: 13px;
+            font-size: 14px;
         }
 
         .map-actions {
             display: flex;
-            gap: 6px;
+            gap: 8px;
             flex-wrap: wrap;
             align-items: center;
         }
 
         .map-action-btn {
-            padding: 6px 12px;
+            padding: 8px 16px;
             background: white;
             border: 1px solid #e6eef0;
             border-radius: 20px;
             color: var(--accent-dark);
-            font-size: 12px;
+            font-size: 13px;
             cursor: pointer;
             transition: all 0.3s ease;
             -webkit-tap-highlight-color: transparent;
@@ -353,10 +358,10 @@
             transform: scale(0.95);
         }
 
-        /* ==================== 附近設施按鈕組 - 手機優化 ==================== */
+        /* ==================== 附近設施按鈕組 ==================== */
         .nearby-buttons {
             display: flex;
-            gap: 6px;
+            gap: 8px;
             flex-wrap: wrap;
             padding: 0;
             background: transparent;
@@ -364,19 +369,19 @@
         }
 
         .nearby-btn {
-            padding: 6px 12px;
+            padding: 8px 16px;
             background: #f0f8f8;
             border: 1px solid #e6eef0;
-            border-radius: 20px;
+            border-radius: 30px;
             color: var(--accent-dark);
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.3s ease;
             -webkit-tap-highlight-color: transparent;
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 6px;
         }
 
         .nearby-btn:active {
@@ -390,21 +395,21 @@
         }
 
         .nearby-btn i {
-            font-size: 14px;
+            font-size: 16px;
         }
 
-        /* ==================== 搜尋依據選擇器 - 手機優化 ==================== */
+        /* ==================== 搜尋依據選擇器 ==================== */
         .search-location-selector {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             padding: 0;
             background: transparent;
             border-bottom: none;
         }
 
         .selector-label {
-            font-size: 12px;
+            font-size: 13px;
             color: var(--accent-dark);
             font-weight: 500;
             white-space: nowrap;
@@ -413,9 +418,9 @@
         .selector-radio {
             display: flex;
             align-items: center;
-            gap: 3px;
+            gap: 4px;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 13px;
             color: var(--muted);
             transition: color 0.2s ease;
             white-space: nowrap;
@@ -427,35 +432,35 @@
 
         .selector-radio input[type="radio"] {
             cursor: pointer;
-            width: 14px;
-            height: 14px;
+            width: 15px;
+            height: 15px;
             accent-color: var(--accent);
             margin: 0;
         }
 
         .route-mode-group {
             display: flex;
-            gap: 4px;
+            gap: 6px;
             background: #f0f7f9;
-            padding: 3px;
-            border-radius: 25px;
-            margin-right: 3px;
+            padding: 4px;
+            border-radius: 30px;
+            margin-right: 5px;
             flex-wrap: wrap;
         }
         
         .route-mode-btn {
-            padding: 4px 8px;
+            padding: 6px 12px;
             border: none;
             background: transparent;
-            border-radius: 25px;
-            font-size: 12px;
+            border-radius: 30px;
+            font-size: 13px;
             font-weight: 500;
             color: var(--accent-dark);
             cursor: pointer;
             transition: 0.2s;
             display: flex;
             align-items: center;
-            gap: 3px;
+            gap: 4px;
             -webkit-tap-highlight-color: transparent;
         }
         
@@ -465,16 +470,16 @@
         
         .route-mode-btn.active {
             background: white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             color: var(--accent);
         }
         
-        .route-mode-btn i { font-style: normal; font-size: 14px; }
+        .route-mode-btn i { font-style: normal; font-size: 16px; }
 
         .map-container {
             flex: 1;
             position: relative;
-            min-height: 350px;
+            min-height: 400px;
             background-color: #f0f0f0;
             touch-action: pan-y pinch-zoom;
             overflow: hidden;
@@ -483,33 +488,33 @@
         #google-map {
             width: 100%;
             height: 100%;
-            min-height: 350px;
+            min-height: 400px;
             background-color: #e8eef0;
         }
 
         .location-button-container {
             position: absolute;
-            bottom: 15px;
-            left: 15px;
+            bottom: 20px;
+            left: 20px;
             z-index: 1001;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
             pointer-events: auto;
         }
 
         .location-button {
-            width: 44px;
-            height: 44px;
+            width: 48px;
+            height: 48px;
             background: white;
             border: none;
             border-radius: 50%;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
+            font-size: 24px;
             transition: all 0.3s ease;
             -webkit-tap-highlight-color: transparent;
             outline: none;
@@ -527,13 +532,13 @@
 
         .location-info {
             position: fixed;
-            bottom: 120px;
+            bottom: 140px;
             left: 50%;
             transform: translateX(-50%);
             background: white;
             padding: 8px 16px;
             border-radius: 30px;
-            font-size: 12px;
+            font-size: 13px;
             color: var(--accent-dark);
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             z-index: 2001;
@@ -584,27 +589,27 @@
         }
 
         .info-window {
-            padding: 8px;
-            max-width: 180px;
-            font-size: 12px;
+            padding: 10px;
+            max-width: 220px;
+            font-size: 13px;
         }
 
         .info-window-title {
             font-weight: 700;
             color: var(--accent-dark);
             margin-bottom: 5px;
-            font-size: 13px;
+            font-size: 14px;
         }
 
         .info-window-address {
-            font-size: 11px;
+            font-size: 12px;
             color: var(--muted);
             margin-bottom: 8px;
             word-break: break-word;
         }
 
         .info-window-rating {
-            font-size: 11px;
+            font-size: 12px;
             color: #f39c12;
             margin-bottom: 5px;
         }
@@ -614,8 +619,8 @@
             color: white;
             border: none;
             border-radius: 5px;
-            padding: 5px 8px;
-            font-size: 11px;
+            padding: 6px 10px;
+            font-size: 12px;
             cursor: pointer;
             width: 100%;
             margin-top: 5px;
@@ -627,16 +632,16 @@
 
         .route-summary {
             position: absolute;
-            bottom: 70px;
-            left: 10px;
-            right: 10px;
+            bottom: 80px;
+            left: 15px;
+            right: 15px;
             background: white;
             border-radius: 20px;
-            padding: 12px 16px;
+            padding: 15px 18px;
             box-shadow: 0 6px 20px rgba(0,0,0,0.2);
             z-index: 1001;
             max-width: none;
-            font-size: 12px;
+            font-size: 13px;
             border-left: 5px solid var(--accent);
             display: none;
             backdrop-filter: blur(10px);
@@ -652,7 +657,7 @@
             font-weight: bold;
             margin-left: 10px;
             color: #aaa;
-            font-size: 16px;
+            font-size: 18px;
             -webkit-tap-highlight-color: transparent;
         }
         
@@ -664,15 +669,15 @@
             margin-top: 8px;
             border-top: 1px dashed #ccc;
             padding-top: 8px;
-            max-height: 120px;
+            max-height: 150px;
             overflow-y: auto;
-            font-size: 11px;
+            font-size: 12px;
         }
         
         .route-summary .transit-step {
             display: flex;
-            gap: 4px;
-            margin: 4px 0;
+            gap: 6px;
+            margin: 5px 0;
             align-items: center;
             flex-wrap: wrap;
         }
@@ -688,7 +693,7 @@
         .map-error h3 {
             color: #d32f2f;
             margin-bottom: 10px;
-            font-size: 16px;
+            font-size: 18px;
         }
 
         .toast-message {
@@ -698,9 +703,9 @@
             transform: translateX(-50%);
             background: var(--accent-dark);
             color: white;
-            padding: 10px 20px;
-            border-radius: 25px;
-            font-size: 13px;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 14px;
             z-index: 10000;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             animation: slideUp 0.3s ease;
@@ -722,14 +727,14 @@
         .member-count-badge {
             background: var(--member-color);
             color: white;
-            padding: 2px 6px;
-            border-radius: 10px;
-            font-size: 10px;
-            margin-left: 6px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 8px;
         }
 
-        /* 手機版特定調整 */
-        @media (max-width: 480px) {
+        /* 手機版響應式 - 讓地圖更大，按鈕完整顯示 */
+        @media (max-width: 768px) {
             body {
                 padding: 8px 8px 8px 60px;
             }
@@ -740,12 +745,12 @@
             }
 
             .header h1 {
-                font-size: 18px;
+                font-size: 20px;
             }
 
             .back-btn {
-                padding: 6px 12px;
-                font-size: 13px;
+                padding: 8px 16px;
+                font-size: 14px;
             }
 
             .container {
@@ -754,96 +759,119 @@
             }
 
             .map-header {
-                padding: 8px 10px;
+                padding: 10px 12px;
+                flex-direction: column;
+                align-items: stretch;
             }
 
             .map-header h2 {
-                font-size: 14px;
+                font-size: 16px;
+                margin-bottom: 5px;
             }
 
-            .group-selector {
-                padding: 6px 10px;
+            .search-container {
+                max-width: 100%;
+                width: 100%;
             }
 
-            .group-badges {
-                gap: 4px;
-            }
-
-            .group-badge {
-                padding: 3px 8px;
-                font-size: 11px;
+            .search-box {
+                width: 100%;
             }
 
             .search-input {
-                padding: 6px 10px;
-                font-size: 12px;
+                padding: 10px 14px;
+                font-size: 14px;
             }
 
             .search-btn {
-                padding: 6px 12px;
-                font-size: 12px;
+                padding: 10px 18px;
+                font-size: 14px;
             }
 
-            .map-action-btn {
-                padding: 5px 10px;
-                font-size: 11px;
+            .map-actions {
+                width: 100%;
+                justify-content: space-between;
             }
 
-            .nearby-btn {
-                padding: 5px 10px;
-                font-size: 11px;
+            .route-mode-group {
+                flex: 1;
+                justify-content: space-around;
             }
 
             .route-mode-btn {
-                padding: 3px 6px;
-                font-size: 11px;
+                padding: 6px 10px;
+                font-size: 13px;
             }
 
-            .route-mode-btn i {
+            .map-action-btn {
+                padding: 8px 14px;
+                font-size: 13px;
+            }
+
+            .group-selector {
+                padding: 8px 12px;
+            }
+
+            .group-selector-label {
+                font-size: 13px;
+            }
+
+            .group-badge {
+                padding: 5px 12px;
                 font-size: 12px;
             }
 
-            .selector-label {
-                font-size: 11px;
-            }
-
-            .selector-radio {
-                font-size: 11px;
-            }
-
-            .selector-radio input[type="radio"] {
-                width: 12px;
-                height: 12px;
-            }
-
-            .location-button {
-                width: 40px;
-                height: 40px;
-                font-size: 20px;
-            }
-
-            .route-summary {
-                font-size: 11px;
-                padding: 10px 12px;
-            }
-
             .button-row {
-                padding: 6px 10px !important;
-                gap: 6px !important;
+                padding: 8px 12px !important;
+            }
+
+            .nearby-btn {
+                padding: 7px 14px;
+                font-size: 12px;
             }
 
             .search-location-selector {
-                gap: 8px;
+                gap: 10px;
             }
 
-            .nearby-buttons {
-                gap: 4px;
+            .selector-label {
+                font-size: 12px;
+            }
+
+            .selector-radio {
+                font-size: 12px;
+            }
+
+            .selector-radio input[type="radio"] {
+                width: 14px;
+                height: 14px;
+            }
+
+            .map-container {
+                min-height: 450px;
+            }
+
+            #google-map {
+                min-height: 450px;
+            }
+
+            .location-button {
+                width: 48px;
+                height: 48px;
+                font-size: 24px;
+            }
+
+            .route-summary {
+                bottom: 70px;
+                left: 10px;
+                right: 10px;
+                padding: 12px 15px;
             }
 
             .group-badges {
                 overflow-x: auto;
                 flex-wrap: nowrap;
-                padding-bottom: 3px;
+                padding-bottom: 5px;
             }
 
             .group-badge {
@@ -851,61 +879,141 @@
             }
         }
 
-        @media (max-width: 375px) {
+        @media (max-width: 480px) {
             .map-header h2 {
-                font-size: 13px;
+                font-size: 16px;
             }
 
             .route-mode-btn {
-                padding: 2px 5px;
-                font-size: 10px;
+                padding: 5px 8px;
+                font-size: 12px;
             }
 
             .route-mode-btn i {
-                font-size: 11px;
+                font-size: 14px;
             }
 
             .nearby-btn {
-                padding: 4px 8px;
-                font-size: 10px;
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+
+            .nearby-btn i {
+                font-size: 14px;
             }
 
             .search-input {
-                font-size: 11px;
+                padding: 8px 12px;
+                font-size: 13px;
             }
 
             .search-btn {
+                padding: 8px 16px;
+                font-size: 13px;
+            }
+
+            .map-action-btn {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+
+            .map-container {
+                min-height: 400px;
+            }
+
+            #google-map {
+                min-height: 400px;
+            }
+
+            .location-button {
+                width: 44px;
+                height: 44px;
+                font-size: 22px;
+            }
+
+            .group-badge {
+                padding: 4px 10px;
+                font-size: 12px;
+            }
+
+            .selector-label {
+                font-size: 12px;
+            }
+
+            .selector-radio {
+                font-size: 12px;
+            }
+
+            .member-count-badge {
+                font-size: 11px;
+                padding: 2px 6px;
+            }
+        }
+
+        @media (max-width: 375px) {
+            .route-mode-btn {
+                padding: 4px 6px;
+                font-size: 11px;
+            }
+
+            .route-mode-btn i {
+                font-size: 13px;
+            }
+
+            .nearby-btn {
                 padding: 5px 10px;
                 font-size: 11px;
             }
 
+            .nearby-btn i {
+                font-size: 13px;
+            }
+
+            .search-input {
+                padding: 7px 10px;
+                font-size: 12px;
+            }
+
+            .search-btn {
+                padding: 7px 14px;
+                font-size: 12px;
+            }
+
             .map-action-btn {
-                padding: 4px 8px;
-                font-size: 10px;
+                padding: 5px 10px;
+                font-size: 11px;
             }
 
             .group-badge {
-                padding: 2px 6px;
-                font-size: 10px;
+                padding: 3px 8px;
+                font-size: 11px;
             }
 
             .selector-label {
-                font-size: 10px;
+                font-size: 11px;
             }
 
             .selector-radio {
-                font-size: 10px;
+                font-size: 11px;
             }
 
             .selector-radio input[type="radio"] {
-                width: 11px;
-                height: 11px;
+                width: 13px;
+                height: 13px;
+            }
+
+            .map-container {
+                min-height: 350px;
+            }
+
+            #google-map {
+                min-height: 350px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- 側邊導航 - 手機優化版 -->
+    <!-- 側邊導航 -->
     <div class="side-nav">
         <div class="nav-items">
             <a href="index.html" class="nav-item">
@@ -949,7 +1057,7 @@
     <div class="container">
         <div class="map-card">
             <div class="map-header">
-                <h2>🗺️ 即時地圖 <span id="memberCountBadge" class="member-count-badge" style="display: none;">0</span></h2>
+                <h2>🗺️ 即時地圖 <span id="memberCountBadge" class="member-count-badge" style="display: none;">0 人在線</span></h2>
                 
                 <!-- 搜尋列 -->
                 <div class="search-container">
@@ -957,7 +1065,7 @@
                         <input type="text" 
                                class="search-input" 
                                id="searchInput" 
-                               placeholder="搜尋地點..."
+                               placeholder="搜尋地點、地址或地標..."
                                autocomplete="off">
                         <button class="search-btn" onclick="searchPlace()">搜尋</button>
                     </div>
@@ -967,12 +1075,12 @@
                     <!-- 交通模式切換 -->
                     <div class="route-mode-group" id="routeModeGroup">
                         <button class="route-mode-btn active" data-mode="DRIVING" onclick="setTravelMode('DRIVING')"><i>🚗</i> 開車</button>
-                        <button class="route-mode-btn" data-mode="TRANSIT" onclick="setTravelMode('TRANSIT')"><i>🚆</i> 大眾</button>
+                        <button class="route-mode-btn" data-mode="TRANSIT" onclick="setTravelMode('TRANSIT')"><i>🚆</i> 大眾運輸</button>
                         <button class="route-mode-btn" data-mode="WALKING" onclick="setTravelMode('WALKING')"><i>🚶</i> 步行</button>
                         <button class="route-mode-btn" data-mode="BICYCLING" onclick="setTravelMode('BICYCLING')"><i>🚲</i> 單車</button>
                     </div>
-                    <button class="map-action-btn" onclick="window.location.href='meeting.html'">🎯 會合點</button>
-                    <button class="map-action-btn" onclick="window.location.href='weather.html'">☀️ 天氣</button>
+                    <button class="map-action-btn" onclick="window.location.href='meeting.html'">🎯 建立會合點</button>
+                    <button class="map-action-btn" onclick="window.location.href='weather.html'">☀️ 天氣查詢</button>
                 </div>
             </div>
 
@@ -981,16 +1089,16 @@
                 <span class="group-selector-label">我的群組：</span>
                 <div class="group-badges" id="groupBadges">
                     <div class="group-badge loading-badge">
-                        <div class="spinner small" style="width: 14px; height: 14px; margin: 0;"></div>
+                        <div class="spinner small" style="width: 16px; height: 16px; margin: 0;"></div>
                         載入中...
                     </div>
                 </div>
             </div>
 
             <!-- 附近設施按鈕列 + 搜尋依據（同一行） -->
-            <div class="button-row" style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: white; border-bottom: 1px solid #eef2f2; flex-wrap: wrap; gap: 8px;">
+            <div class="button-row" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: white; border-bottom: 1px solid #eef2f2; flex-wrap: wrap; gap: 10px;">
                 <!-- 左側：附近設施按鈕 -->
-                <div class="nearby-buttons" style="display: flex; gap: 6px; flex-wrap: wrap; padding: 0; border-bottom: none; flex: 1;">
+                <div class="nearby-buttons" style="display: flex; gap: 8px; flex-wrap: wrap; padding: 0; border-bottom: none; flex: 1;">
                     <button class="nearby-btn" onclick="searchNearby('restaurant')" id="btnRestaurant">
                         <i>🍽️</i> 餐廳
                     </button>
@@ -998,35 +1106,35 @@
                         <i>🏨</i> 酒店
                     </button>
                     <button class="nearby-btn" onclick="searchNearby('convenience_store')" id="btnStore">
-                        <i>🏪</i> 便利
+                        <i>🏪</i> 便利店
                     </button>
                     <button class="nearby-btn" onclick="searchNearby('cafe')" id="btnCafe">
-                        <i>☕</i> 咖啡
+                        <i>☕</i> 咖啡廳
                     </button>
                     <button class="nearby-btn" onclick="searchNearby('gas_station')" id="btnGas">
-                        <i>⛽</i> 加油
+                        <i>⛽</i> 加油站
                     </button>
                     <button class="nearby-btn" onclick="searchNearby('parking')" id="btnParking">
-                        <i>🅿️</i> 停車
+                        <i>🅿️</i> 停車場
                     </button>
                     <button class="nearby-btn" onclick="searchNearby('hospital')" id="btnHospital">
                         <i>🏥</i> 醫院
                     </button>
                     <button class="nearby-btn" onclick="searchNearby('atm')" id="btnATM">
-                        <i>🏧</i> 提款
+                        <i>🏧</i> 提款機
                     </button>
                 </div>
                 
                 <!-- 右側：搜尋依據 -->
-                <div class="search-location-selector" style="display: flex; align-items: center; gap: 10px; padding: 0; border-bottom: none;">
-                    <span class="selector-label">依據：</span>
-                    <label class="selector-radio">
-                        <input type="radio" name="searchLocation" value="center" checked onchange="updateSearchLocation()">
-                        <span>📍 中心</span>
+                <div class="search-location-selector" style="display: flex; align-items: center; gap: 15px; padding: 0; border-bottom: none;">
+                    <span class="selector-label" style="font-size: 13px; color: var(--accent-dark); font-weight: 500; white-space: nowrap;">搜尋依據：</span>
+                    <label class="selector-radio" style="display: flex; align-items: center; gap: 4px; cursor: pointer; font-size: 13px; color: var(--muted); white-space: nowrap;">
+                        <input type="radio" name="searchLocation" value="center" checked onchange="updateSearchLocation()" style="accent-color: var(--accent);">
+                        <span>📍 地圖中心</span>
                     </label>
-                    <label class="selector-radio">
-                        <input type="radio" name="searchLocation" value="current" onchange="updateSearchLocation()">
-                        <span>📍 我的</span>
+                    <label class="selector-radio" style="display: flex; align-items: center; gap: 4px; cursor: pointer; font-size: 13px; color: var(--muted); white-space: nowrap;">
+                        <input type="radio" name="searchLocation" value="current" onchange="updateSearchLocation()" style="accent-color: var(--accent);">
+                        <span>📍 我的位置</span>
                     </label>
                 </div>
             </div>
@@ -1324,13 +1432,14 @@
             container.innerHTML = userGroups.map(group => {
                 const isSelected = group.groupId === selectedGroupId;
                 const onlineCount = group.onlineCount || 0;
+                const displayName = group.groupName && group.groupName.length > 12 ? group.groupName.substring(0, 10) + '…' : (group.groupName || '群組');
                 
                 return `
                     <div class="group-badge ${isSelected ? 'active' : ''}" 
                          onclick="selectGroup('${group.groupId}')"
                          title="線上成員: ${onlineCount}人">
                         <i>👥</i>
-                        ${group.groupName ? group.groupName.substring(0, 8) + (group.groupName.length > 8 ? '…' : '') : '群組'}
+                        ${displayName}
                         ${onlineCount > 0 ? `<span class="online-indicator"></span>` : ''}
                     </div>
                 `;
@@ -1403,7 +1512,7 @@
                 
                 if (onlineCount > 0) {
                     badge.style.display = 'inline-block';
-                    badge.textContent = `${onlineCount}`;
+                    badge.textContent = `${onlineCount} 人在線`;
                 } else {
                     badge.style.display = 'none';
                 }
@@ -1442,8 +1551,8 @@
             
             const markerContent = document.createElement('div');
             markerContent.style.position = 'relative';
-            markerContent.style.width = '32px';
-            markerContent.style.height = '32px';
+            markerContent.style.width = '36px';
+            markerContent.style.height = '36px';
             markerContent.style.cursor = 'pointer';
             
             if (locationData.avatarUrl) {
@@ -1453,7 +1562,7 @@
                 img.style.height = '100%';
                 img.style.borderRadius = '50%';
                 img.style.border = '2px solid var(--member-color)';
-                img.style.boxShadow = '0 2px 6px rgba(0,0,0,0.2)';
+                img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.2)';
                 img.style.objectFit = 'cover';
                 markerContent.appendChild(img);
             } else {
@@ -1463,12 +1572,12 @@
                 defaultIcon.style.borderRadius = '50%';
                 defaultIcon.style.background = 'linear-gradient(135deg, var(--member-color), var(--member-dark))';
                 defaultIcon.style.border = '2px solid white';
-                defaultIcon.style.boxShadow = '0 2px 6px rgba(0,0,0,0.2)';
+                defaultIcon.style.boxShadow = '0 2px 8px rgba(0,0,0,0.2)';
                 defaultIcon.style.display = 'flex';
                 defaultIcon.style.alignItems = 'center';
                 defaultIcon.style.justifyContent = 'center';
                 defaultIcon.style.color = 'white';
-                defaultIcon.style.fontSize = '14px';
+                defaultIcon.style.fontSize = '16px';
                 defaultIcon.style.fontWeight = 'bold';
                 defaultIcon.textContent = locationData.name ? locationData.name.charAt(0).toUpperCase() : '?';
                 markerContent.appendChild(defaultIcon);
@@ -1502,12 +1611,12 @@
                     title: locationData.name || '群組成員',
                     icon: {
                         url: locationData.avatarUrl || 'data:image/svg+xml,' + encodeURIComponent(`
-                            <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-                                <circle cx="16" cy="16" r="14" fill="#FFB347" stroke="white" stroke-width="2"/>
-                                <text x="16" y="22" font-size="12" font-weight="bold" text-anchor="middle" fill="white">${locationData.name ? locationData.name.charAt(0).toUpperCase() : '?'}</text>
+                            <svg width="36" height="36" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="18" cy="18" r="16" fill="#FFB347" stroke="white" stroke-width="2"/>
+                                <text x="18" y="24" font-size="14" font-weight="bold" text-anchor="middle" fill="white">${locationData.name ? locationData.name.charAt(0).toUpperCase() : '?'}</text>
                             </svg>
                         `),
-                        scaledSize: new google.maps.Size(32, 32)
+                        scaledSize: new google.maps.Size(36, 36)
                     }
                 });
             }
@@ -1521,10 +1630,10 @@
             markerContent.addEventListener('click', () => {
                 const infoWindow = new google.maps.InfoWindow({
                     content: `
-                        <div style="padding:8px; text-align:center;">
-                            ${locationData.avatarUrl ? `<img src="${locationData.avatarUrl}" style="width:40px; height:40px; border-radius:50%; margin-bottom:8px; object-fit:cover;">` : ''}
+                        <div style="padding:10px; text-align:center;">
+                            ${locationData.avatarUrl ? `<img src="${locationData.avatarUrl}" style="width:45px; height:45px; border-radius:50%; margin-bottom:8px; object-fit:cover;">` : ''}
                             <div style="font-weight:bold; color:var(--accent-dark);">${locationData.name || '群組成員'}</div>
-                            <div style="font-size:11px; color:var(--muted);">${lastUpdate.toLocaleTimeString()}</div>
+                            <div style="font-size:11px; color:var(--muted);">最後更新: ${lastUpdate.toLocaleTimeString()}</div>
                         </div>
                     `
                 });
@@ -1629,8 +1738,8 @@
         function createCustomAvatarMarker(position, avatarUrl, accuracy, username) {
             const markerContent = document.createElement('div');
             markerContent.style.position = 'relative';
-            markerContent.style.width = '36px';
-            markerContent.style.height = '36px';
+            markerContent.style.width = '40px';
+            markerContent.style.height = '40px';
             markerContent.style.cursor = 'pointer';
             
             if (avatarUrl) {
@@ -1640,7 +1749,7 @@
                 img.style.height = '100%';
                 img.style.borderRadius = '50%';
                 img.style.border = '3px solid white';
-                img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';
+                img.style.boxShadow = '0 2px 10px rgba(0,0,0,0.3)';
                 img.style.objectFit = 'cover';
                 markerContent.appendChild(img);
             } else {
@@ -1650,12 +1759,12 @@
                 defaultIcon.style.borderRadius = '50%';
                 defaultIcon.style.background = 'linear-gradient(135deg, #4285F4, #2CC5C2)';
                 defaultIcon.style.border = '3px solid white';
-                defaultIcon.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';
+                defaultIcon.style.boxShadow = '0 2px 10px rgba(0,0,0,0.3)';
                 defaultIcon.style.display = 'flex';
                 defaultIcon.style.alignItems = 'center';
                 defaultIcon.style.justifyContent = 'center';
                 defaultIcon.style.color = 'white';
-                defaultIcon.style.fontSize = '16px';
+                defaultIcon.style.fontSize = '18px';
                 defaultIcon.style.fontWeight = 'bold';
                 defaultIcon.textContent = username ? username.charAt(0).toUpperCase() : '?';
                 markerContent.appendChild(defaultIcon);
@@ -1688,12 +1797,12 @@
                     title: '您的位置',
                     icon: {
                         url: avatarUrl || 'data:image/svg+xml,' + encodeURIComponent(`
-                            <svg width="36" height="36" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
-                                <circle cx="18" cy="18" r="16" fill="#4285F4" stroke="white" stroke-width="3"/>
-                                <text x="18" y="24" font-size="16" font-weight="bold" text-anchor="middle" fill="white">${username ? username.charAt(0).toUpperCase() : '?'}</text>
+                            <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="20" cy="20" r="18" fill="#4285F4" stroke="white" stroke-width="3"/>
+                                <text x="20" y="26" font-size="18" font-weight="bold" text-anchor="middle" fill="white">${username ? username.charAt(0).toUpperCase() : '?'}</text>
                             </svg>
                         `),
-                        scaledSize: new google.maps.Size(36, 36)
+                        scaledSize: new google.maps.Size(40, 40)
                     }
                 });
             }
@@ -1712,11 +1821,11 @@
             markerContent.addEventListener('click', () => {
                 const infoWindow = new google.maps.InfoWindow({
                     content: `
-                        <div style="padding:8px; text-align:center;">
-                            ${avatarUrl ? `<img src="${avatarUrl}" style="width:40px; height:40px; border-radius:50%; margin-bottom:8px; object-fit:cover;">` : ''}
+                        <div style="padding:10px; text-align:center;">
+                            ${avatarUrl ? `<img src="${avatarUrl}" style="width:45px; height:45px; border-radius:50%; margin-bottom:8px; object-fit:cover;">` : ''}
                             <div style="font-weight:bold; color:var(--accent-dark);">您的位置</div>
-                            <div style="font-size:11px; color:var(--muted);">${username || '用戶'}</div>
-                            <div style="font-size:11px; color:var(--muted);">精確: ${Math.round(accuracy)}m</div>
+                            <div style="font-size:12px; color:var(--muted);">${username || '用戶'}</div>
+                            <div style="font-size:11px; color:var(--muted);">精確度: ${Math.round(accuracy)}公尺</div>
                         </div>
                     `
                 });
@@ -1788,7 +1897,7 @@
                     }
                     
                     if (locationInfo) {
-                        locationInfo.textContent = `📍 精確度：約 ${Math.round(position.coords.accuracy)} 公尺`;
+                        locationInfo.textContent = `📍 您的位置 - 精確度：約 ${Math.round(position.coords.accuracy)} 公尺`;
                         locationInfo.style.display = 'block';
                         setTimeout(() => locationInfo.style.display = 'none', 5000);
                     }
@@ -1799,7 +1908,7 @@
                         calculateAndDisplayRoute(currentPos, currentDestinationPosition, currentTravelMode);
                     } else {
                         const infoWindow = new google.maps.InfoWindow({
-                            content: '<div style="padding:8px;">🔍 現在可以搜尋目的地</div>'
+                            content: '<div style="padding:8px;">🔍 現在可以搜尋目的地，路線會自動規劃</div>'
                         });
                         infoWindow.setPosition(currentPos);
                         infoWindow.open(map);
@@ -1875,7 +1984,7 @@
                 'atm': { name: '提款機', icon: '🏧' }
             };
 
-            showToast(`搜尋 1公里內 ${typeNames[type].name}...`);
+            showToast(`正在搜尋 ${searchLocationType === 'current' ? '您附近' : '地圖中心附近'} 1公里內的${typeNames[type].name}...`);
 
             const request = {
                 location: new google.maps.LatLng(searchCenter.lat, searchCenter.lng),
@@ -1907,13 +2016,13 @@
                     });
 
                     if (oneKmResults.length === 0) {
-                        showToast(`1公里內找不到${typeNames[type].name}`);
+                        showToast(`${searchLocationType === 'current' ? '您附近' : '地圖中心附近'} 1公里內找不到${typeNames[type].name}`);
                         return;
                     }
 
                     const top20Results = oneKmResults.slice(0, 20);
 
-                    showToast(`找到 ${top20Results.length} 間${typeNames[type].name}`);
+                    showToast(`在1公里內找到 ${top20Results.length} 間${typeNames[type].name}`);
 
                     top20Results.forEach((place) => {
                         createNearbyMarker(place, typeNames[type], searchCenter);
@@ -1938,7 +2047,7 @@
                         }
                     }
                 } else if (status === google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
-                    showToast(`1公里內找不到${typeNames[type].name}`);
+                    showToast(`${searchLocationType === 'current' ? '您附近' : '地圖中心附近'} 1公里內找不到${typeNames[type].name}`);
                 } else {
                     console.error('附近搜尋失敗:', status);
                     let errorMsg = '搜尋失敗';
@@ -1971,9 +2080,9 @@
                     place.geometry.location
                 );
                 if (distance < 1000) {
-                    distanceText = `<div style="font-size: 10px; color: var(--muted); margin-bottom: 3px;">📏 ${Math.round(distance)}m</div>`;
+                    distanceText = `<div style="font-size: 11px; color: var(--muted); margin-bottom: 5px;">📏 距離 ${Math.round(distance)} 公尺</div>`;
                 } else {
-                    distanceText = `<div style="font-size: 10px; color: var(--muted); margin-bottom: 3px;">📏 ${(distance/1000).toFixed(1)}km</div>`;
+                    distanceText = `<div style="font-size: 11px; color: var(--muted); margin-bottom: 5px;">📏 距離 ${(distance/1000).toFixed(1)} 公里</div>`;
                 }
             }
 
@@ -2003,7 +2112,7 @@
                 title: place.name,
                 icon: {
                     path: google.maps.SymbolPath.CIRCLE,
-                    scale: 8,
+                    scale: 10,
                     fillColor: markerColors[colorKey],
                     fillOpacity: 0.9,
                     strokeColor: 'white',
@@ -2018,7 +2127,7 @@
                 }
 
                 const loadingInfoWindow = new google.maps.InfoWindow({
-                    content: '<div style="padding:8px;">載入中...</div>'
+                    content: '<div style="padding:10px;">載入詳細資訊中...</div>'
                 });
                 loadingInfoWindow.open(map, marker);
                 currentInfoWindow = loadingInfoWindow;
@@ -2036,7 +2145,7 @@
                         if (placeDetails.rating) {
                             const fullStars = Math.round(placeDetails.rating);
                             const stars = '★'.repeat(fullStars) + '☆'.repeat(5 - fullStars);
-                            ratingHtml = `<div style="font-size: 11px; color: #f39c12; margin-bottom: 3px;">${stars} ${placeDetails.rating}</div>`;
+                            ratingHtml = `<div class="info-window-rating">${stars} ${placeDetails.rating} (${placeDetails.user_ratings_total || 0} 則評論)</div>`;
                         }
 
                         let hoursHtml = '';
@@ -2044,16 +2153,63 @@
                             const isOpen = placeDetails.opening_hours.isOpen ? placeDetails.opening_hours.isOpen() : false;
                             const openStatus = isOpen ? '營業中' : '休息中';
                             const statusColor = isOpen ? '#28a745' : '#dc3545';
-                            hoursHtml = `<div style="font-size: 10px; color: ${statusColor}; margin-bottom: 3px;">${openStatus}</div>`;
+                            hoursHtml = `<div style="font-size: 11px; color: ${statusColor}; margin-bottom: 5px;">${openStatus}</div>`;
+                            
+                            if (placeDetails.opening_hours.weekday_text) {
+                                const today = new Date().getDay();
+                                const dayIndex = today === 0 ? 6 : today - 1;
+                                hoursHtml += `<div style="font-size: 10px; color: var(--muted);">${placeDetails.opening_hours.weekday_text[dayIndex]}</div>`;
+                            }
+                        }
+
+                        let priceHtml = '';
+                        if (placeDetails.price_level) {
+                            const priceLevel = '💰'.repeat(placeDetails.price_level);
+                            priceHtml = `<div style="font-size: 11px; margin-bottom: 5px;">價格: ${priceLevel}</div>`;
+                        }
+
+                        let typesHtml = '';
+                        if (placeDetails.types) {
+                            const typeMap = {
+                                'chinese_restaurant': '中式',
+                                'japanese_restaurant': '日式',
+                                'italian_restaurant': '義式',
+                                'french_restaurant': '法式',
+                                'thai_restaurant': '泰式',
+                                'vietnamese_restaurant': '越式',
+                                'korean_restaurant': '韓式',
+                                'fast_food_restaurant': '速食',
+                                'pizza_restaurant': '披薩',
+                                'burger_restaurant': '漢堡',
+                                'seafood_restaurant': '海鮮',
+                                'steak_house': '牛排',
+                                'sushi_restaurant': '壽司',
+                                'ramen_restaurant': '拉麵',
+                                'bakery': '麵包店',
+                                'bar': '酒吧',
+                                'cafe': '咖啡廳'
+                            };
+                            
+                            const matchedTypes = placeDetails.types
+                                .filter(t => typeMap[t])
+                                .map(t => typeMap[t])
+                                .slice(0, 3);
+                            
+                            if (matchedTypes.length > 0) {
+                                typesHtml = `<div style="font-size: 10px; color: var(--accent); margin-bottom: 5px;">${matchedTypes.join(' · ')}</div>`;
+                            }
                         }
 
                         const infoWindowContent = `
-                            <div class="info-window">
-                                <div class="info-window-title">${typeInfo.icon} ${placeDetails.name}</div>
+                            <div class="info-window" style="max-width: 250px;">
+                                <div class="info-window-title" style="font-size: 16px; margin-bottom: 8px;">${typeInfo.icon} ${placeDetails.name}</div>
+                                ${typesHtml}
                                 ${hoursHtml}
                                 ${ratingHtml}
+                                ${priceHtml}
                                 ${distanceText}
-                                <div style="font-size: 10px; color: var(--muted); margin-bottom: 5px;">📍 ${placeDetails.formatted_address || place.vicinity || ''}</div>
+                                <div class="info-window-address" style="font-size: 11px; margin: 8px 0;">📍 ${placeDetails.formatted_address || place.vicinity || '地址不詳'}</div>
+                                ${placeDetails.formatted_phone_number ? `<div style="font-size: 11px; margin: 5px 0;"><a href="tel:${placeDetails.formatted_phone_number}" style="color: var(--accent); text-decoration: none;">📞 ${placeDetails.formatted_phone_number}</a></div>` : ''}
                                 <button class="info-window-btn" onclick="setDestination(${place.geometry.location.lat()}, ${place.geometry.location.lng()}, '${placeDetails.name.replace(/'/g, "\\'")}')">
                                     設為目的地
                                 </button>
@@ -2071,7 +2227,7 @@
                             <div class="info-window">
                                 <div class="info-window-title">${typeInfo.icon} ${place.name}</div>
                                 ${distanceText}
-                                <div style="font-size: 10px; color: var(--muted); margin-bottom: 5px;">📍 ${place.vicinity || ''}</div>
+                                <div class="info-window-address">📍 ${place.vicinity || '地址不詳'}</div>
                                 <button class="info-window-btn" onclick="setDestination(${place.geometry.location.lat()}, ${place.geometry.location.lng()}, '${place.name.replace(/'/g, "\\'")}')">
                                     設為目的地
                                 </button>
@@ -2129,7 +2285,7 @@
                     <div class="info-window">
                         <div class="info-window-title">📍 目的地</div>
                         <div class="info-window-address">${name}</div>
-                        <small style="color:var(--accent);">✅ 已設為目的地</small>
+                        <small style="color:var(--accent);">✅ 已設為目的地，選擇交通模式規劃路線</small>
                     </div>
                 `
             });
@@ -2177,7 +2333,7 @@
                     <div class="info-window">
                         <div class="info-window-title">${place.name}</div>
                         <div class="info-window-address">${place.formatted_address || ''}</div>
-                        <small style="color:var(--accent);">✅ 選擇交通模式</small>
+                        <small style="color:var(--accent);">✅ 選擇交通模式自動規劃路線</small>
                     </div>
                 `
             });
@@ -2235,7 +2391,7 @@
                             <div class="info-window">
                                 <div class="info-window-title">${place.name}</div>
                                 <div class="info-window-address">${place.formatted_address || ''}</div>
-                                <small style="color:var(--accent);">✅ 選擇交通模式</small>
+                                <small style="color:var(--accent);">✅ 選擇交通模式自動規劃路線</small>
                             </div>
                         `
                     });
@@ -2335,13 +2491,15 @@
                         else if (mode === 'BICYCLING') modeIcon = '🚲';
                         
                         let summaryHtml = `
-                            <strong>${modeIcon} 路線 (${getModeName(mode)})</strong><br>
-                            <span>${distance} | ${duration}</span>
+                            <strong>${modeIcon} 最佳路線 (${getModeName(mode)})</strong><br>
+                            <span>距離: ${distance} | 時間: ${duration}</span><br>
+                            <small>起點: ${leg.start_address.split(',')[0]}</small><br>
+                            <small>終點: ${leg.end_address.split(',')[0]}</small>
                         `;
                         document.getElementById('routeSummaryContent').innerHTML = summaryHtml;
 
                         if (mode === 'TRANSIT' && leg.steps) {
-                            let transitStepsHtml = '<hr style="margin:5px 0"><strong>🚉 轉乘</strong>';
+                            let transitStepsHtml = '<hr style="margin:8px 0"><strong>🚉 轉乘資訊</strong>';
                             leg.steps.forEach((step) => {
                                 if (step.travel_mode === 'TRANSIT' && step.transit) {
                                     const line = step.transit.line;
@@ -2351,13 +2509,13 @@
                                     const arrivalStop = step.transit.arrival_stop.name;
                                     transitStepsHtml += `
                                         <div class="transit-step">
-                                            <span>${icon}</span>
-                                            <span>${departureStop}→${arrivalStop}</span>
+                                            <span>${icon} ${line.short_name || line.name || ''}</span>
+                                            <span>${departureStop} → ${arrivalStop}</span>
                                             <small>(${step.duration.text})</small>
                                         </div>
                                     `;
                                 } else if (step.travel_mode === 'WALKING') {
-                                    transitStepsHtml += `<div class="transit-step"><span>🚶 步行 ${step.distance.text}</span></div>`;
+                                    transitStepsHtml += `<div class="transit-step"><span>🚶 步行 ${step.distance.text} (${step.duration.text})</span></div>`;
                                 }
                             });
                             document.getElementById('transitDetailed').innerHTML = transitStepsHtml;
@@ -2376,7 +2534,7 @@
         function getModeName(mode) {
             switch(mode) {
                 case 'DRIVING': return '開車';
-                case 'TRANSIT': return '大眾';
+                case 'TRANSIT': return '大眾運輸';
                 case 'WALKING': return '步行';
                 case 'BICYCLING': return '單車';
                 default: return '未知';
@@ -2412,7 +2570,7 @@
                             title: '會合點',
                             icon: {
                                 path: google.maps.SymbolPath.CIRCLE,
-                                scale: 10,
+                                scale: 12,
                                 fillColor: '#FF4444',
                                 fillOpacity: 1,
                                 strokeColor: 'white',
@@ -2426,7 +2584,7 @@
                             content: `
                                 <div class="meeting-info-window">
                                     <div class="meeting-info-title">🎯 會合點</div>
-                                    <div class="meeting-info-address">📍 ${locationData.address || ''}</div>
+                                    <div class="meeting-info-address">📍 ${locationData.address || '未知地址'}</div>
                                 </div>
                             `
                         });
