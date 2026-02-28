@@ -38,7 +38,7 @@
             font-family: 'Noto Sans', 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #f2fbfb 0%, #ebf8f8 100%);
             min-height: 100vh;
-            padding: 10px 10px 10px 70px; /* 電腦版預留左側空間 */
+            padding: 10px 10px 10px 70px;
             touch-action: pan-y pinch-zoom;
             transition: padding 0.3s ease;
         }
@@ -47,7 +47,7 @@
             padding: 0;
         }
 
-        /* ==================== 側邊導航 - 電腦版 (寬度減少版) ==================== */
+        /* ==================== 側邊導航 - 電腦版 ==================== */
         .side-nav {
             position: fixed;
             left: 10px;
@@ -645,6 +645,7 @@
             background-color: #e8eef0;
         }
 
+        /* ==================== 定位按鈕容器 - 全螢幕模式往上移動 ==================== */
         .location-button-container {
             position: absolute;
             bottom: 20px;
@@ -658,7 +659,7 @@
         }
 
         .location-button-container.fullscreen-mode {
-            bottom: calc(20px + var(--safe-area-bottom));
+            bottom: calc(80px + var(--safe-area-bottom)); /* 從 20px 增加到 80px，往上移動 */
             left: 20px;
             z-index: 2001;
         }
@@ -802,7 +803,7 @@
             background: #FF8C00;
         }
 
-        /* ==================== 路線摘要卡片 ==================== */
+        /* ==================== 路線摘要卡片 - 全螢幕模式往上移動 ==================== */
         .route-summary {
             position: absolute;
             bottom: 120px;
@@ -829,7 +830,7 @@
         }
         
         .route-summary.fullscreen-mode {
-            bottom: calc(140px + var(--safe-area-bottom));
+            bottom: calc(180px + var(--safe-area-bottom)); /* 從 140px 增加到 180px，往上移動 */
             left: 10px;
             right: 10px;
             z-index: 2001;
@@ -990,15 +991,15 @@
         /* ==================== 手機版響應式 - 導航移到下方 ==================== */
         @media (max-width: 768px) {
             body {
-                padding: 8px 8px 70px 8px; /* 下方預留空間給底部導航 */
+                padding: 8px 8px 70px 8px;
             }
 
             .side-nav {
-                display: none; /* 隱藏左側導航 */
+                display: none;
             }
 
             .bottom-nav {
-                display: flex; /* 顯示底部導航 */
+                display: flex;
             }
 
             .header {
@@ -1131,7 +1132,7 @@
             }
             
             .route-summary.fullscreen-mode {
-                bottom: calc(120px + var(--safe-area-bottom));
+                bottom: calc(160px + var(--safe-area-bottom)); /* 手機版全螢幕也往上移動 */
             }
             
             .route-summary-arrow {
@@ -1230,7 +1231,7 @@
             }
             
             .route-summary.fullscreen-mode {
-                bottom: calc(110px + var(--safe-area-bottom));
+                bottom: calc(150px + var(--safe-area-bottom));
             }
             
             .route-summary-arrow {
@@ -1321,7 +1322,7 @@
             }
             
             .route-summary.fullscreen-mode {
-                bottom: calc(100px + var(--safe-area-bottom));
+                bottom: calc(140px + var(--safe-area-bottom));
             }
 
             .bottom-nav-item {
@@ -1340,11 +1341,11 @@
         /* iOS 安全區域支援 */
         @supports (padding: max(0px)) {
             .route-summary.fullscreen-mode {
-                bottom: max(140px, calc(120px + env(safe-area-inset-bottom)));
+                bottom: max(180px, calc(160px + env(safe-area-inset-bottom)));
             }
             
             .location-button-container.fullscreen-mode {
-                bottom: max(20px, env(safe-area-inset-bottom));
+                bottom: max(80px, env(safe-area-inset-bottom));
             }
             
             .bottom-nav {
@@ -1353,19 +1354,31 @@
             
             @media (max-width: 768px) {
                 .route-summary.fullscreen-mode {
-                    bottom: max(120px, calc(100px + env(safe-area-inset-bottom)));
+                    bottom: max(160px, calc(140px + env(safe-area-inset-bottom)));
+                }
+                
+                .location-button-container.fullscreen-mode {
+                    bottom: max(70px, env(safe-area-inset-bottom));
                 }
             }
             
             @media (max-width: 480px) {
                 .route-summary.fullscreen-mode {
-                    bottom: max(110px, calc(90px + env(safe-area-inset-bottom)));
+                    bottom: max(150px, calc(130px + env(safe-area-inset-bottom)));
+                }
+                
+                .location-button-container.fullscreen-mode {
+                    bottom: max(60px, env(safe-area-inset-bottom));
                 }
             }
             
             @media (max-width: 375px) {
                 .route-summary.fullscreen-mode {
-                    bottom: max(100px, calc(80px + env(safe-area-inset-bottom)));
+                    bottom: max(140px, calc(120px + env(safe-area-inset-bottom)));
+                }
+                
+                .location-button-container.fullscreen-mode {
+                    bottom: max(50px, env(safe-area-inset-bottom));
                 }
             }
         }
