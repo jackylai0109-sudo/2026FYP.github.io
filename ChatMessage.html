@@ -9,6 +9,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
     
     <!-- Google Maps API -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDXCOcFaB80u9FjnEkQf-DlMOPqAJyGngA&libraries=places,geometry&v=weekly"></script>
@@ -351,6 +352,131 @@
             word-break: break-word;
         }
 
+        /* 圖片訊息樣式 */
+        .message-image {
+            max-width: 250px;
+            border-radius: 12px;
+            cursor: pointer;
+            overflow: hidden;
+            background: #f0f0f0;
+            border: 1px solid var(--border);
+            transition: transform 0.3s ease;
+        }
+
+        .message-image:hover {
+            transform: scale(1.02);
+        }
+
+        .message-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: cover;
+        }
+
+        .image-caption {
+            padding: 8px 12px;
+            background: rgba(0, 0, 0, 0.05);
+            font-size: 12px;
+            color: var(--text-dark);
+            border-top: 1px solid var(--border);
+        }
+
+        .own-message .image-caption {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-top-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* 檔案訊息樣式 */
+        .message-file {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border);
+            min-width: 200px;
+        }
+
+        .message-file:hover {
+            background: #e8e8e8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .own-message .message-file {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .own-message .message-file:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .file-icon {
+            font-size: 32px;
+            color: var(--primary-dark);
+        }
+
+        .own-message .file-icon {
+            color: white;
+        }
+
+        .file-info {
+            flex: 1;
+        }
+
+        .file-name {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-dark);
+            word-break: break-word;
+            margin-bottom: 4px;
+        }
+
+        .own-message .file-name {
+            color: white;
+        }
+
+        .file-size {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .own-message .file-size {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .download-icon {
+            font-size: 18px;
+            color: var(--text-muted);
+        }
+
+        /* 位置訊息樣式 */
+        .message-location {
+            background: #f0f9ff;
+            padding: 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--member-color);
+            min-width: 200px;
+        }
+
+        .message-location:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 179, 71, 0.3);
+        }
+
+        .own-message .message-location {
+            background: rgba(255, 255, 255, 0.15);
+            border-left-color: white;
+        }
+
         .meeting-message {
             background: var(--meeting-bg) !important;
             border-left: 4px solid var(--meeting-border);
@@ -462,42 +588,6 @@
             font-size: 12px;
         }
 
-        .message-image {
-            max-width: 200px;
-            border-radius: 8px;
-            cursor: pointer;
-            background: #f0f0f0;
-            padding: 10px;
-            text-align: center;
-            word-break: break-word;
-        }
-
-        .message-location {
-            background: #f0f9ff;
-            padding: 8px;
-            border-radius: 8px;
-            margin-top: 5px;
-            word-break: break-word;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border-left: 4px solid var(--member-color);
-        }
-
-        .message-location:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(255, 179, 71, 0.3);
-        }
-
-        .message-file {
-            background: #f5f5f5;
-            padding: 8px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            word-break: break-word;
-        }
-
         /* 發送區域 */
         .message-input-area {
             padding: 20px;
@@ -541,6 +631,9 @@
             font-size: 0.9rem;
             transition: all 0.3s;
             -webkit-tap-highlight-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
 
         .tool-btn:hover {
@@ -551,6 +644,10 @@
 
         .tool-btn:active {
             transform: scale(0.95);
+        }
+
+        .tool-btn i {
+            font-size: 16px;
         }
 
         .send-btn {
@@ -571,6 +668,91 @@
 
         .send-btn:active {
             transform: scale(0.95);
+        }
+
+        /* 上傳進度條 */
+        .upload-progress {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 30px;
+            padding: 12px 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            gap: 15px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .upload-progress.show {
+            display: flex;
+        }
+
+        .progress-bar {
+            width: 150px;
+            height: 6px;
+            background: #eef2f2;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* 圖片預覽浮層 */
+        .image-preview-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 20000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .image-preview-content {
+            max-width: 90%;
+            max-height: 90%;
+            position: relative;
+        }
+
+        .image-preview-content img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .image-preview-close {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .image-preview-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
         }
 
         /* 成員列表側邊欄 */
@@ -739,6 +921,12 @@
             margin: 0 auto 15px;
         }
 
+        .spinner.small {
+            width: 20px;
+            height: 20px;
+            border-width: 2px;
+        }
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -817,12 +1005,17 @@
                 font-size: 0.9rem;
             }
             
-            .meeting-detail-item {
-                font-size: 12px;
+            .message-image {
+                max-width: 200px;
             }
             
-            .meeting-detail-label {
-                width: 65px;
+            .message-file {
+                min-width: 150px;
+                padding: 10px;
+            }
+            
+            .file-icon {
+                font-size: 28px;
             }
             
             .tool-btn {
@@ -837,6 +1030,17 @@
             
             .message-input-area {
                 padding: 15px;
+            }
+            
+            .upload-progress {
+                top: 10px;
+                right: 10px;
+                padding: 10px 15px;
+                font-size: 13px;
+            }
+            
+            .progress-bar {
+                width: 120px;
             }
         }
 
@@ -886,6 +1090,10 @@
                 font-size: 0.7rem;
             }
             
+            .message-image {
+                max-width: 180px;
+            }
+            
             .toolbar {
                 justify-content: space-between;
             }
@@ -895,6 +1103,7 @@
                 text-align: center;
                 padding: 8px 4px;
                 font-size: 0.8rem;
+                justify-content: center;
             }
             
             .input-wrapper {
@@ -911,13 +1120,11 @@
                 font-size: 0.9rem;
             }
             
-            .meeting-detail-item {
-                flex-direction: column;
-                gap: 2px;
-            }
-            
-            .meeting-detail-label {
-                width: 100%;
+            .upload-progress {
+                width: 90%;
+                left: 5%;
+                right: 5%;
+                transform: none;
             }
         }
 
@@ -941,6 +1148,18 @@
             
             .message-bubble {
                 padding: 8px 12px;
+            }
+            
+            .message-image {
+                max-width: 150px;
+            }
+            
+            .file-icon {
+                font-size: 24px;
+            }
+            
+            .file-name {
+                font-size: 12px;
             }
         }
     </style>
@@ -969,6 +1188,14 @@
                 <span class="nav-icon">👤</span>
                 <span class="nav-label">帳號</span>
             </a>
+        </div>
+    </div>
+
+    <!-- 上傳進度條 -->
+    <div class="upload-progress" id="uploadProgress">
+        <span>📤 上傳中...</span>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
         </div>
     </div>
 
@@ -1006,10 +1233,15 @@
                         <button class="send-btn" onclick="sendMessage()" id="sendButton" disabled>發送</button>
                     </div>
                     <div class="toolbar">
-                        <button class="tool-btn" onclick="attachImage()" id="imageButton" disabled>📷 圖片</button>
-                        <button class="tool-btn" onclick="attachLocation()" id="locationButton" disabled>📍 位置</button>
-                        <button class="tool-btn" onclick="attachFile()" id="fileButton" disabled>📎 檔案</button>
-                        <button class="tool-btn" onclick="shareCurrentLocation()" id="shareLocationBtn" disabled>📍 分享位置</button>
+                        <button class="tool-btn" onclick="attachImage()" id="imageButton" disabled>
+                            <i>📷</i> 圖片
+                        </button>
+                        <button class="tool-btn" onclick="attachFile()" id="fileButton" disabled>
+                            <i>📎</i> 檔案
+                        </button>
+                        <button class="tool-btn" onclick="shareCurrentLocation()" id="shareLocationBtn" disabled>
+                            <i>📍</i> 分享位置
+                        </button>
                     </div>
                 </div>
             </div>
@@ -1030,6 +1262,10 @@
         </div>
     </div>
 
+    <!-- 隱藏的檔案選擇器 -->
+    <input type="file" id="imagePicker" accept="image/*" style="display: none;">
+    <input type="file" id="filePicker" style="display: none;">
+
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyBhvbTPl-hGv1MWtrua55LuvIUpdabqy4M",
@@ -1045,6 +1281,7 @@
         }
         const auth = firebase.auth();
         const db = firebase.firestore();
+        const storage = firebase.storage();
 
         let currentUser = null;
         let currentGroupId = null;
@@ -1166,8 +1403,161 @@
             }, 2000);
         }
 
-        // 分享目前位置到聊天室
-        async function shareCurrentLocation() {
+        // 格式化檔案大小
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // 圖片預覽
+        function previewImage(url, caption) {
+            const overlay = document.createElement('div');
+            overlay.className = 'image-preview-overlay';
+            overlay.onclick = () => overlay.remove();
+            
+            const content = document.createElement('div');
+            content.className = 'image-preview-content';
+            
+            const img = document.createElement('img');
+            img.src = url;
+            img.alt = caption || '圖片';
+            
+            const closeBtn = document.createElement('div');
+            closeBtn.className = 'image-preview-close';
+            closeBtn.innerHTML = '✕';
+            closeBtn.onclick = (e) => {
+                e.stopPropagation();
+                overlay.remove();
+            };
+            
+            content.appendChild(img);
+            content.appendChild(closeBtn);
+            overlay.appendChild(content);
+            document.body.appendChild(overlay);
+        }
+
+        // 初始化圖片選擇器
+        function initImagePicker() {
+            const picker = document.getElementById('imagePicker');
+            picker.addEventListener('change', async function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const caption = prompt('輸入圖片說明（選填）：');
+                
+                await uploadFile(file, 'image', caption);
+                
+                // 清空選擇器
+                picker.value = '';
+            });
+        }
+
+        // 初始化檔案選擇器
+        function initFilePicker() {
+            const picker = document.getElementById('filePicker');
+            picker.addEventListener('change', async function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                await uploadFile(file, 'file');
+                
+                // 清空選擇器
+                picker.value = '';
+            });
+        }
+
+        // 上傳檔案
+        async function uploadFile(file, type, caption = '') {
+            if (!currentUser || !currentGroupId) {
+                alert('請先加入群組');
+                return;
+            }
+
+            const progressDiv = document.getElementById('uploadProgress');
+            const progressFill = document.getElementById('progressFill');
+            
+            progressDiv.classList.add('show');
+            progressFill.style.width = '0%';
+
+            try {
+                // 生成唯一檔案名稱
+                const timestamp = Date.now();
+                const fileName = `${timestamp}_${file.name}`;
+                const filePath = `group_files/${currentGroupId}/${type}s/${fileName}`;
+                const fileRef = storage.ref().child(filePath);
+                
+                // 上傳檔案
+                const uploadTask = fileRef.put(file);
+                
+                uploadTask.on('state_changed',
+                    (snapshot) => {
+                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                        progressFill.style.width = progress + '%';
+                    },
+                    (error) => {
+                        console.error('上傳錯誤:', error);
+                        progressDiv.classList.remove('show');
+                        showToast('上傳失敗：' + error.message);
+                    },
+                    async () => {
+                        const downloadURL = await fileRef.getDownloadURL();
+                        
+                        // 獲取發送者名稱
+                        let senderName = currentUser.displayName;
+                        if (!senderName) {
+                            const userDoc = await db.collection('users').doc(currentUser.uid).get();
+                            senderName = userDoc.exists ? userDoc.data().username : '匿名用戶';
+                        }
+                        
+                        // 建立訊息
+                        const message = {
+                            senderId: currentUser.uid,
+                            senderName: senderName,
+                            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                            text: '',
+                            type: type,
+                            metadata: {
+                                fileName: file.name,
+                                fileSize: file.size,
+                                fileType: file.type,
+                                url: downloadURL,
+                                caption: caption
+                            }
+                        };
+                        
+                        // 儲存到 Firestore
+                        await db.collection('groups')
+                            .doc(currentGroupId)
+                            .collection('messages')
+                            .add(message);
+                        
+                        progressDiv.classList.remove('show');
+                        showToast(`✅ ${type === 'image' ? '圖片' : '檔案'} 上傳成功！`);
+                    }
+                );
+                
+            } catch (error) {
+                console.error('上傳錯誤:', error);
+                progressDiv.classList.remove('show');
+                showToast('上傳失敗：' + error.message);
+            }
+        }
+
+        // 附加圖片
+        window.attachImage = function() {
+            document.getElementById('imagePicker').click();
+        };
+
+        // 附加檔案
+        window.attachFile = function() {
+            document.getElementById('filePicker').click();
+        };
+
+        // 分享目前位置
+        window.shareCurrentLocation = async function() {
             if (!currentUser || !currentGroupId) {
                 alert('請先加入群組');
                 return;
@@ -1234,7 +1624,7 @@
                 console.error('獲取位置錯誤:', error);
                 alert('無法獲取您的位置：' + error.message);
             }
-        }
+        };
 
         async function initChatRoom() {
             const user = auth.currentUser;
@@ -1368,7 +1758,6 @@
                 .collection('locations');
 
             unsubscribeLocations = locationsRef.onSnapshot((snapshot) => {
-                // 更新成員列表中的位置指示器
                 const memberItems = document.querySelectorAll('.member-item');
                 memberItems.forEach(item => {
                     const memberId = item.dataset.memberId;
@@ -1421,91 +1810,72 @@
 
                 const isOwn = msg.senderId === currentUser?.uid;
                 
-                const isMeeting = msg.content.type === 'location' && msg.content.metadata?.isMeeting;
-                
                 let contentHtml = '';
                 
-                if (isMeeting) {
-                    const meetingTime = msg.content.metadata.meetingTime ? 
-                        new Date(msg.content.metadata.meetingTime.seconds * 1000).toLocaleString('zh-TW', {
-                            year: 'numeric',
-                            month: '2-digit',
-                            day: '2-digit',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                        }) : '未設定時間';
-                    
-                    let displayAddress = msg.content.metadata.address || '未知';
-                    
-                    if (displayAddress.match(/^-?\d+\.\d+,\s*-?\d+\.\d+$/)) {
-                        displayAddress = '無法取得地址';
-                    }
-                    
-                    contentHtml = `
-                        <div class="meeting-message" onclick='openLocationOnMap(${msg.content.metadata.latitude}, ${msg.content.metadata.longitude}, "${displayAddress.replace(/"/g, '&quot;')}")'>
-                            <div class="meeting-header">
-                                <span class="meeting-icon">🎯</span>
-                                <span class="meeting-title">會合點邀請</span>
+                switch(msg.content.type) {
+                    case 'image':
+                        const imageUrl = msg.content.metadata.url || '#';
+                        const caption = msg.content.metadata.caption || '';
+                        
+                        contentHtml = `
+                            <div class="message-image" onclick='previewImage("${imageUrl}", "${caption.replace(/"/g, '&quot;')}")'>
+                                <img src="${imageUrl}" alt="${caption || '圖片'}" onerror="this.src='data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22200%22%20height%3D%22200%22%20viewBox%3D%220%200%20200%20200%22%3E%3Crect%20width%3D%22200%22%20height%3D%22200%22%20fill%3D%22%23f0f0f0%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22Arial%22%20font-size%3D%2214%22%20fill%3D%22%23999%22%3E圖片載入失敗%3C%2Ftext%3E%3C%2Fsvg%3E'">
+                                ${caption ? `<div class="image-caption">${caption}</div>` : ''}
                             </div>
-                            <div class="meeting-details">
-                                <div class="meeting-detail-item">
-                                    <span class="meeting-detail-label">時間：</span>
-                                    <span class="meeting-detail-value">${meetingTime}</span>
+                        `;
+                        break;
+                        
+                    case 'file':
+                        const fileName = msg.content.metadata.fileName || '未知檔案';
+                        const fileSize = msg.content.metadata.fileSize ? formatFileSize(msg.content.metadata.fileSize) : '';
+                        const fileUrl = msg.content.metadata.url || '#';
+                        
+                        // 根據檔案類型選擇圖示
+                        let fileIcon = '📎';
+                        const ext = fileName.split('.').pop().toLowerCase();
+                        if (['jpg', 'jpeg', 'png', 'gif', 'bmp'].includes(ext)) fileIcon = '🖼️';
+                        else if (['pdf'].includes(ext)) fileIcon = '📕';
+                        else if (['doc', 'docx'].includes(ext)) fileIcon = '📘';
+                        else if (['xls', 'xlsx'].includes(ext)) fileIcon = '📗';
+                        else if (['zip', 'rar', '7z'].includes(ext)) fileIcon = '🗜️';
+                        else if (['mp3', 'wav', 'flac'].includes(ext)) fileIcon = '🎵';
+                        else if (['mp4', 'avi', 'mov'].includes(ext)) fileIcon = '🎬';
+                        
+                        contentHtml = `
+                            <div class="message-file" onclick="window.open('${fileUrl}', '_blank')">
+                                <span class="file-icon">${fileIcon}</span>
+                                <div class="file-info">
+                                    <div class="file-name">${fileName}</div>
+                                    ${fileSize ? `<div class="file-size">${fileSize}</div>` : ''}
                                 </div>
-                                <div class="meeting-detail-item">
-                                    <span class="meeting-detail-label">地點：</span>
-                                    <span class="meeting-detail-value">${displayAddress}</span>
-                                </div>
+                                <span class="download-icon">⬇️</span>
                             </div>
-                            ${msg.content.metadata.notes ? `
-                                <div class="meeting-notes">
-                                    📝 備註：${msg.content.metadata.notes}
-                                </div>
-                            ` : ''}
-                            <div class="click-hint">
-                                <i>👆</i> 點擊查看地圖
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    switch(msg.content.type) {
-                        case 'image':
-                            contentHtml = `
-                                <div class="message-image" onclick="previewImage('${msg.content.metadata.url || '#'}')">
-                                    🖼️ ${msg.content.metadata.caption || '圖片'}
-                                </div>
-                            `;
-                            break;
-                        case 'location':
-                            const locationLat = msg.content.metadata.latitude;
-                            const locationLng = msg.content.metadata.longitude;
-                            const locationAddress = msg.content.metadata.address || '未知位置';
-                            
-                            contentHtml = `
-                                <div class="message-location" onclick='openLocationOnMap(${locationLat}, ${locationLng}, "${locationAddress.replace(/"/g, '&quot;')}")'>
-                                    <div style="display: flex; align-items: center; gap: 8px;">
-                                        <span style="font-size: 20px;">📍</span>
-                                        <div>
-                                            <div style="font-weight: 600;">即時位置</div>
-                                            <div style="font-size: 12px; color: var(--text-muted);">${locationAddress}</div>
-                                        </div>
-                                    </div>
-                                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 8px; text-align: right;">
-                                        👆 點擊查看地圖
+                        `;
+                        break;
+                        
+                    case 'location':
+                        const locationLat = msg.content.metadata.latitude;
+                        const locationLng = msg.content.metadata.longitude;
+                        const locationAddress = msg.content.metadata.address || '未知位置';
+                        
+                        contentHtml = `
+                            <div class="message-location" onclick='openLocationOnMap(${locationLat}, ${locationLng}, "${locationAddress.replace(/"/g, '&quot;')}")'>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="font-size: 20px;">📍</span>
+                                    <div>
+                                        <div style="font-weight: 600;">即時位置</div>
+                                        <div style="font-size: 12px; color: var(--text-muted);">${locationAddress}</div>
                                     </div>
                                 </div>
-                            `;
-                            break;
-                        case 'file':
-                            contentHtml = `
-                                <div class="message-file" onclick="downloadFile('${msg.content.metadata.url || '#'}')">
-                                    📎 ${msg.content.metadata.filename || '檔案'}
+                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 8px; text-align: right;">
+                                    👆 點擊查看地圖
                                 </div>
-                            `;
-                            break;
-                        default:
-                            contentHtml = `<div>${msg.content.text}</div>`;
-                    }
+                            </div>
+                        `;
+                        break;
+                        
+                    default:
+                        contentHtml = `<div>${msg.content.text}</div>`;
                 }
 
                 html += `
@@ -1535,7 +1905,6 @@
                 return;
             }
 
-            // 獲取所有正在分享位置的成員
             const locationsSnapshot = await db.collection('groups')
                 .doc(currentGroupId)
                 .collection('locations')
@@ -1611,136 +1980,10 @@
             }
         }
 
-        async function attachImage() {
-            if (!currentUser || !currentGroupId) return;
-
-            const caption = prompt('輸入圖片說明：');
-            if (caption === null) return;
-
-            try {
-                const imageUrl = '#';
-
-                let senderName = currentUser.displayName;
-                if (!senderName) {
-                    const userDoc = await db.collection('users').doc(currentUser.uid).get();
-                    senderName = userDoc.exists ? userDoc.data().username : '匿名用戶';
-                }
-
-                const message = {
-                    senderId: currentUser.uid,
-                    senderName: senderName,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                    text: '',
-                    type: 'image',
-                    metadata: {
-                        caption: caption,
-                        url: imageUrl
-                    }
-                };
-
-                await db.collection('groups')
-                    .doc(currentGroupId)
-                    .collection('messages')
-                    .add(message);
-
-            } catch (error) {
-                console.error('發送圖片錯誤:', error);
-                alert('發送失敗：' + error.message);
-            }
-        }
-
-        async function attachLocation() {
-            if (!currentUser || !currentGroupId) return;
-
-            const address = prompt('輸入位置地址：');
-            if (address === null) return;
-
-            try {
-                let senderName = currentUser.displayName;
-                if (!senderName) {
-                    const userDoc = await db.collection('users').doc(currentUser.uid).get();
-                    senderName = userDoc.exists ? userDoc.data().username : '匿名用戶';
-                }
-
-                const message = {
-                    senderId: currentUser.uid,
-                    senderName: senderName,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                    text: '',
-                    type: 'location',
-                    metadata: {
-                        address: address
-                    }
-                };
-
-                await db.collection('groups')
-                    .doc(currentGroupId)
-                    .collection('messages')
-                    .add(message);
-
-            } catch (error) {
-                console.error('發送位置錯誤:', error);
-                alert('發送失敗：' + error.message);
-            }
-        }
-
-        async function attachFile() {
-            if (!currentUser || !currentGroupId) return;
-
-            const filename = prompt('輸入檔案名稱：');
-            if (filename === null) return;
-
-            try {
-                let senderName = currentUser.displayName;
-                if (!senderName) {
-                    const userDoc = await db.collection('users').doc(currentUser.uid).get();
-                    senderName = userDoc.exists ? userDoc.data().username : '匿名用戶';
-                }
-
-                const message = {
-                    senderId: currentUser.uid,
-                    senderName: senderName,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                    text: '',
-                    type: 'file',
-                    metadata: {
-                        filename: filename,
-                        url: '#'
-                    }
-                };
-
-                await db.collection('groups')
-                    .doc(currentGroupId)
-                    .collection('messages')
-                    .add(message);
-
-            } catch (error) {
-                console.error('發送檔案錯誤:', error);
-                alert('發送失敗：' + error.message);
-            }
-        }
-
-        function previewImage(url) {
-            if (url && url !== '#') {
-                window.open(url, '_blank');
-            } else {
-                alert('圖片預覽功能開發中');
-            }
-        }
-
-        function downloadFile(url) {
-            if (url && url !== '#') {
-                window.open(url, '_blank');
-            } else {
-                alert('檔案下載功能開發中');
-            }
-        }
-
         function enableInputs(enabled) {
             document.getElementById('messageInput').disabled = !enabled;
             document.getElementById('sendButton').disabled = !enabled;
             document.getElementById('imageButton').disabled = !enabled;
-            document.getElementById('locationButton').disabled = !enabled;
             document.getElementById('fileButton').disabled = !enabled;
             document.getElementById('shareLocationBtn').disabled = !enabled;
         }
@@ -1751,6 +1994,10 @@
             if (unsubscribeLocations) unsubscribeLocations();
             window.location.href = 'index.html';
         }
+
+        // 初始化
+        initImagePicker();
+        initFilePicker();
 
         auth.onAuthStateChanged((user) => {
             if (user) {
@@ -1781,7 +2028,8 @@
         });
 
         window.openLocationOnMap = openLocationOnMap;
-        window.shareCurrentLocation = shareCurrentLocation;
+        window.previewImage = previewImage;
+        window.formatFileSize = formatFileSize;
 
         document.addEventListener('touchstart', function(e) {
         }, { passive: true });

@@ -206,20 +206,75 @@
             font-size: 18px;
         }
 
-        .group-info-badge {
-            background: var(--member-color);
-            color: white;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 500;
+        /* ==================== 群組選擇器 ==================== */
+        .group-selector {
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 10px;
+            padding: 10px 20px;
+            background: white;
+            border-bottom: 1px solid #eef2f2;
+            flex-wrap: wrap;
         }
 
-        .group-info-badge i {
+        .group-selector-label {
+            font-size: 13px;
+            color: var(--accent-dark);
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .group-badges {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            flex: 1;
+        }
+
+        .group-badge {
+            padding: 6px 14px;
+            background: #f0f8f8;
+            border: 1px solid #e6eef0;
+            border-radius: 30px;
+            color: var(--accent-dark);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .group-badge:hover {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .group-badge:active {
+            transform: scale(0.95);
+        }
+
+        .group-badge.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .group-badge i {
             font-size: 14px;
+        }
+
+        .group-badge .online-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4caf50;
+            display: inline-block;
+            margin-left: 4px;
         }
 
         .search-container {
@@ -771,6 +826,15 @@
                 font-size: 16px;
             }
 
+            .group-selector {
+                padding: 8px 12px;
+            }
+
+            .group-badge {
+                padding: 4px 10px;
+                font-size: 12px;
+            }
+
             .selector-label {
                 font-size: 12px;
             }
@@ -919,6 +983,17 @@
                 height: 40px;
                 font-size: 18px;
             }
+
+            .group-badges {
+                width: 100%;
+                overflow-x: auto;
+                flex-wrap: nowrap;
+                padding-bottom: 5px;
+            }
+
+            .group-badge {
+                flex-shrink: 0;
+            }
         }
 
         @media (max-width: 375px) {
@@ -963,7 +1038,6 @@
     <div class="header">
         <a href="index.html" class="back-btn">← 返回</a>
         <h1>地圖 · 多元交通</h1>
-        <div id="groupInfoHeader" style="display: none;"></div>
     </div>
 
     <!-- 地理位置載入提示 -->
@@ -1003,6 +1077,17 @@
                     </div>
                     <button class="map-action-btn" onclick="window.location.href='meeting.html'">🎯 建立會合點</button>
                     <button class="map-action-btn" onclick="window.location.href='weather.html'">☀️ 天氣查詢</button>
+                </div>
+            </div>
+
+            <!-- 群組選擇器 -->
+            <div class="group-selector">
+                <span class="group-selector-label">我的群組：</span>
+                <div class="group-badges" id="groupBadges">
+                    <div class="group-badge loading-badge">
+                        <div class="spinner small" style="width: 16px; height: 16px; margin: 0;"></div>
+                        載入中...
+                    </div>
                 </div>
             </div>
 
@@ -1067,7 +1152,7 @@
                 <button class="location-button" onclick="getCurrentLocationAndCenter()" title="顯示我的位置">
                     <span>📍</span>
                 </button>
-                <button class="location-button" id="shareLocationBtn" onclick="toggleLocationSharing()" title="分享位置給群組" style="display: none;">
+                <button class="location-button" id="shareLocationBtn" onclick="toggleLocationSharing()" title="分享位置給所選群組" style="display: none;">
                     <span>👥</span>
                 </button>
             </div>
@@ -1115,11 +1200,13 @@
         // 群組位置分享變數
         let searchLocationType = 'center';
         let currentUserLocation = null;
-        let currentGroupId = null;
+        let selectedGroupId = null;
+        let userGroups = [];
         let isSharingLocation = false;
         let locationShareInterval = null;
         let groupMembersMarkers = [];
         let unsubscribeLocations = null;
+        let unsubscribeGroupLocations = null;
 
         // 顯示提示訊息
         function showToast(message) {
@@ -1190,8 +1277,8 @@
                     }
                 });
                 
-                // 載入群組資訊
-                loadCurrentGroup();
+                // 載入用戶群組
+                loadUserGroups();
                 
             } catch (error) {
                 console.error("地圖初始化錯誤:", error);
@@ -1257,68 +1344,167 @@
             }
         }
 
-        // 載入用戶的當前群組
-        async function loadCurrentGroup() {
+        // 載入用戶的所有群組
+        async function loadUserGroups() {
             const user = auth.currentUser;
             if (!user) return;
             
             try {
-                const urlParams = new URLSearchParams(window.location.search);
-                const groupIdFromUrl = urlParams.get('groupId');
+                const userDoc = await db.collection('users').doc(user.uid).get();
                 
-                if (groupIdFromUrl) {
-                    currentGroupId = groupIdFromUrl;
-                } else {
-                    const userDoc = await db.collection('users').doc(user.uid).get();
-                    if (userDoc.exists && userDoc.data().currentGroupId) {
-                        currentGroupId = userDoc.data().currentGroupId;
+                if (userDoc.exists && userDoc.data().groups) {
+                    const groups = userDoc.data().groups;
+                    
+                    // 轉換為陣列
+                    if (Array.isArray(groups)) {
+                        userGroups = groups;
+                    } else if (typeof groups === 'object') {
+                        userGroups = Object.values(groups);
                     }
-                }
-                
-                if (currentGroupId) {
-                    document.getElementById('shareLocationBtn').style.display = 'flex';
-                    listenGroupMembersLocation();
-                    loadGroupInfo();
+                    
+                    if (userGroups.length > 0) {
+                        // 獲取群組詳細資訊和線上人數
+                        await loadGroupDetails();
+                        
+                        // 預設選擇第一個群組
+                        if (!selectedGroupId && userGroups.length > 0) {
+                            selectedGroupId = userGroups[0].groupId;
+                        }
+                        
+                        renderGroupBadges();
+                        
+                        // 如果已選擇群組，開始監聽該群組的位置
+                        if (selectedGroupId) {
+                            document.getElementById('shareLocationBtn').style.display = 'flex';
+                            listenSelectedGroupLocation();
+                        }
+                    } else {
+                        document.getElementById('groupBadges').innerHTML = '<div class="group-badge" style="background: transparent; border: 1px dashed #e6eef0;">尚未加入群組</div>';
+                    }
+                } else {
+                    document.getElementById('groupBadges').innerHTML = '<div class="group-badge" style="background: transparent; border: 1px dashed #e6eef0;">尚未加入群組</div>';
                 }
             } catch (error) {
                 console.error('載入群組錯誤:', error);
+                document.getElementById('groupBadges').innerHTML = '<div class="group-badge" style="background: #ff5a5f; color: white;">載入失敗</div>';
             }
         }
 
-        // 載入群組資訊
-        async function loadGroupInfo() {
-            if (!currentGroupId) return;
-            
-            try {
-                const groupDoc = await db.collection('groups').doc(currentGroupId).get();
-                if (groupDoc.exists) {
-                    const groupData = groupDoc.data();
-                    const headerDiv = document.getElementById('groupInfoHeader');
-                    headerDiv.innerHTML = `<span class="group-info-badge"><i>👥</i> ${groupData.name || '群組'}</span>`;
-                    headerDiv.style.display = 'inline-block';
+        // 載入群組詳細資訊
+        async function loadGroupDetails() {
+            const promises = userGroups.map(async (group) => {
+                try {
+                    const groupDoc = await db.collection('groups').doc(group.groupId).get();
+                    if (groupDoc.exists) {
+                        group.groupName = groupDoc.data().name || '未命名群組';
+                        
+                        // 獲取該群組的線上人數
+                        const locationsSnapshot = await db.collection('groups')
+                            .doc(group.groupId)
+                            .collection('locations')
+                            .get();
+                        
+                        group.onlineCount = locationsSnapshot.size;
+                    }
+                } catch (error) {
+                    console.error('載入群組詳細資訊錯誤:', error);
+                    group.groupName = group.groupName || '未知群組';
+                    group.onlineCount = 0;
                 }
-            } catch (error) {
-                console.error('載入群組資訊錯誤:', error);
-            }
+            });
+            
+            await Promise.all(promises);
         }
 
-        // 監聽群組成員位置
-        function listenGroupMembersLocation() {
-            const user = auth.currentUser;
-            if (!user || !currentGroupId) return;
+        // 渲染群組標籤
+        function renderGroupBadges() {
+            const container = document.getElementById('groupBadges');
             
-            if (unsubscribeLocations) {
-                unsubscribeLocations();
+            if (userGroups.length === 0) {
+                container.innerHTML = '<div class="group-badge" style="background: transparent; border: 1px dashed #e6eef0;">尚未加入群組</div>';
+                return;
+            }
+            
+            container.innerHTML = userGroups.map(group => {
+                const isSelected = group.groupId === selectedGroupId;
+                const onlineCount = group.onlineCount || 0;
+                
+                return `
+                    <div class="group-badge ${isSelected ? 'active' : ''}" 
+                         onclick="selectGroup('${group.groupId}')"
+                         title="線上成員: ${onlineCount}人">
+                        <i>👥</i>
+                        ${group.groupName || '群組'}
+                        ${onlineCount > 0 ? `<span class="online-indicator"></span>` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 選擇群組
+        window.selectGroup = function(groupId) {
+            if (selectedGroupId === groupId) return;
+            
+            // 如果正在分享位置，先停止
+            if (isSharingLocation) {
+                stopSharingLocation();
+            }
+            
+            // 清除舊的群組成員標記
+            clearGroupMembersMarkers();
+            
+            // 取消訂閱舊的監聽
+            if (unsubscribeGroupLocations) {
+                unsubscribeGroupLocations();
+            }
+            
+            selectedGroupId = groupId;
+            
+            // 更新按鈕樣式
+            renderGroupBadges();
+            
+            // 顯示分享按鈕
+            document.getElementById('shareLocationBtn').style.display = 'flex';
+            
+            // 監聽新群組的位置
+            listenSelectedGroupLocation();
+            
+            showToast(`已切換到所選群組`);
+        }
+
+        // 清除群組成員標記
+        function clearGroupMembersMarkers() {
+            groupMembersMarkers.forEach(item => {
+                if (item.marker) item.marker.setMap(null);
+            });
+            groupMembersMarkers = [];
+        }
+
+        // 監聽所選群組的位置
+        function listenSelectedGroupLocation() {
+            const user = auth.currentUser;
+            if (!user || !selectedGroupId) return;
+            
+            if (unsubscribeGroupLocations) {
+                unsubscribeGroupLocations();
             }
             
             const locationsRef = db.collection('groups')
-                .doc(currentGroupId)
+                .doc(selectedGroupId)
                 .collection('locations');
             
-            unsubscribeLocations = locationsRef.onSnapshot((snapshot) => {
+            unsubscribeGroupLocations = locationsRef.onSnapshot((snapshot) => {
                 // 更新在線人數
                 const onlineCount = snapshot.docs.length;
                 const badge = document.getElementById('memberCountBadge');
+                
+                // 更新對應群組標籤的線上人數
+                const groupIndex = userGroups.findIndex(g => g.groupId === selectedGroupId);
+                if (groupIndex !== -1) {
+                    userGroups[groupIndex].onlineCount = onlineCount;
+                    renderGroupBadges();
+                }
+                
                 if (onlineCount > 0) {
                     badge.style.display = 'inline-block';
                     badge.textContent = `${onlineCount} 人在線`;
@@ -1326,17 +1512,17 @@
                     badge.style.display = 'none';
                 }
                 
-                snapshot.docChanges().forEach((change) => {
-                    const data = change.doc.data();
-                    const memberId = change.doc.id;
+                // 清除舊標記
+                clearGroupMembersMarkers();
+                
+                // 為每個成員建立新標記
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const memberId = doc.id;
                     
                     if (memberId === user.uid) return;
                     
-                    if (change.type === 'added' || change.type === 'modified') {
-                        updateMemberMarker(memberId, data);
-                    } else if (change.type === 'removed') {
-                        removeMemberMarker(memberId);
-                    }
+                    updateMemberMarker(memberId, data);
                 });
             }, (error) => {
                 console.error('監聽位置錯誤:', error);
@@ -1350,7 +1536,6 @@
             const diffMinutes = (now - lastUpdate) / 1000 / 60;
             
             if (diffMinutes > 1) {
-                removeMemberMarker(memberId);
                 return;
             }
             
@@ -1358,8 +1543,6 @@
                 lat: locationData.latitude,
                 lng: locationData.longitude
             };
-            
-            removeMemberMarker(memberId);
             
             const markerContent = document.createElement('div');
             markerContent.style.position = 'relative';
@@ -1453,15 +1636,6 @@
             });
         }
 
-        // 移除成員標記
-        function removeMemberMarker(memberId) {
-            const index = groupMembersMarkers.findIndex(m => m.memberId === memberId);
-            if (index !== -1) {
-                groupMembersMarkers[index].marker.setMap(null);
-                groupMembersMarkers.splice(index, 1);
-            }
-        }
-
         // 切換位置分享
         window.toggleLocationSharing = function() {
             if (!currentUserLocation) {
@@ -1469,8 +1643,8 @@
                 return;
             }
             
-            if (!currentGroupId) {
-                showToast('請先加入群組');
+            if (!selectedGroupId) {
+                showToast('請先選擇一個群組');
                 return;
             }
             
@@ -1491,7 +1665,7 @@
 
         // 開始分享位置
         function startSharingLocation() {
-            if (!currentUserLocation || !currentGroupId) {
+            if (!currentUserLocation || !selectedGroupId) {
                 showToast('請先獲取您的位置');
                 return;
             }
@@ -1503,7 +1677,7 @@
             shareCurrentLocation();
             locationShareInterval = setInterval(shareCurrentLocation, 30000);
             
-            showToast('📍 正在分享您的位置給群組成員');
+            showToast(`📍 正在分享您的位置給所選群組`);
         }
 
         // 停止分享位置
@@ -1513,9 +1687,9 @@
                 locationShareInterval = null;
             }
             
-            if (currentGroupId && auth.currentUser) {
+            if (selectedGroupId && auth.currentUser) {
                 db.collection('groups')
-                    .doc(currentGroupId)
+                    .doc(selectedGroupId)
                     .collection('locations')
                     .doc(auth.currentUser.uid)
                     .delete()
@@ -1528,7 +1702,7 @@
 
         // 分享目前位置
         async function shareCurrentLocation() {
-            if (!currentUserLocation || !currentGroupId || !auth.currentUser) return;
+            if (!currentUserLocation || !selectedGroupId || !auth.currentUser) return;
             
             try {
                 const userDoc = await db.collection('users').doc(auth.currentUser.uid).get();
@@ -1545,7 +1719,7 @@
                 };
                 
                 await db.collection('groups')
-                    .doc(currentGroupId)
+                    .doc(selectedGroupId)
                     .collection('locations')
                     .doc(auth.currentUser.uid)
                     .set(locationData);
@@ -2427,7 +2601,7 @@
             if (user) {
                 console.log('用戶已登入');
                 if (isMapInitialized) {
-                    loadCurrentGroup();
+                    loadUserGroups();
                 }
             } else {
                 console.log('用戶未登入，地圖以訪客模式顯示');
@@ -2437,8 +2611,8 @@
         // 頁面卸載時停止分享
         window.addEventListener('beforeunload', () => {
             stopSharingLocation();
-            if (unsubscribeLocations) {
-                unsubscribeLocations();
+            if (unsubscribeGroupLocations) {
+                unsubscribeGroupLocations();
             }
         });
 
