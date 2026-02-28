@@ -739,10 +739,10 @@
             transform: scale(0.95);
         }
 
-        /* ==================== 路線摘要卡片 - 全螢幕優化 ==================== */
+        /* ==================== 路線摘要卡片 - 往上移動避免遮擋 ==================== */
         .route-summary {
             position: absolute;
-            bottom: 80px;
+            bottom: 120px; /* 從 80px 增加到 120px，往上移動 */
             left: 15px;
             right: 15px;
             background: white;
@@ -758,7 +758,7 @@
             background: rgba(255,255,255,0.98);
             pointer-events: auto;
             transition: bottom 0.3s ease;
-            margin-bottom: env(safe-area-inset-bottom, 0px);
+            margin-bottom: var(--safe-area-bottom);
         }
         
         .route-summary.show { 
@@ -766,7 +766,7 @@
         }
         
         .route-summary.fullscreen-mode {
-            bottom: calc(80px + var(--safe-area-bottom));
+            bottom: calc(140px + var(--safe-area-bottom)); /* 全螢幕時更往上 */
             left: 10px;
             right: 10px;
             z-index: 2001;
@@ -832,7 +832,7 @@
             animation: slideUp 0.3s ease;
             max-width: 90%;
             text-align: center;
-            margin-bottom: env(safe-area-inset-bottom, 0px);
+            margin-bottom: var(--safe-area-bottom);
         }
 
         @keyframes slideUp {
@@ -984,10 +984,14 @@
             }
 
             .route-summary {
-                bottom: 70px;
+                bottom: 100px; /* 手機版也往上移動 */
                 left: 10px;
                 right: 10px;
                 padding: 12px 15px;
+            }
+            
+            .route-summary.fullscreen-mode {
+                bottom: calc(120px + var(--safe-area-bottom));
             }
 
             .group-badges {
@@ -1071,8 +1075,12 @@
                 padding: 2px 6px;
             }
 
+            .route-summary {
+                bottom: 90px;
+            }
+            
             .route-summary.fullscreen-mode {
-                bottom: calc(60px + var(--safe-area-bottom));
+                bottom: calc(110px + var(--safe-area-bottom));
             }
         }
 
@@ -1135,21 +1143,41 @@
             #google-map {
                 min-height: 350px;
             }
+
+            .route-summary {
+                bottom: 80px;
+            }
+            
+            .route-summary.fullscreen-mode {
+                bottom: calc(100px + var(--safe-area-bottom));
+            }
         }
 
         /* iOS 安全區域支援 */
         @supports (padding: max(0px)) {
             .route-summary.fullscreen-mode {
-                bottom: max(80px, env(safe-area-inset-bottom));
+                bottom: max(140px, calc(120px + env(safe-area-inset-bottom)));
             }
             
             .location-button-container.fullscreen-mode {
                 bottom: max(20px, env(safe-area-inset-bottom));
             }
             
+            @media (max-width: 768px) {
+                .route-summary.fullscreen-mode {
+                    bottom: max(120px, calc(100px + env(safe-area-inset-bottom)));
+                }
+            }
+            
             @media (max-width: 480px) {
                 .route-summary.fullscreen-mode {
-                    bottom: max(60px, env(safe-area-inset-bottom));
+                    bottom: max(110px, calc(90px + env(safe-area-inset-bottom)));
+                }
+            }
+            
+            @media (max-width: 375px) {
+                .route-summary.fullscreen-mode {
+                    bottom: max(100px, calc(80px + env(safe-area-inset-bottom)));
                 }
             }
         }
