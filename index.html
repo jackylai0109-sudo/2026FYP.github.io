@@ -1372,7 +1372,7 @@
                         <i>📍</i>
                         <span>定位分享</span>
                     </button>
-                    <button class="quick-action-btn" onclick="window.location.href='meeting.html'">
+                    <button class="quick-action-btn" onclick="openMeetingPointSelector()">
                         <i>🎯</i>
                         <span>建立會合</span>
                     </button>
@@ -1412,6 +1412,7 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
+        // 修正版：載入群組預覽
         async function loadGroupPreview() {
             const user = auth.currentUser;
             const container = document.getElementById('groupPreviewContainer');
@@ -1440,7 +1441,25 @@
                 }
 
                 const userData = userDoc.data();
-                const groups = userData.groups || [];
+                
+                // 修正：安全地獲取 groups 並轉換為陣列
+                let groups = [];
+                if (userData.groups) {
+                    if (Array.isArray(userData.groups)) {
+                        groups = userData.groups;
+                    } else if (typeof userData.groups === 'object') {
+                        // 如果是物件，轉換為陣列
+                        groups = Object.values(userData.groups);
+                    }
+                }
+                
+                // 確保 groups 是陣列
+                if (!Array.isArray(groups)) {
+                    console.error('groups 不是陣列:', groups);
+                    groups = [];
+                }
+                
+                console.log('處理後的群組陣列:', groups);
                 
                 if (groups.length === 0) {
                     container.innerHTML = `
@@ -1452,12 +1471,17 @@
                     return;
                 }
 
+                // 安全地使用 slice
                 const recentGroups = groups.slice(0, 3);
                 let previewHtml = '';
 
                 for (const group of recentGroups) {
                     try {
-                        if (!group || !group.groupId) continue;
+                        // 檢查 group 是否存在且有 groupId
+                        if (!group || !group.groupId) {
+                            console.warn('無效的群組資料:', group);
+                            continue;
+                        }
                         
                         const groupDoc = await db.collection('groups').doc(group.groupId).get();
                         if (groupDoc.exists) {
@@ -1559,8 +1583,8 @@
                 console.error('載入群組預覽錯誤:', error);
                 container.innerHTML = `
                     <div class="no-group-preview">
-                        <p>📭 還沒有加入任何群組</p>
-                        <a href="createJoin.html" style="color:var(--accent); font-size:12px; text-decoration:none; margin-top:8px; display:inline-block;">＋ 建立或加入群組</a>
+                        <p>📭 載入失敗</p>
+                        <button onclick="loadGroupPreview()" style="background:var(--accent); color:white; border:none; padding:8px 16px; border-radius:20px; margin-top:8px; cursor:pointer;">重新載入</button>
                     </div>
                 `;
             }
@@ -1774,9 +1798,18 @@
                 }
                 
                 const userData = userDoc.data();
-                const groups = userData.groups || [];
                 
-                if (groups.length === 0) {
+                // 修正：安全地獲取 groups 並轉換為陣列
+                let groups = [];
+                if (userData.groups) {
+                    if (Array.isArray(userData.groups)) {
+                        groups = userData.groups;
+                    } else if (typeof userData.groups === 'object') {
+                        groups = Object.values(userData.groups);
+                    }
+                }
+                
+                if (!Array.isArray(groups) || groups.length === 0) {
                     groupList.innerHTML = '<div class="loading-spinner">您還沒有加入任何群組</div>';
                     return;
                 }
@@ -1784,6 +1817,8 @@
                 let html = '';
                 for (const group of groups) {
                     try {
+                        if (!group || !group.groupId) continue;
+                        
                         const groupDoc = await db.collection('groups').doc(group.groupId).get();
                         if (groupDoc.exists) {
                             const groupData = groupDoc.data();
@@ -1794,7 +1829,7 @@
                                 .get();
                             
                             html += `
-                                <div class="group-item" onclick="selectGroup('${group.groupId}', '${groupData.name.replace(/'/g, "\\'")}')">
+                                <div class="group-item" onclick="selectGroupForMeeting('${group.groupId}', '${groupData.name.replace(/'/g, "\\'")}')">
                                     <div class="group-avatar">${groupData.name.charAt(0).toUpperCase()}</div>
                                     <div class="group-info">
                                         <div class="group-name">${groupData.name}</div>
@@ -1816,7 +1851,7 @@
             }
         }
 
-        window.selectGroup = function(groupId, groupName) {
+        window.selectGroupForMeeting = function(groupId, groupName) {
             selectedGroupId = groupId;
             selectedGroupName = groupName;
             
