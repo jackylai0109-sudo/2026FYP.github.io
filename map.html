@@ -38,7 +38,7 @@
             font-family: 'Noto Sans', 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #f2fbfb 0%, #ebf8f8 100%);
             min-height: 100vh;
-            padding: 10px 10px 10px 70px;
+            padding: 10px 10px 10px 70px; /* 電腦版預留左側空間 */
             touch-action: pan-y pinch-zoom;
             transition: padding 0.3s ease;
         }
@@ -47,43 +47,38 @@
             padding: 0;
         }
 
-        /* ==================== 側邊導航 ==================== */
+        /* ==================== 側邊導航 - 電腦版 (寬度減少版) ==================== */
         .side-nav {
             position: fixed;
-            left: 5px;
+            left: 10px;
             top: 50%;
             transform: translateY(-50%);
             background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.98));
-            width: 55px;
-            border-radius: 28px;
+            width: 60px;
+            border-radius: 30px;
             box-shadow: 0 10px 30px rgba(12,52,78,0.08);
             z-index: 1000;
-            padding: 12px 0;
+            padding: 15px 0;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(44, 197, 194, 0.2);
             transition: all 0.3s ease;
         }
 
-        .side-nav.fullscreen-hidden {
-            opacity: 0;
-            pointer-events: none;
-            transform: translateY(-50%) translateX(-20px);
-        }
-
         .side-nav:hover {
-            width: 150px;
+            width: 160px;
+            box-shadow: 0 15px 40px rgba(44, 197, 194, 0.15);
         }
 
         .nav-items {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
         .side-nav:hover .nav-items {
             align-items: flex-start;
-            padding-left: 12px;
+            padding-left: 15px;
         }
 
         .nav-item {
@@ -95,10 +90,9 @@
             color: var(--muted);
             text-decoration: none;
             transition: all 0.3s ease;
-            border-radius: 28px;
+            border-radius: 30px;
             position: relative;
             overflow: hidden;
-            font-size: 14px;
         }
 
         .side-nav:not(:hover) .nav-item {
@@ -147,6 +141,62 @@
 
         .side-nav:hover .nav-label {
             opacity: 1;
+        }
+
+        /* ==================== 底部導航 - 手機版 ==================== */
+        .bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.98));
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(44, 197, 194, 0.2);
+            box-shadow: 0 -5px 20px rgba(12,52,78,0.08);
+            z-index: 1000;
+            padding: 8px 0 calc(8px + var(--safe-area-bottom));
+            justify-content: space-around;
+            align-items: center;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 11px;
+            transition: all 0.3s ease;
+            padding: 5px 0;
+            flex: 1;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .bottom-nav-item:hover {
+            color: var(--accent-dark);
+            background: rgba(44, 197, 194, 0.1);
+        }
+
+        .bottom-nav-item:active {
+            transform: scale(0.95);
+        }
+
+        .bottom-nav-item.active {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .bottom-nav-icon {
+            font-size: 20px;
+            margin-bottom: 2px;
+        }
+
+        .bottom-nav-label {
+            font-size: 10px;
+            font-weight: 500;
         }
 
         .header {
@@ -699,7 +749,7 @@
 
         .info-window {
             padding: 10px;
-            max-width: 220px;
+            max-width: 250px;
             font-size: 13px;
         }
 
@@ -707,11 +757,11 @@
             font-weight: 700;
             color: var(--accent-dark);
             margin-bottom: 5px;
-            font-size: 14px;
+            font-size: 16px;
         }
 
         .info-window-address {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--muted);
             margin-bottom: 8px;
             word-break: break-word;
@@ -733,13 +783,26 @@
             cursor: pointer;
             width: 100%;
             margin-top: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .info-window-btn:hover {
+            background: #28b5b2;
         }
 
         .info-window-btn:active {
             transform: scale(0.95);
         }
 
-        /* ==================== 路線摘要卡片 - 可上下移動 ==================== */
+        .info-window-btn.secondary {
+            background: #FFB347;
+        }
+
+        .info-window-btn.secondary:hover {
+            background: #FF8C00;
+        }
+
+        /* ==================== 路線摘要卡片 ==================== */
         .route-summary {
             position: absolute;
             bottom: 120px;
@@ -924,14 +987,22 @@
             margin-left: 8px;
         }
 
-        /* 手機版響應式 */
+        /* ==================== 手機版響應式 - 導航移到下方 ==================== */
         @media (max-width: 768px) {
             body {
-                padding: 8px 8px 8px 60px;
+                padding: 8px 8px 70px 8px; /* 下方預留空間給底部導航 */
+            }
+
+            .side-nav {
+                display: none; /* 隱藏左側導航 */
+            }
+
+            .bottom-nav {
+                display: flex; /* 顯示底部導航 */
             }
 
             .header {
-                padding-left: 60px;
+                padding-left: 0;
                 margin-bottom: 10px;
             }
 
@@ -945,8 +1016,8 @@
             }
 
             .container {
-                padding-left: 60px;
-                height: calc(100vh - 100px);
+                padding-left: 0;
+                height: calc(100vh - 140px);
             }
 
             .map-header {
@@ -1081,6 +1152,10 @@
         }
 
         @media (max-width: 480px) {
+            body {
+                padding: 8px 8px 65px 8px;
+            }
+
             .map-header h2 {
                 font-size: 16px;
             }
@@ -1163,9 +1238,25 @@
                 height: 30px;
                 font-size: 16px;
             }
+
+            .bottom-nav-item {
+                font-size: 10px;
+            }
+
+            .bottom-nav-icon {
+                font-size: 18px;
+            }
+
+            .bottom-nav-label {
+                font-size: 9px;
+            }
         }
 
         @media (max-width: 375px) {
+            body {
+                padding: 5px 5px 60px 5px;
+            }
+
             .route-mode-btn {
                 padding: 4px 6px;
                 font-size: 11px;
@@ -1232,6 +1323,18 @@
             .route-summary.fullscreen-mode {
                 bottom: calc(100px + var(--safe-area-bottom));
             }
+
+            .bottom-nav-item {
+                font-size: 9px;
+            }
+
+            .bottom-nav-icon {
+                font-size: 16px;
+            }
+
+            .bottom-nav-label {
+                font-size: 8px;
+            }
         }
 
         /* iOS 安全區域支援 */
@@ -1242,6 +1345,10 @@
             
             .location-button-container.fullscreen-mode {
                 bottom: max(20px, env(safe-area-inset-bottom));
+            }
+            
+            .bottom-nav {
+                padding-bottom: max(8px, env(safe-area-inset-bottom));
             }
             
             @media (max-width: 768px) {
@@ -1265,7 +1372,7 @@
     </style>
 </head>
 <body>
-    <!-- 側邊導航 -->
+    <!-- 側邊導航 - 電腦版 -->
     <div class="side-nav" id="sideNav">
         <div class="nav-items">
             <a href="index.html" class="nav-item">
@@ -1289,6 +1396,30 @@
                 <span class="nav-label">帳號</span>
             </a>
         </div>
+    </div>
+
+    <!-- 底部導航 - 手機版 -->
+    <div class="bottom-nav" id="bottomNav">
+        <a href="index.html" class="bottom-nav-item">
+            <span class="bottom-nav-icon">🏠</span>
+            <span class="bottom-nav-label">主頁</span>
+        </a>
+        <a href="map.html" class="bottom-nav-item active">
+            <span class="bottom-nav-icon">🗺️</span>
+            <span class="bottom-nav-label">地圖</span>
+        </a>
+        <a href="groups.html" class="bottom-nav-item">
+            <span class="bottom-nav-icon">👥</span>
+            <span class="bottom-nav-label">群組</span>
+        </a>
+        <a href="ChatMessage.html" class="bottom-nav-item">
+            <span class="bottom-nav-icon">💬</span>
+            <span class="bottom-nav-label">聊天</span>
+        </a>
+        <a href="profile.html" class="bottom-nav-item">
+            <span class="bottom-nav-icon">👤</span>
+            <span class="bottom-nav-label">帳號</span>
+        </a>
     </div>
 
     <div class="header" id="header">
@@ -1554,7 +1685,6 @@
                 fullscreenBtn.innerHTML = '<span>✕</span>';
                 fullscreenBtn.title = '退出全螢幕';
                 
-                // 觸發地圖 resize 事件
                 setTimeout(() => {
                     if (map) {
                         google.maps.event.trigger(map, 'resize');
@@ -1576,7 +1706,6 @@
                 fullscreenBtn.innerHTML = '<span>⛶</span>';
                 fullscreenBtn.title = '全螢幕顯示地圖';
                 
-                // 觸發地圖 resize 事件
                 setTimeout(() => {
                     if (map) {
                         google.maps.event.trigger(map, 'resize');
@@ -1600,7 +1729,7 @@
                     center: { lat: 25.0330, lng: 121.5654 },
                     zoom: 12,
                     mapTypeControl: true,
-                    fullscreenControl: false, // 關閉內建全螢幕，使用自訂
+                    fullscreenControl: false,
                     streetViewControl: true,
                     zoomControl: true,
                     gestureHandling: 'greedy',
@@ -1630,14 +1759,12 @@
                 
                 showMeetingLocationFromStorage();
                 
-                // 地圖中心點變更時更新資訊
                 google.maps.event.addListener(map, 'center_changed', function() {
                     if (searchLocationType === 'center') {
                         console.log('地圖中心點已移動');
                     }
                 });
                 
-                // 載入用戶群組
                 loadUserGroups();
                 
             } catch (error) {
@@ -1650,7 +1777,6 @@
             }
         };
 
-        // 處理手機旋轉時地圖大小調整
         window.addEventListener('resize', function() {
             clearTimeout(resizeTimer);
             resizeTimer = setTimeout(function() {
@@ -1660,7 +1786,6 @@
             }, 250);
         });
 
-        // 初始化 Google Places 自動完成
         function initAutocomplete() {
             const input = document.getElementById('searchInput');
             if (!input) return;
@@ -1678,7 +1803,6 @@
             });
         }
 
-        // 清除所有附近設施標記
         function clearNearbyMarkers() {
             nearbyMarkers.forEach(marker => marker.setMap(null));
             nearbyMarkers = [];
@@ -1687,7 +1811,6 @@
             });
         }
 
-        // 更新搜尋依據
         window.updateSearchLocation = function() {
             const radios = document.getElementsByName('searchLocation');
             for (let radio of radios) {
@@ -1704,7 +1827,6 @@
             }
         }
 
-        // 載入用戶的所有群組
         async function loadUserGroups() {
             const user = auth.currentUser;
             if (!user) return;
@@ -1715,7 +1837,6 @@
                 if (userDoc.exists && userDoc.data().groups) {
                     const groups = userDoc.data().groups;
                     
-                    // 轉換為陣列
                     if (Array.isArray(groups)) {
                         userGroups = groups;
                     } else if (typeof groups === 'object') {
@@ -1723,17 +1844,14 @@
                     }
                     
                     if (userGroups.length > 0) {
-                        // 獲取群組詳細資訊和線上人數
                         await loadGroupDetails();
                         
-                        // 預設選擇第一個群組
                         if (!selectedGroupId && userGroups.length > 0) {
                             selectedGroupId = userGroups[0].groupId;
                         }
                         
                         renderGroupBadges();
                         
-                        // 如果已選擇群組，開始監聽該群組的位置
                         if (selectedGroupId) {
                             document.getElementById('shareLocationBtn').style.display = 'flex';
                             listenSelectedGroupLocation();
@@ -1750,7 +1868,6 @@
             }
         }
 
-        // 載入群組詳細資訊
         async function loadGroupDetails() {
             const promises = userGroups.map(async (group) => {
                 try {
@@ -1758,7 +1875,6 @@
                     if (groupDoc.exists) {
                         group.groupName = groupDoc.data().name || '未命名群組';
                         
-                        // 獲取該群組的線上人數
                         const locationsSnapshot = await db.collection('groups')
                             .doc(group.groupId)
                             .collection('locations')
@@ -1776,7 +1892,6 @@
             await Promise.all(promises);
         }
 
-        // 渲染群組標籤
         function renderGroupBadges() {
             const container = document.getElementById('groupBadges');
             
@@ -1802,38 +1917,30 @@
             }).join('');
         }
 
-        // 選擇群組
         window.selectGroup = function(groupId) {
             if (selectedGroupId === groupId) return;
             
-            // 如果正在分享位置，先停止
             if (isSharingLocation) {
                 stopSharingLocation();
             }
             
-            // 清除舊的群組成員標記
             clearGroupMembersMarkers();
             
-            // 取消訂閱舊的監聽
             if (unsubscribeGroupLocations) {
                 unsubscribeGroupLocations();
             }
             
             selectedGroupId = groupId;
             
-            // 更新按鈕樣式
             renderGroupBadges();
             
-            // 顯示分享按鈕
             document.getElementById('shareLocationBtn').style.display = 'flex';
             
-            // 監聽新群組的位置
             listenSelectedGroupLocation();
             
             showToast(`已切換到所選群組`);
         }
 
-        // 清除群組成員標記
         function clearGroupMembersMarkers() {
             groupMembersMarkers.forEach(item => {
                 if (item.marker) item.marker.setMap(null);
@@ -1841,7 +1948,6 @@
             groupMembersMarkers = [];
         }
 
-        // 監聽所選群組的位置
         function listenSelectedGroupLocation() {
             const user = auth.currentUser;
             if (!user || !selectedGroupId) return;
@@ -1855,11 +1961,9 @@
                 .collection('locations');
             
             unsubscribeGroupLocations = locationsRef.onSnapshot((snapshot) => {
-                // 更新在線人數
                 const onlineCount = snapshot.docs.length;
                 const badge = document.getElementById('memberCountBadge');
                 
-                // 更新對應群組標籤的線上人數
                 const groupIndex = userGroups.findIndex(g => g.groupId === selectedGroupId);
                 if (groupIndex !== -1) {
                     userGroups[groupIndex].onlineCount = onlineCount;
@@ -1873,10 +1977,8 @@
                     badge.style.display = 'none';
                 }
                 
-                // 清除舊標記
                 clearGroupMembersMarkers();
                 
-                // 為每個成員建立新標記
                 snapshot.forEach(doc => {
                     const data = doc.data();
                     const memberId = doc.id;
@@ -1890,7 +1992,6 @@
             });
         }
 
-        // 更新成員標記
         function updateMemberMarker(memberId, locationData) {
             const lastUpdate = locationData.timestamp?.toDate?.() || new Date(locationData.timestamp);
             const now = new Date();
@@ -1997,7 +2098,6 @@
             });
         }
 
-        // 切換位置分享
         window.toggleLocationSharing = function() {
             if (!currentUserLocation) {
                 showToast('請先獲取您的位置');
@@ -2024,7 +2124,6 @@
             }
         }
 
-        // 開始分享位置
         function startSharingLocation() {
             if (!currentUserLocation || !selectedGroupId) {
                 showToast('請先獲取您的位置');
@@ -2041,7 +2140,6 @@
             showToast(`📍 正在分享您的位置給所選群組`);
         }
 
-        // 停止分享位置
         function stopSharingLocation() {
             if (locationShareInterval) {
                 clearInterval(locationShareInterval);
@@ -2061,7 +2159,6 @@
             showToast('🛑 已停止分享位置');
         }
 
-        // 分享目前位置
         async function shareCurrentLocation() {
             if (!currentUserLocation || !selectedGroupId || !auth.currentUser) return;
             
@@ -2090,7 +2187,6 @@
             }
         }
 
-        // 建立自定義頭像標記
         function createCustomAvatarMarker(position, avatarUrl, accuracy, username) {
             const markerContent = document.createElement('div');
             markerContent.style.position = 'relative';
@@ -2189,7 +2285,6 @@
             });
         }
 
-        // 獲取目前位置
         window.getCurrentLocationAndCenter = function() {
             if (!map) {
                 alert('地圖尚未初始化完成，請稍後再試');
@@ -2299,7 +2394,6 @@
             );
         };
 
-        // 搜尋附近設施
         window.searchNearby = function(type) {
             if (!map || !placesService) {
                 alert('地圖尚未準備好，請稍後再試');
@@ -2425,7 +2519,6 @@
             });
         };
 
-        // 建立附近設施標記
         function createNearbyMarker(place, typeInfo, center) {
             let distanceText = '';
             let distance = 0;
@@ -2482,122 +2575,23 @@
                     currentInfoWindow.close();
                 }
 
-                const loadingInfoWindow = new google.maps.InfoWindow({
-                    content: '<div style="padding:10px;">載入詳細資訊中...</div>'
+                const infoWindowContent = `
+                    <div class="info-window" style="max-width: 250px;">
+                        <div class="info-window-title" style="font-size: 16px; margin-bottom: 8px;">${typeInfo.icon} ${place.name}</div>
+                        ${distanceText}
+                        <div class="info-window-address" style="font-size: 11px; margin: 8px 0;">📍 ${place.vicinity || '地址不詳'}</div>
+                        <button class="info-window-btn" onclick="setDestination(${place.geometry.location.lat()}, ${place.geometry.location.lng()}, '${place.name.replace(/'/g, "\\'")}')">
+                            設為目的地
+                        </button>
+                    </div>
+                `;
+
+                const infoWindow = new google.maps.InfoWindow({
+                    content: infoWindowContent
                 });
-                loadingInfoWindow.open(map, marker);
-                currentInfoWindow = loadingInfoWindow;
 
-                const request = {
-                    placeId: place.place_id,
-                    fields: ['name', 'formatted_address', 'formatted_phone_number', 'rating', 'website', 
-                            'opening_hours', 'price_level', 'vicinity', 'user_ratings_total',
-                            'types']
-                };
-
-                placesService.getDetails(request, (placeDetails, status) => {
-                    if (status === google.maps.places.PlacesServiceStatus.OK && placeDetails) {
-                        let ratingHtml = '';
-                        if (placeDetails.rating) {
-                            const fullStars = Math.round(placeDetails.rating);
-                            const stars = '★'.repeat(fullStars) + '☆'.repeat(5 - fullStars);
-                            ratingHtml = `<div class="info-window-rating">${stars} ${placeDetails.rating} (${placeDetails.user_ratings_total || 0} 則評論)</div>`;
-                        }
-
-                        let hoursHtml = '';
-                        if (placeDetails.opening_hours) {
-                            const isOpen = placeDetails.opening_hours.isOpen ? placeDetails.opening_hours.isOpen() : false;
-                            const openStatus = isOpen ? '營業中' : '休息中';
-                            const statusColor = isOpen ? '#28a745' : '#dc3545';
-                            hoursHtml = `<div style="font-size: 11px; color: ${statusColor}; margin-bottom: 5px;">${openStatus}</div>`;
-                            
-                            if (placeDetails.opening_hours.weekday_text) {
-                                const today = new Date().getDay();
-                                const dayIndex = today === 0 ? 6 : today - 1;
-                                hoursHtml += `<div style="font-size: 10px; color: var(--muted);">${placeDetails.opening_hours.weekday_text[dayIndex]}</div>`;
-                            }
-                        }
-
-                        let priceHtml = '';
-                        if (placeDetails.price_level) {
-                            const priceLevel = '💰'.repeat(placeDetails.price_level);
-                            priceHtml = `<div style="font-size: 11px; margin-bottom: 5px;">價格: ${priceLevel}</div>`;
-                        }
-
-                        let typesHtml = '';
-                        if (placeDetails.types) {
-                            const typeMap = {
-                                'chinese_restaurant': '中式',
-                                'japanese_restaurant': '日式',
-                                'italian_restaurant': '義式',
-                                'french_restaurant': '法式',
-                                'thai_restaurant': '泰式',
-                                'vietnamese_restaurant': '越式',
-                                'korean_restaurant': '韓式',
-                                'fast_food_restaurant': '速食',
-                                'pizza_restaurant': '披薩',
-                                'burger_restaurant': '漢堡',
-                                'seafood_restaurant': '海鮮',
-                                'steak_house': '牛排',
-                                'sushi_restaurant': '壽司',
-                                'ramen_restaurant': '拉麵',
-                                'bakery': '麵包店',
-                                'bar': '酒吧',
-                                'cafe': '咖啡廳'
-                            };
-                            
-                            const matchedTypes = placeDetails.types
-                                .filter(t => typeMap[t])
-                                .map(t => typeMap[t])
-                                .slice(0, 3);
-                            
-                            if (matchedTypes.length > 0) {
-                                typesHtml = `<div style="font-size: 10px; color: var(--accent); margin-bottom: 5px;">${matchedTypes.join(' · ')}</div>`;
-                            }
-                        }
-
-                        const infoWindowContent = `
-                            <div class="info-window" style="max-width: 250px;">
-                                <div class="info-window-title" style="font-size: 16px; margin-bottom: 8px;">${typeInfo.icon} ${placeDetails.name}</div>
-                                ${typesHtml}
-                                ${hoursHtml}
-                                ${ratingHtml}
-                                ${priceHtml}
-                                ${distanceText}
-                                <div class="info-window-address" style="font-size: 11px; margin: 8px 0;">📍 ${placeDetails.formatted_address || place.vicinity || '地址不詳'}</div>
-                                ${placeDetails.formatted_phone_number ? `<div style="font-size: 11px; margin: 5px 0;"><a href="tel:${placeDetails.formatted_phone_number}" style="color: var(--accent); text-decoration: none;">📞 ${placeDetails.formatted_phone_number}</a></div>` : ''}
-                                <button class="info-window-btn" onclick="setDestination(${place.geometry.location.lat()}, ${place.geometry.location.lng()}, '${placeDetails.name.replace(/'/g, "\\'")}')">
-                                    設為目的地
-                                </button>
-                            </div>
-                        `;
-
-                        const infoWindow = new google.maps.InfoWindow({
-                            content: infoWindowContent
-                        });
-
-                        infoWindow.open(map, marker);
-                        currentInfoWindow = infoWindow;
-                    } else {
-                        const infoWindowContent = `
-                            <div class="info-window">
-                                <div class="info-window-title">${typeInfo.icon} ${place.name}</div>
-                                ${distanceText}
-                                <div class="info-window-address">📍 ${place.vicinity || '地址不詳'}</div>
-                                <button class="info-window-btn" onclick="setDestination(${place.geometry.location.lat()}, ${place.geometry.location.lng()}, '${place.name.replace(/'/g, "\\'")}')">
-                                    設為目的地
-                                </button>
-                            </div>
-                        `;
-
-                        const infoWindow = new google.maps.InfoWindow({
-                            content: infoWindowContent
-                        });
-
-                        infoWindow.open(map, marker);
-                        currentInfoWindow = infoWindow;
-                    }
-                });
+                infoWindow.open(map, marker);
+                currentInfoWindow = infoWindow;
             });
 
             nearbyMarkers.push(marker);
@@ -2695,6 +2689,7 @@
             });
             
             infoWindow.open(map, searchMarker);
+            currentInfoWindow = infoWindow;
 
             if (directionsRenderer) directionsRenderer.setDirections({ routes: [] });
             document.getElementById('routeSummary').classList.remove('show');
@@ -2752,6 +2747,7 @@
                         `
                     });
                     infoWindow.open(map, searchMarker);
+                    currentInfoWindow = infoWindow;
                     
                     if (directionsRenderer) directionsRenderer.setDirections({ routes: [] });
                     document.getElementById('routeSummary').classList.remove('show');
@@ -2901,8 +2897,10 @@
             document.getElementById('routeSummary').classList.remove('show');
             if (directionsRenderer) directionsRenderer.setDirections({ routes: [] });
             
-            // 重置折疊狀態
             isRouteCollapsed = false;
+            const routeArrow = document.getElementById('routeArrow');
+            routeArrow.classList.remove('up');
+            routeArrow.innerHTML = '▼';
         };
 
         function showMeetingLocationFromStorage() {
@@ -2960,7 +2958,6 @@
             }
         }
 
-        // 檢查登入狀態
         auth.onAuthStateChanged((user) => {
             if (user) {
                 console.log('用戶已登入');
@@ -2972,7 +2969,6 @@
             }
         });
 
-        // 頁面卸載時停止分享
         window.addEventListener('beforeunload', () => {
             stopSharingLocation();
             if (unsubscribeGroupLocations) {
