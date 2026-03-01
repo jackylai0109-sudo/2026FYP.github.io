@@ -15,6 +15,7 @@
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDXCOcFaB80u9FjnEkQf-DlMOPqAJyGngA&libraries=places,geometry,marker&callback=initMap&v=weekly" async defer></script>
     
     <style>
+        /* 原有的所有樣式保持不變 */
         * {
             margin: 0;
             padding: 0;
@@ -645,7 +646,7 @@
             background-color: #e8eef0;
         }
 
-        /* ==================== 定位按鈕容器 - 全螢幕模式大幅往上移動 ==================== */
+        /* ==================== 定位按鈕容器 - 全螢幕模式往上移動 ==================== */
         .location-button-container {
             position: absolute;
             bottom: 20px;
@@ -659,7 +660,7 @@
         }
 
         .location-button-container.fullscreen-mode {
-            bottom: calc(140px + var(--safe-area-bottom)); /* 從 20px 增加到 140px，大幅往上移動 */
+            bottom: calc(80px + var(--safe-area-bottom));
             left: 20px;
             z-index: 2001;
         }
@@ -778,17 +779,18 @@
             background: var(--accent);
             color: white;
             border: none;
-            border-radius: 5px;
-            padding: 6px 10px;
+            border-radius: 20px;
+            padding: 8px 12px;
             font-size: 12px;
+            font-weight: 600;
             cursor: pointer;
-            width: 100%;
-            margin-top: 5px;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .info-window-btn:hover {
             background: #28b5b2;
+            transform: translateY(-2px);
         }
 
         .info-window-btn:active {
@@ -803,7 +805,7 @@
             background: #FF8C00;
         }
 
-        /* ==================== 路線摘要卡片 - 全螢幕模式大幅往上移動 ==================== */
+        /* ==================== 路線摘要卡片 - 全螢幕模式往上移動 ==================== */
         .route-summary {
             position: absolute;
             bottom: 120px;
@@ -830,7 +832,7 @@
         }
         
         .route-summary.fullscreen-mode {
-            bottom: calc(240px + var(--safe-area-bottom)); /* 從 140px 增加到 240px，大幅往上移動 */
+            bottom: calc(180px + var(--safe-area-bottom));
             left: 10px;
             right: 10px;
             z-index: 2001;
@@ -988,7 +990,7 @@
             margin-left: 8px;
         }
 
-        /* ==================== 手機版響應式 - 導航移到下方 ==================== */
+        /* 手機版響應式 - 導航移到下方 */
         @media (max-width: 768px) {
             body {
                 padding: 8px 8px 70px 8px;
@@ -1132,7 +1134,7 @@
             }
             
             .route-summary.fullscreen-mode {
-                bottom: calc(200px + var(--safe-area-bottom)); /* 手機版全螢幕也大幅往上移動 */
+                bottom: calc(160px + var(--safe-area-bottom));
             }
             
             .route-summary-arrow {
@@ -1231,7 +1233,7 @@
             }
             
             .route-summary.fullscreen-mode {
-                bottom: calc(180px + var(--safe-area-bottom));
+                bottom: calc(150px + var(--safe-area-bottom));
             }
             
             .route-summary-arrow {
@@ -1322,7 +1324,7 @@
             }
             
             .route-summary.fullscreen-mode {
-                bottom: calc(160px + var(--safe-area-bottom));
+                bottom: calc(140px + var(--safe-area-bottom));
             }
 
             .bottom-nav-item {
@@ -1341,11 +1343,11 @@
         /* iOS 安全區域支援 */
         @supports (padding: max(0px)) {
             .route-summary.fullscreen-mode {
-                bottom: max(240px, calc(220px + env(safe-area-inset-bottom)));
+                bottom: max(180px, calc(160px + env(safe-area-inset-bottom)));
             }
             
             .location-button-container.fullscreen-mode {
-                bottom: max(140px, env(safe-area-inset-bottom));
+                bottom: max(80px, env(safe-area-inset-bottom));
             }
             
             .bottom-nav {
@@ -1354,31 +1356,31 @@
             
             @media (max-width: 768px) {
                 .route-summary.fullscreen-mode {
-                    bottom: max(200px, calc(180px + env(safe-area-inset-bottom)));
+                    bottom: max(160px, calc(140px + env(safe-area-inset-bottom)));
                 }
                 
                 .location-button-container.fullscreen-mode {
-                    bottom: max(120px, env(safe-area-inset-bottom));
+                    bottom: max(70px, env(safe-area-inset-bottom));
                 }
             }
             
             @media (max-width: 480px) {
                 .route-summary.fullscreen-mode {
-                    bottom: max(180px, calc(160px + env(safe-area-inset-bottom)));
+                    bottom: max(150px, calc(130px + env(safe-area-inset-bottom)));
                 }
                 
                 .location-button-container.fullscreen-mode {
-                    bottom: max(100px, env(safe-area-inset-bottom));
+                    bottom: max(60px, env(safe-area-inset-bottom));
                 }
             }
             
             @media (max-width: 375px) {
                 .route-summary.fullscreen-mode {
-                    bottom: max(160px, calc(140px + env(safe-area-inset-bottom)));
+                    bottom: max(140px, calc(120px + env(safe-area-inset-bottom)));
                 }
                 
                 .location-button-container.fullscreen-mode {
-                    bottom: max(80px, env(safe-area-inset-bottom));
+                    bottom: max(50px, env(safe-area-inset-bottom));
                 }
             }
         }
@@ -1395,6 +1397,10 @@
             <a href="map.html" class="nav-item active">
                 <span class="nav-icon">🗺️</span>
                 <span class="nav-label">地圖</span>
+            </a>
+            <a href="itinerary.html" class="nav-item">
+                <span class="nav-icon">📅</span>
+                <span class="nav-label">行程</span>
             </a>
             <a href="groups.html" class="nav-item">
                 <span class="nav-icon">👥</span>
@@ -1420,6 +1426,10 @@
         <a href="map.html" class="bottom-nav-item active">
             <span class="bottom-nav-icon">🗺️</span>
             <span class="bottom-nav-label">地圖</span>
+        </a>
+        <a href="itinerary.html" class="bottom-nav-item">
+            <span class="bottom-nav-icon">📅</span>
+            <span class="bottom-nav-label">行程</span>
         </a>
         <a href="groups.html" class="bottom-nav-item">
             <span class="bottom-nav-icon">👥</span>
@@ -1727,6 +1737,195 @@
             }
         };
 
+       // ========== 從行程頁面讀取地點（修改版 - 完全比照一般搜尋） ==========
+function loadLocationFromItinerary() {
+    try {
+        const savedLocation = localStorage.getItem('viewLocation');
+        if (savedLocation) {
+            const locationData = JSON.parse(savedLocation);
+            const now = new Date().getTime();
+            
+            // 檢查是否在 30 秒內（避免讀取到舊資料）
+            if (now - locationData.timestamp < 30000) {
+                console.log('從行程頁面載入地點:', locationData);
+                
+                const position = {
+                    lat: locationData.lat,
+                    lng: locationData.lng
+                };
+                
+                // 完全比照 handlePlaceSelected 的邏輯
+                currentDestinationPosition = {
+                    lat: position.lat,
+                    lng: position.lng
+                };
+                
+                // 移動地圖
+                map.setCenter(position);
+                map.setZoom(17);
+                
+                // 清除舊標記
+                if (searchMarker) {
+                    searchMarker.setMap(null);
+                }
+                
+                // 建立新標記（和搜尋結果一樣）
+                searchMarker = new google.maps.Marker({
+                    map: map,
+                    position: position,
+                    title: locationData.title || '行程地點',
+                    animation: google.maps.Animation.DROP
+                });
+                
+                // 顯示資訊視窗（和搜尋結果一樣）
+                const infoWindow = new google.maps.InfoWindow({
+                    content: `
+                        <div class="info-window">
+                            <div class="info-window-title">${locationData.title || '行程地點'}</div>
+                            <div class="info-window-address">${locationData.address || ''}</div>
+                            <small style="color:var(--accent);">✅ 選擇交通模式自動規劃路線</small>
+                        </div>
+                    `
+                });
+                
+                infoWindow.open(map, searchMarker);
+                currentInfoWindow = infoWindow;
+
+                // 清除路線（和搜尋結果一樣）
+                if (directionsRenderer) directionsRenderer.setDirections({ routes: [] });
+                document.getElementById('routeSummary').classList.remove('show');
+                
+                // 如果有目前位置，自動規劃路線（和搜尋結果一樣）
+                if (lastOriginPosition) {
+                    autoPlanRoute();
+                }
+
+                // 清除 localStorage，避免重複使用
+                localStorage.removeItem('viewLocation');
+                
+                showToast(`📍 已顯示行程地點：${locationData.title}`);
+            } else {
+                // 超過 30 秒，清除舊資料
+                localStorage.removeItem('viewLocation');
+            }
+        }
+    } catch (error) {
+        console.error('讀取行程地點錯誤:', error);
+        localStorage.removeItem('viewLocation');
+    }
+}
+        // ========== 設為起點 ==========
+        window.setAsStartPoint = function(lat, lng, title) {
+            const position = { lat, lng };
+            lastOriginPosition = position;
+            currentUserLocation = position; // 同時更新目前位置
+            
+            // 更新用戶位置標記
+            if (currentLocationMarker) {
+                currentLocationMarker.setMap(null);
+            }
+            if (userLocationCircle) {
+                userLocationCircle.setMap(null);
+            }
+            
+            // 建立新的起點標記
+            const markerContent = document.createElement('div');
+            markerContent.style.position = 'relative';
+            markerContent.style.width = '40px';
+            markerContent.style.height = '40px';
+            
+            const startIcon = document.createElement('div');
+            startIcon.style.width = '100%';
+            startIcon.style.height = '100%';
+            startIcon.style.borderRadius = '50%';
+            startIcon.style.background = '#4CAF50';
+            startIcon.style.border = '3px solid white';
+            startIcon.style.boxShadow = '0 2px 10px rgba(0,0,0,0.3)';
+            startIcon.style.display = 'flex';
+            startIcon.style.alignItems = 'center';
+            startIcon.style.justifyContent = 'center';
+            startIcon.style.color = 'white';
+            startIcon.style.fontSize = '20px';
+            startIcon.style.fontWeight = 'bold';
+            startIcon.textContent = 'A';
+            markerContent.appendChild(startIcon);
+            
+            if (google.maps.marker && google.maps.marker.AdvancedMarkerElement) {
+                currentLocationMarker = new google.maps.marker.AdvancedMarkerElement({
+                    map: map,
+                    position: position,
+                    content: markerContent,
+                    title: '起點'
+                });
+            } else {
+                currentLocationMarker = new google.maps.Marker({
+                    map: map,
+                    position: position,
+                    title: '起點',
+                    icon: {
+                        path: google.maps.SymbolPath.CIRCLE,
+                        scale: 10,
+                        fillColor: '#4CAF50',
+                        fillOpacity: 1,
+                        strokeColor: 'white',
+                        strokeWeight: 3
+                    }
+                });
+            }
+            
+            showToast(`🚩 已設為起點：${title || '所選地點'}`);
+            
+            // 如果有目的地，重新規劃路線
+            if (currentDestinationPosition) {
+                calculateAndDisplayRoute(position, currentDestinationPosition, currentTravelMode);
+            }
+            
+            // 關閉目前的資訊視窗
+            if (currentInfoWindow) {
+                currentInfoWindow.close();
+            }
+        };
+
+        // ========== 設為目的地 ==========
+        window.setAsDestination = function(lat, lng, title) {
+            currentDestinationPosition = { lat, lng };
+            
+            // 清除附近設施標記
+            clearNearbyMarkers();
+            
+            // 更新地圖中心
+            map.setCenter({ lat, lng });
+            map.setZoom(17);
+            
+            // 更新目的地標記
+            if (searchMarker) {
+                searchMarker.setMap(null);
+            }
+            
+            searchMarker = new google.maps.Marker({
+                map: map,
+                position: { lat, lng },
+                title: title || '目的地',
+                animation: google.maps.Animation.DROP,
+                icon: {
+                    url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png', // 藍色標記代表目的地
+                    scaledSize: new google.maps.Size(40, 40)
+                }
+            });
+            
+            showToast(`🎯 已設為目的地：${title || '所選地點'}`);
+            
+            // 如果有起點，規劃路線
+            if (lastOriginPosition) {
+                calculateAndDisplayRoute(lastOriginPosition, { lat, lng }, currentTravelMode);
+            }
+            
+            // 關閉目前的資訊視窗
+            if (currentInfoWindow) {
+                currentInfoWindow.close();
+            }
+        };
+
         // Google 地圖初始化
         window.initMap = function() {
             console.log('initMap 開始執行');
@@ -1770,7 +1969,11 @@
                 isMapInitialized = true;
                 console.log("所有服務初始化完成");
                 
+                // 先載入會合點
                 showMeetingLocationFromStorage();
+                
+                // 再載入從行程頁面傳來的點
+                loadLocationFromItinerary();
                 
                 google.maps.event.addListener(map, 'center_changed', function() {
                     if (searchLocationType === 'center') {

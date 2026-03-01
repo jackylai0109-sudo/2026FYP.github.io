@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>TravelSync · 行程規劃 (地圖檢視)</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Google Maps API -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDXCOcFaB80u9FjnEkQf-DlMOPqAJyGngA&libraries=places"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --accent: #2CC5C2;
+            --accent-dark: #0C344E;
+            --bg: #f5fbfb;
+            --card: #ffffff;
+            --muted: #6b7b86;
+            --radius: 14px;
+            --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+        }
+
+        body {
+            font-family: 'Noto Sans', 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f2fbfb 0%, #ebf8f8 100%);
+            min-height: 100vh;
+            padding: 20px 20px 20px 100px;
+            touch-action: pan-y pinch-zoom;
+            transition: padding 0.3s ease;
+        }
+
+        /* ==================== 側邊導航 ==================== */
+        .side-nav {
+            position: fixed;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.98));
+            width: 60px;
+            border-radius: 30px;
+            box-shadow: 0 10px 30px rgba(12,52,78,0.08);
+            z-index: 1000;
+            padding: 15px 0;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(44, 197, 194, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .side-nav:hover {
+            width: 160px;
+            box-shadow: 0 15px 40px rgba(44, 197, 194, 0.15);
+        }
+
+        .nav-items {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .side-nav:hover .nav-items {
+            align-items: flex-start;
+            padding-left: 15px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            width: 100%;
+            color: var(--muted);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-radius: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .side-nav:not(:hover) .nav-item {
+            justify-content: center;
+        }
+
+        .nav-item:hover {
+            color: var(--accent-dark);
+            background: rgba(44, 197, 194, 0.1);
+        }
+
+        .nav-item.active {
+            color: var(--accent-dark);
+            font-weight: 600;
+        }
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 18px;
+            background: var(--accent);
+            border-radius: 0 3px 3px 0;
+        }
+
+        .nav-icon {
+            font-size: 18px;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .nav-label {
+            font-size: 13px;
+            font-weight: 500;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.2s ease 0.1s;
+        }
+
+        .side-nav:hover .nav-label {
+            opacity: 1;
+        }
+
+        /* ==================== 底部導航 ==================== */
+        .bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.98));
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(44, 197, 194, 0.2);
+            box-shadow: 0 -5px 20px rgba(12,52,78,0.08);
+            z-index: 1000;
+            padding: 8px 0 calc(8px + var(--safe-area-bottom));
+            justify-content: space-around;
+            align-items: center;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 11px;
+            transition: all 0.3s ease;
+            padding: 5px 0;
+            flex: 1;
+        }
+
+        .bottom-nav-item:hover {
+            color: var(--accent-dark);
+            background: rgba(44, 197, 194, 0.1);
+        }
+
+        .bottom-nav-item.active {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .bottom-nav-icon {
+            font-size: 20px;
+            margin-bottom: 2px;
+        }
+
+        .bottom-nav-label {
+            font-size: 10px;
+            font-weight: 500;
+        }
+
+        /* 頁面標頭 + 群組選擇器 */
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .page-header h1 {
+            font-size: 1.8rem;
+            font-weight: 500;
+            color: var(--accent-dark);
+            border-left: 6px solid var(--accent);
+            padding-left: 1rem;
+        }
+        .group-selector {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: white;
+            padding: 8px 18px;
+            border-radius: 40px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+            border: 1px solid rgba(44,197,194,0.2);
+        }
+        .group-selector label {
+            font-weight: 600;
+            color: var(--accent-dark);
+        }
+        .group-selector select {
+            padding: 8px 16px;
+            border-radius: 30px;
+            border: 1px solid #d0e4e8;
+            background: white;
+            font-size: 1rem;
+            min-width: 180px;
+            cursor: pointer;
+        }
+        .add-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(44,197,194,0.3);
+        }
+        .add-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(44,197,194,0.4);
+        }
+
+        /* 行程列表 */
+        .trip-list {
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+        }
+
+        .date-group {
+            background: rgba(255,255,255,0.5);
+            backdrop-filter: blur(4px);
+            padding: 12px 18px;
+            border-radius: 50px;
+            font-weight: 600;
+            color: var(--accent-dark);
+            margin-bottom: 10px;
+            display: inline-block;
+            border: 1px solid rgba(44,197,194,0.2);
+        }
+
+        .trip-card {
+            background: var(--card);
+            border-radius: 18px;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 12px rgba(6, 30, 38, 0.04);
+            border: 1px solid rgba(230,238,240,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .trip-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent);
+        }
+        .trip-info {
+            flex: 1;
+        }
+        .trip-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--accent-dark);
+            margin-bottom: 6px;
+        }
+        .trip-meta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 0.9rem;
+            color: var(--muted);
+            flex-wrap: wrap;
+        }
+        .trip-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .trip-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .icon-btn {
+            background: transparent;
+            border: none;
+            font-size: 1.4rem;
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            color: var(--muted);
+        }
+        .icon-btn:hover {
+            background: #f0f4f4;
+            color: var(--accent-dark);
+            transform: scale(1.1);
+        }
+        .icon-btn.map-btn {
+            color: #4CAF50;
+        }
+        .icon-btn.map-btn:hover {
+            background: #e8f5e9;
+            color: #2E7D32;
+        }
+        .icon-btn.edit:hover {
+            background: #fff3e0;
+            color: #F57C00;
+        }
+        .icon-btn.delete:hover {
+            background: #ffe5e5;
+            color: #d32f2f;
+        }
+
+        /* 新增/編輯浮層 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(6px);
+            z-index: 2000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-card {
+            background: white;
+            border-radius: 28px;
+            padding: 30px;
+            max-width: 550px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s ease;
+        }
+        .modal-card h2 {
+            color: var(--accent-dark);
+            margin-bottom: 20px;
+            font-size: 1.6rem;
+        }
+        .form-group {
+            margin-bottom: 16px;
+            position: relative;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.9rem;
+            color: var(--muted);
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e0ecf0;
+            border-radius: 14px;
+            font-size: 1rem;
+            transition: border 0.2s;
+            background: white;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        .pac-container {
+            border-radius: 12px;
+            margin-top: 5px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+            border: 1px solid #e0ecf0;
+            font-family: 'Noto Sans', sans-serif;
+            z-index: 10000;
+        }
+        .pac-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 14px;
+            border-top: 1px solid #eef2f2;
+        }
+        .pac-item:hover {
+            background: #f0fcfc;
+        }
+        .location-hint {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .location-hint .coord {
+            font-family: monospace;
+            background: #f0f4f4;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        .form-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .form-row .form-group {
+            flex: 1 1 120px;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .modal-actions button {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #28b5b2;
+            transform: translateY(-2px);
+        }
+        .btn-secondary {
+            background: #eef4f4;
+            color: var(--accent-dark);
+        }
+        .btn-secondary:hover {
+            background: #e0eaea;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 空狀態 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: var(--card);
+            border-radius: var(--radius);
+            color: var(--muted);
+        }
+        .empty-state .icon {
+            font-size: 50px;
+            margin-bottom: 16px;
+        }
+
+        /* 載入中 */
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--accent);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* 提示訊息 */
+        .toast-message {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent-dark);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 14px;
+            z-index: 3000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            animation: slideUp 0.3s ease;
+        }
+
+        /* 響應式 */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px 15px 70px 15px;
+            }
+            .side-nav { display: none; }
+            .bottom-nav { display: flex; }
+            .page-header { flex-direction: column; align-items: flex-start; }
+            .group-selector { width: 100%; justify-content: space-between; }
+            .trip-card { flex-direction: column; align-items: flex-start; }
+            .trip-actions { margin-top: 12px; align-self: flex-end; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 側邊導航 -->
+    <div class="side-nav">
+        <div class="nav-items">
+            <a href="index.html" class="nav-item"><span class="nav-icon">🏠</span><span class="nav-label">主頁</span></a>
+            <a href="map.html" class="nav-item"><span class="nav-icon">🗺️</span><span class="nav-label">地圖</span></a>
+            <a href="itinerary.html" class="nav-item active"><span class="nav-icon">📅</span><span class="nav-label">行程</span></a>
+            <a href="groups.html" class="nav-item"><span class="nav-icon">👥</span><span class="nav-label">群組</span></a>
+            <a href="ChatMessage.html" class="nav-item"><span class="nav-icon">💬</span><span class="nav-label">聊天</span></a>
+            <a href="profile.html" class="nav-item"><span class="nav-icon">👤</span><span class="nav-label">帳號</span></a>
+        </div>
+    </div>
+
+    <!-- 底部導航 -->
+    <div class="bottom-nav">
+        <a href="index.html" class="bottom-nav-item"><span class="bottom-nav-icon">🏠</span><span class="bottom-nav-label">主頁</span></a>
+        <a href="map.html" class="bottom-nav-item"><span class="bottom-nav-icon">🗺️</span><span class="bottom-nav-label">地圖</span></a>
+        <a href="itinerary.html" class="bottom-nav-item active"><span class="bottom-nav-icon">📅</span><span class="bottom-nav-label">行程</span></a>
+        <a href="groups.html" class="bottom-nav-item"><span class="bottom-nav-icon">👥</span><span class="bottom-nav-label">群組</span></a>
+        <a href="ChatMessage.html" class="bottom-nav-item"><span class="bottom-nav-icon">💬</span><span class="bottom-nav-label">聊天</span></a>
+        <a href="profile.html" class="bottom-nav-item"><span class="bottom-nav-icon">👤</span><span class="bottom-nav-label">帳號</span></a>
+    </div>
+
+    <!-- 主要內容 -->
+    <div style="max-width: 1000px; margin: 0 auto;">
+        <div class="page-header">
+            <h1>📅 群組行程</h1>
+            <div class="group-selector">
+                <label for="groupSelect">👥 目前群組：</label>
+                <select id="groupSelect"></select>
+            </div>
+            <button class="add-btn" id="openAddModalBtn">➕ 新增行程</button>
+        </div>
+
+        <div id="loadingIndicator" class="loading"><div class="spinner"></div><p>載入行程中...</p></div>
+        <div id="tripListContainer" class="trip-list" style="display: none;"></div>
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <div class="icon">🗓️</div>
+            <h3>這個群組還沒有行程</h3>
+            <p>點擊「新增行程」開始規劃旅程吧！</p>
+        </div>
+    </div>
+
+    <!-- 新增/編輯行程浮層 -->
+    <div class="modal-overlay" id="tripModal">
+        <div class="modal-card">
+            <h2 id="modalTitle">新增行程</h2>
+            <form id="tripForm">
+                <div class="form-group">
+                    <label>行程標題 *</label>
+                    <input type="text" id="tripTitle" placeholder="例如：艾菲爾鐵塔參觀" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>日期 *</label>
+                        <input type="date" id="tripDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>時間 (選填)</label>
+                        <input type="time" id="tripTime">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>地點 (可搜尋)</label>
+                    <input type="text" id="tripLocation" placeholder="輸入關鍵字搜尋地點..." autocomplete="off">
+                    <div class="location-hint" id="locationHint">
+                        <span>📍 選擇地點後會自動記錄座標</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>備註</label>
+                    <textarea id="tripNotes" rows="3" placeholder="任何想記錄的細節..."></textarea>
+                </div>
+                <input type="hidden" id="editingId" value="">
+                <input type="hidden" id="editingLat" value="">
+                <input type="hidden" id="editingLng" value="">
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" id="cancelModalBtn">取消</button>
+                    <button type="submit" class="btn-primary" id="saveTripBtn">儲存行程</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Firebase 配置
+        const firebaseConfig = {
+            apiKey: "AIzaSyBhvbTPl-hGv1MWtrua55LuvIUpdabqy4M",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "project-221c4",
+            storageBucket: "project-221c4.firebasestorage.app",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // DOM 元素
+        const loadingEl = document.getElementById('loadingIndicator');
+        const tripListContainer = document.getElementById('tripListContainer');
+        const emptyState = document.getElementById('emptyState');
+        const modal = document.getElementById('tripModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const tripForm = document.getElementById('tripForm');
+        const tripTitle = document.getElementById('tripTitle');
+        const tripDate = document.getElementById('tripDate');
+        const tripTime = document.getElementById('tripTime');
+        const tripLocation = document.getElementById('tripLocation');
+        const tripNotes = document.getElementById('tripNotes');
+        const editingId = document.getElementById('editingId');
+        const editingLat = document.getElementById('editingLat');
+        const editingLng = document.getElementById('editingLng');
+        const locationHint = document.getElementById('locationHint');
+        const cancelModalBtn = document.getElementById('cancelModalBtn');
+        const openAddModalBtn = document.getElementById('openAddModalBtn');
+        const groupSelect = document.getElementById('groupSelect');
+
+        let currentUser = null;
+        let userGroups = [];
+        let currentGroupId = null;
+        let autocomplete = null;
+
+        // ========== 初始化地點自動完成 ==========
+        function initAutocomplete() {
+            const input = document.getElementById('tripLocation');
+            if (!input) return;
+
+            if (typeof google === 'undefined' || !google.maps || !google.maps.places) {
+                console.log('Google Maps API 尚未載入完成，稍後再試');
+                setTimeout(initAutocomplete, 500);
+                return;
+            }
+
+            try {
+                if (autocomplete) {
+                    google.maps.event.clearInstanceListeners(autocomplete);
+                }
+
+                autocomplete = new google.maps.places.Autocomplete(input, {
+                    types: ['establishment', 'geocode'],
+                    fields: ['place_id', 'name', 'formatted_address', 'geometry']
+                });
+
+                autocomplete.addListener('place_changed', function() {
+                    const place = autocomplete.getPlace();
+                    
+                    if (!place.geometry) {
+                        editingLat.value = '';
+                        editingLng.value = '';
+                        locationHint.innerHTML = '⚠️ 請從下拉清單中選擇一個地點';
+                        return;
+                    }
+
+                    const lat = place.geometry.location.lat();
+                    const lng = place.geometry.location.lng();
+                    editingLat.value = lat;
+                    editingLng.value = lng;
+
+                    locationHint.innerHTML = `
+                        <span>📍 ${place.formatted_address || place.name}</span>
+                        <span class="coord">${lat.toFixed(6)}, ${lng.toFixed(6)}</span>
+                    `;
+                });
+
+                console.log('地點自動完成初始化成功');
+            } catch (error) {
+                console.error('初始化自動完成錯誤:', error);
+            }
+        }
+
+        // ========== 監聽登入 ==========
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                currentUser = user;
+                await loadUserGroups();
+                setupGroupSelector();
+                
+                setTimeout(() => {
+                    initAutocomplete();
+                }, 1000);
+            } else {
+                window.location.href = 'loginPage.html';
+            }
+        });
+
+        // ========== 載入使用者群組 ==========
+        async function loadUserGroups() {
+            try {
+                const userDoc = await db.collection('users').doc(currentUser.uid).get();
+                if (!userDoc.exists) return;
+
+                const groupsObj = userDoc.data().groups || {};
+                userGroups = Object.values(groupsObj).map(g => ({
+                    id: g.groupId,
+                    name: g.groupName || '未命名群組'
+                }));
+
+                if (userGroups.length === 0) {
+                    alert('您尚未加入任何群組');
+                    window.location.href = 'createJoin.html';
+                    return;
+                }
+
+                currentGroupId = userDoc.data().currentGroupId || userGroups[0].id;
+
+            } catch (error) {
+                console.error('載入群組錯誤:', error);
+                showToast('無法載入群組資訊');
+            }
+        }
+
+        // ========== 設定下拉選單 ==========
+        function setupGroupSelector() {
+            let options = '';
+            userGroups.forEach(g => {
+                options += `<option value="${g.id}" ${g.id === currentGroupId ? 'selected' : ''}>${escapeHtml(g.name)}</option>`;
+            });
+            groupSelect.innerHTML = options;
+
+            groupSelect.addEventListener('change', (e) => {
+                currentGroupId = e.target.value;
+                loadTrips();
+            });
+
+            loadTrips();
+        }
+
+        // ========== 載入行程 ==========
+        async function loadTrips() {
+            if (!currentUser || !currentGroupId) return;
+
+            try {
+                const tripsRef = db.collection('groups')
+                    .doc(currentGroupId)
+                    .collection('destinations')
+                    .orderBy('time', 'asc');
+
+                const snapshot = await tripsRef.get();
+
+                loadingEl.style.display = 'none';
+
+                if (snapshot.empty) {
+                    tripListContainer.style.display = 'none';
+                    emptyState.style.display = 'block';
+                    return;
+                }
+
+                const tripsByDate = {};
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    let dateStr = '未指定日期';
+                    if (data.time) {
+                        const parts = data.time.split('T');
+                        dateStr = parts[0];
+                    }
+
+                    if (!tripsByDate[dateStr]) tripsByDate[dateStr] = [];
+                    tripsByDate[dateStr].push({
+                        id: doc.id,
+                        title: data.name || '無標題',
+                        destination: data.destination || '',
+                        time: data.time || '',
+                        lat: data.lat || null,
+                        lng: data.lng || null,
+                        notes: data.notes || ''
+                    });
+                });
+
+                const sortedDates = Object.keys(tripsByDate).sort((a,b) => a.localeCompare(b));
+
+                let html = '';
+                for (let date of sortedDates) {
+                    let displayDate = date;
+                    if (date !== '未指定日期') {
+                        try {
+                            displayDate = new Date(date + 'T12:00:00').toLocaleDateString('zh-TW', {
+                                year: 'numeric', month: 'long', day: 'numeric', weekday: 'short'
+                            });
+                        } catch (e) {}
+                    }
+                    html += `<div class="date-group">📅 ${displayDate}</div>`;
+
+                    tripsByDate[date].forEach(trip => {
+                        let timeDisplay = '';
+                        if (trip.time && trip.time.includes('T')) {
+                            timeDisplay = trip.time.split('T')[1].substring(0,5);
+                        }
+
+                        html += `
+                            <div class="trip-card" data-id="${trip.id}">
+                                <div class="trip-info">
+                                    <div class="trip-title">${escapeHtml(trip.title)}</div>
+                                    <div class="trip-meta">
+                                        ${trip.destination ? `<span>📍 ${escapeHtml(trip.destination)}</span>` : ''}
+                                        ${timeDisplay ? `<span>🕒 ${timeDisplay}</span>` : ''}
+                                        ${trip.notes ? `<span>📝 ${escapeHtml(trip.notes.substring(0,30))}${trip.notes.length > 30 ? '…' : ''}</span>` : ''}
+                                       
+                                    </div>
+                                </div>
+                                <div class="trip-actions">
+                                    ${trip.lat && trip.lng ? `
+                                        <button class="icon-btn map-btn" onclick="viewOnMap(${trip.lat}, ${trip.lng}, '${escapeHtml(trip.destination || trip.title)}')" title="在地圖中查看">🗺️</button>
+                                    ` : ''}
+                                    <button class="icon-btn edit" onclick="editTrip('${trip.id}')" title="編輯行程">✏️</button>
+                                    <button class="icon-btn delete" onclick="deleteTrip('${trip.id}')" title="刪除行程">🗑️</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+
+                tripListContainer.innerHTML = html;
+                tripListContainer.style.display = 'block';
+                emptyState.style.display = 'none';
+
+            } catch (error) {
+                console.error('載入行程錯誤:', error);
+                showToast('載入失敗：' + error.message);
+                loadingEl.style.display = 'none';
+            }
+        }
+
+        // ========== 在地圖中查看 ==========
+        window.viewOnMap = function(lat, lng, title) {
+            // 將地點資訊存入 localStorage，讓地圖頁面可以讀取
+            const locationData = {
+                lat: lat,
+                lng: lng,
+                title: title,
+                timestamp: new Date().getTime()
+            };
+            localStorage.setItem('viewLocation', JSON.stringify(locationData));
+            
+            // 跳轉到地圖頁面
+            window.location.href = 'map.html';
+            
+            showToast('📍 正在開啟地圖...');
+        };
+
+        // ========== 開啟新增浮層 ==========
+        openAddModalBtn.addEventListener('click', () => {
+            tripForm.reset();
+            editingId.value = '';
+            editingLat.value = '';
+            editingLng.value = '';
+            modalTitle.textContent = '新增行程';
+            const today = new Date().toISOString().split('T')[0];
+            tripDate.value = today;
+            locationHint.innerHTML = '<span>📍 選擇地點後會自動記錄座標</span>';
+            modal.style.display = 'flex';
+            
+            setTimeout(() => {
+                initAutocomplete();
+            }, 300);
+        });
+
+        cancelModalBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) modal.style.display = 'none';
+        });
+
+        // ========== 儲存行程 ==========
+        tripForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!currentUser || !currentGroupId) return;
+
+            const title = tripTitle.value.trim();
+            const date = tripDate.value;
+            if (!title || !date) {
+                showToast('請填寫標題與日期');
+                return;
+            }
+
+            let timeValue = date;
+            if (tripTime.value) {
+                timeValue = date + 'T' + tripTime.value;
+            }
+
+            const destinationData = {
+                name: title,
+                destination: tripLocation.value.trim() || '',
+                time: timeValue,
+                lat: editingLat.value ? parseFloat(editingLat.value) : null,
+                lng: editingLng.value ? parseFloat(editingLng.value) : null,
+                notes: tripNotes.value.trim() || '',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                createdBy: currentUser.uid,
+                senderId: currentUser.uid
+            };
+
+            const saveBtn = document.getElementById('saveTripBtn');
+            saveBtn.disabled = true;
+            saveBtn.textContent = '儲存中...';
+
+            try {
+                const destinationsRef = db.collection('groups')
+                    .doc(currentGroupId)
+                    .collection('destinations');
+
+                if (editingId.value) {
+                    await destinationsRef.doc(editingId.value).update(destinationData);
+                    showToast('行程已更新');
+                } else {
+                    await destinationsRef.add(destinationData);
+                    showToast('行程已新增');
+                }
+
+                modal.style.display = 'none';
+                loadTrips();
+
+            } catch (error) {
+                console.error('儲存行程錯誤:', error);
+                showToast('儲存失敗：' + error.message);
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.textContent = '儲存行程';
+            }
+        });
+
+        // ========== 編輯行程 ==========
+        window.editTrip = async (tripId) => {
+            if (!currentUser || !currentGroupId) return;
+
+            try {
+                const docRef = db.collection('groups')
+                    .doc(currentGroupId)
+                    .collection('destinations')
+                    .doc(tripId);
+                const doc = await docRef.get();
+                if (!doc.exists) {
+                    showToast('行程不存在');
+                    return;
+                }
+                const data = doc.data();
+
+                let dateVal = '', timeVal = '';
+                if (data.time) {
+                    if (data.time.includes('T')) {
+                        const parts = data.time.split('T');
+                        dateVal = parts[0];
+                        timeVal = parts[1] ? parts[1].substring(0,5) : '';
+                    } else {
+                        dateVal = data.time;
+                    }
+                }
+
+                tripTitle.value = data.name || '';
+                tripDate.value = dateVal;
+                tripTime.value = timeVal;
+                tripLocation.value = data.destination || '';
+                tripNotes.value = data.notes || '';
+                editingId.value = tripId;
+                editingLat.value = data.lat || '';
+                editingLng.value = data.lng || '';
+                modalTitle.textContent = '編輯行程';
+
+                if (data.lat && data.lng) {
+                    locationHint.innerHTML = `
+                        <span>📍 已記錄座標</span>
+                        <span class="coord">${data.lat.toFixed(6)}, ${data.lng.toFixed(6)}</span>
+                    `;
+                } else {
+                    locationHint.innerHTML = '<span>📍 選擇地點後會自動記錄座標</span>';
+                }
+
+                modal.style.display = 'flex';
+                
+                setTimeout(() => {
+                    initAutocomplete();
+                }, 300);
+
+            } catch (error) {
+                console.error('讀取行程錯誤:', error);
+                showToast('讀取失敗：' + error.message);
+            }
+        };
+
+        // ========== 刪除行程 ==========
+        window.deleteTrip = async (tripId) => {
+            if (!currentUser || !currentGroupId) return;
+            if (!confirm('確定刪除這個行程嗎？')) return;
+
+            try {
+                await db.collection('groups')
+                    .doc(currentGroupId)
+                    .collection('destinations')
+                    .doc(tripId)
+                    .delete();
+                showToast('行程已刪除');
+                loadTrips();
+            } catch (error) {
+                console.error('刪除行程錯誤:', error);
+                showToast('刪除失敗：' + error.message);
+            }
+        };
+
+        // ========== 工具函式 ==========
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast-message';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+    </script>
+</body>
+</html>
