@@ -1476,82 +1476,108 @@
         }
     };
 
-    async function loadUserProfile() {
-        const user = auth.currentUser;
-        
-        if (!user) {
-            window.location.href = 'loginPage.html';
-            return;
-        }
-
-        currentUid = user.uid;
-
-        try {
-            const userRef = db.collection('users').doc(user.uid);
-            let userDoc = await userRef.get();
-            
-            if (!userDoc.exists) {
-                const userData = {
-                    username: user.displayName || user.email.split('@')[0] || '用戶',
-                    email: user.email || '',
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    groups: {}
-                };
-                
-                await userRef.set(userData);
-                userDoc = await userRef.get();
-                console.log('已為新用戶建立文件');
-            }
-            
-            document.getElementById('loadingSection').style.display = 'none';
-            document.getElementById('profileSection').style.display = 'block';
-
-            let displayName = user.displayName;
-            
-            if (!displayName && userDoc.exists) {
-                displayName = userDoc.data().username;
-            }
-            
-            if (!displayName && user.email) {
-                displayName = user.email.split('@')[0];
-            }
-            
-            displayName = displayName || '用戶';
-
-            const avatarLetter = document.getElementById('avatarLetter');
-            const avatarImage = document.getElementById('avatarImage');
-            
-            if (userDoc.exists && userDoc.data().profileImageUrl) {
-                avatarLetter.style.display = 'none';
-                avatarImage.style.display = 'block';
-                avatarImage.src = userDoc.data().profileImageUrl;
-            } else {
-                avatarLetter.style.display = 'flex';
-                avatarImage.style.display = 'none';
-                avatarLetter.textContent = displayName.charAt(0).toUpperCase();
-            }
-
-            document.getElementById('usernameInput').value = displayName;
-            document.getElementById('userName').textContent = displayName;
-            document.getElementById('userEmail').textContent = user.email || '無電子郵件';
-
-            if (userDoc.exists && userDoc.data().createdAt) {
-                document.getElementById('createdAt').textContent = formatDate(userDoc.data().createdAt);
-            } else {
-                const creationTime = user.metadata.creationTime;
-                if (creationTime) {
-                    document.getElementById('createdAt').textContent = formatDate(creationTime);
-                } else {
-                    document.getElementById('createdAt').textContent = '未知';
-                }
-            }
-
-        } catch (error) {
-            console.error('載入用戶資料錯誤:', error);
-            showToast('載入失敗：' + error.message);
-        }
+async function loadUserProfile() {
+    const user = auth.currentUser;
+    
+    if (!user) {
+        window.location.href = 'loginPage.html';
+        return;
     }
 
+    currentUid = user.uid;
+
+    try {
+        console.log('當前用戶:', user.uid, user.email);
+        
+        const userRef = db.collection('users').doc(user.uid);
+        let userDoc = await userRef.get();
+        
+        console.log('Firestore 資料存在:', userDoc.exists);
+        
+        if (!userDoc.exists) {
+            console.log('Firestore 無資料，從 Auth 建立');
+            const userData = {
+                username: user.displayName || user.email.split('@')[0] || '用戶',
+                email: user.email || '',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                groups: {}
+            };
+            
+            await userRef.set(userData);
+            userDoc = await userRef.get();
+            console.log('已為新用戶建立文件');
+        }
+        
+        document.getElementById('loadingSection').style.display = 'none';
+        document.getElementById('profileSection').style.display = 'block';
+
+        // 從 Firestore 獲取用戶名
+        let displayName = null;
+        
+        if (userDoc.exists) {
+            const userData = userDoc.data();
+            console.log('Firestore 資料:', userData);
+            
+            // 優先使用 Firestore 的 username
+            if (userData.username) {
+                displayName = userData.username;
+                console.log('使用 Firestore username:', displayName);
+            }
+        }
+        
+        // 如果 Firestore 沒有，才用 Auth 的 displayName
+        if (!displayName) {
+            displayName = user.displayName;
+            console.log('使用 Auth displayName:', displayName);
+        }
+        
+        // 如果還是沒有，用 email 前綴
+        if (!displayName && user.email) {
+            displayName = user.email.split('@')[0];
+            console.log('使用 email 前綴:', displayName);
+        }
+        
+        displayName = displayName || '用戶';
+        console.log('最終顯示名稱:', displayName);
+
+        // 更新頭像顯示
+        const avatarLetter = document.getElementById('avatarLetter');
+        const avatarImage = document.getElementById('avatarImage');
+        
+        if (userDoc.exists && userDoc.data().profileImageUrl) {
+            avatarLetter.style.display = 'none';
+            avatarImage.style.display = 'block';
+            avatarImage.src = userDoc.data().profileImageUrl;
+        } else {
+            avatarLetter.style.display = 'flex';
+            avatarImage.style.display = 'none';
+            avatarLetter.textContent = displayName.charAt(0).toUpperCase();
+        }
+
+        // 更新 UI
+        document.getElementById('usernameInput').value = displayName;
+        document.getElementById('userName').textContent = displayName;
+        document.getElementById('userEmail').textContent = user.email || '無電子郵件';
+
+        // 處理註冊時間
+        if (userDoc.exists && userDoc.data().createdAt) {
+            document.getElementById('createdAt').textContent = formatDate(userDoc.data().createdAt);
+        } else {
+            const creationTime = user.metadata.creationTime;
+            if (creationTime) {
+                document.getElementById('createdAt').textContent = formatDate(creationTime);
+            } else {
+                document.getElementById('createdAt').textContent = '未知';
+            }
+        }
+
+    } catch (error) {
+        console.error('載入用戶資料錯誤:', error);
+        showToast('載入失敗：' + error.message);
+    }
+}
+
+    // ===== 修改這裡：更新用戶名稱時同步更新 Firebase Auth =====
     document.getElementById('saveUsernameBtn').addEventListener('click', async function() {
         const newUsername = document.getElementById('usernameInput').value.trim();
         if (!newUsername) {
@@ -1566,22 +1592,19 @@
         btn.innerHTML = '<div class="spinner small" style="margin: 0;"></div>';
 
         try {
+            // 1. 更新 Firestore
             const userRef = db.collection('users').doc(currentUid);
-            const userDoc = await userRef.get();
-            
-            if (userDoc.exists) {
-                await userRef.update({
-                    username: newUsername
-                });
-            } else {
-                await userRef.set({
-                    username: newUsername,
-                    email: auth.currentUser.email || '',
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    groups: {}
-                });
-            }
+            await userRef.set({
+                username: newUsername
+            }, { merge: true });  // 使用 merge 避免覆蓋其他欄位
 
+            // 2. 更新 Firebase Auth
+            const user = auth.currentUser;
+            await user.updateProfile({
+                displayName: newUsername
+            });
+
+            // 更新顯示
             document.getElementById('userName').textContent = newUsername;
             
             const avatarLetter = document.getElementById('avatarLetter');

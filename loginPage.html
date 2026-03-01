@@ -633,12 +633,29 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
+        // ===== 控制變數 =====
+        let isRedirecting = false; // 防止重複跳轉
+        let registrationInProgress = false; // 標記註冊流程正在進行
+
+        // ===== 監聽認證狀態 =====
         auth.onAuthStateChanged((user) => {
-            if (user) {
+            console.log('onAuthStateChanged 觸發:', user ? `用戶已登入: ${user.uid}` : '用戶未登入');
+            
+            // 如果正在註冊流程中，不要自動跳轉
+            if (registrationInProgress) {
+                console.log('註冊流程進行中，跳過自動跳轉');
+                return;
+            }
+            
+            // 如果不是註冊流程中且用戶已登入，才跳轉
+            if (user && !isRedirecting && window.location.pathname.includes('loginPage.html')) {
+                console.log('準備跳轉到 index.html');
+                isRedirecting = true;
                 window.location.href = 'index.html';
             }
         });
 
+        // ===== 切換頁籤 =====
         function switchTab(tab) {
             const loginTab = document.getElementById('loginTab');
             const registerTab = document.getElementById('registerTab');
@@ -658,6 +675,7 @@
             }
         }
 
+        // ===== 顯示錯誤訊息 =====
         function showError(elementId, message) {
             const element = document.getElementById(elementId);
             if (element) {
@@ -665,17 +683,20 @@
             }
         }
 
+        // ===== 清除錯誤訊息 =====
         function clearErrors() {
             const errorElements = document.querySelectorAll('.error-message');
             errorElements.forEach(el => el.textContent = '');
         }
 
+        // ===== 顯示/隱藏載入中 =====
         function showLoading(show) {
             document.getElementById('loading').style.display = show ? 'block' : 'none';
             const btns = document.querySelectorAll('.btn');
             btns.forEach(btn => btn.disabled = show);
         }
 
+        // ===== 處理登入 =====
         async function handleLogin() {
             clearErrors();
             
@@ -700,7 +721,12 @@
                 const userCredential = await auth.signInWithEmailAndPassword(email, password);
                 console.log('登入成功:', userCredential.user.uid);
                 localStorage.setItem('userId', userCredential.user.uid);
-                window.location.href = 'index.html';
+                
+                // 登入成功後手動跳轉
+                if (!isRedirecting) {
+                    isRedirecting = true;
+                    window.location.href = 'index.html';
+                }
                 
             } catch (error) {
                 console.error('登入錯誤:', error);
@@ -724,97 +750,107 @@
                 }
                 
                 document.getElementById('loginError').textContent = errorMessage;
-            } finally {
                 showLoading(false);
             }
         }
 
+        // ===== 處理註冊（修正版本）- 成功後立即跳轉 =====
         async function handleRegister() {
+            // 清除錯誤訊息
             clearErrors();
-    
-            const name = document.getElementById('registerName').value.trim();
-            const email = document.getElementById('registerEmail').value.trim();
-            const password = document.getElementById('registerPassword').value.trim();
-            const confirmPassword = document.getElementById('registerConfirmPassword').value.trim();
-    
-            let hasError = false;
 
+            // 獲取表單資料
+            const nameInput = document.getElementById('registerName');
+            const emailInput = document.getElementById('registerEmail');
+            const passwordInput = document.getElementById('registerPassword');
+            const confirmInput = document.getElementById('registerConfirmPassword');
+            
+            const name = nameInput ? nameInput.value.trim() : '';
+            const email = emailInput ? emailInput.value.trim() : '';
+            const password = passwordInput ? passwordInput.value.trim() : '';
+            const confirmPassword = confirmInput ? confirmInput.value.trim() : '';
+
+            // 基本驗證
             if (!name) {
                 showError('registerNameError', '請輸入姓名');
-                hasError = true;
+                return;
             }
-
-            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!email) {
                 showError('registerEmailError', '請輸入電子郵件');
-                hasError = true;
-            } else if (!emailPattern.test(email)) {
-                showError('registerEmailError', '電子郵件格式不正確');
-                hasError = true;
+                return;
             }
-
             if (!password) {
                 showError('registerPasswordError', '請輸入密碼');
-                hasError = true;
-            } else if (password.length < 6) {
-                showError('registerPasswordError', '密碼至少需要6位數');
-                hasError = true;
+                return;
             }
-
+            if (password.length < 6) {
+                showError('registerPasswordError', '密碼至少需要6位數');
+                return;
+            }
             if (password !== confirmPassword) {
                 showError('registerConfirmError', '兩次輸入的密碼不一致');
-                hasError = true;
+                return;
             }
 
-            if (hasError) return;
-
+            // 標記註冊流程開始
+            registrationInProgress = true;
+            
+            // 顯示載入中
             showLoading(true);
 
             try {
+                // 建立 Firebase Auth 用戶
                 const userCredential = await auth.createUserWithEmailAndPassword(email, password);
                 const user = userCredential.user;
 
+                // 更新用戶顯示名稱
                 await user.updateProfile({
                     displayName: name
                 });
 
-                await db.collection('users').doc(user.uid).set({
-                    username: name,
+                // 重新載入用戶資料確保更新
+                await user.reload();
+
+                // 準備 Firestore 資料
+                const userData = {
+                    username: name,  // 使用用戶輸入的姓名
                     email: email,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    currentGroupId: null
-                });
+                    profileImageUrl: null,
+                    groups: {}
+                };
 
-                console.log('註冊成功:', user.uid, '名稱:', name);
-                window.location.href = 'index.html';
+                // 寫入 Firestore
+                await db.collection('users').doc(user.uid).set(userData);
+
+                // 註冊流程完成，清除標記並跳轉
+                registrationInProgress = false;
+                
+                // 立即跳轉到首頁
+                if (!isRedirecting) {
+                    isRedirecting = true;
+                    window.location.href = 'index.html';
+                }
 
             } catch (error) {
                 console.error('註冊錯誤:', error);
-        
+                
                 let errorMessage = '註冊失敗';
-                switch (error.code) {
-                    case 'auth/email-already-in-use':
-                        errorMessage = '此電子郵件已被使用';
-                        break;
-                    case 'auth/invalid-email':
-                        errorMessage = '電子郵件格式不正確';
-                        break;
-                    case 'auth/operation-not-allowed':
-                        errorMessage = 'Email/Password 登入未啟用';
-                        break;
-                    case 'auth/weak-password':
-                        errorMessage = '密碼強度不足';
-                        break;
-                    default:
-                        errorMessage = error.message || '註冊失敗，請稍後再試';
+                if (error.code === 'auth/email-already-in-use') {
+                    errorMessage = '此電子郵件已被使用';
+                } else if (error.code === 'auth/weak-password') {
+                    errorMessage = '密碼強度不足';
+                } else {
+                    errorMessage = error.message;
                 }
-        
+                
                 showError('registerGeneralError', errorMessage);
-            } finally {
                 showLoading(false);
+                registrationInProgress = false; // 註冊失敗，清除標記
             }
         }
 
+        // ===== Google 登入 =====
         async function googleLogin() {
             const provider = new firebase.auth.GoogleAuthProvider();
             
@@ -826,28 +862,37 @@
                 const userDoc = await db.collection('users').doc(user.uid).get();
                 
                 if (!userDoc.exists) {
+                    const userName = user.displayName || 'Google 用戶';
+                    
                     await db.collection('users').doc(user.uid).set({
-                        username: user.displayName || 'Google 用戶',
+                        username: userName,
                         email: user.email,
                         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                        currentGroupId: null
+                        currentGroupId: null,
+                        profileImageUrl: user.photoURL || null,
+                        groups: {}
                     });
                 }
 
-                window.location.href = 'index.html';
+                // Google 登入成功後手動跳轉
+                if (!isRedirecting) {
+                    isRedirecting = true;
+                    window.location.href = 'index.html';
+                }
                 
             } catch (error) {
                 console.error('Google 登入錯誤:', error);
                 document.getElementById('loginError').textContent = 'Google 登入失敗';
-            } finally {
                 showLoading(false);
             }
         }
 
+        // ===== Apple 登入 =====
         async function appleLogin() {
             alert('Apple 登入功能需要 Apple Developer 帳號才能使用');
         }
 
+        // ===== 重設密碼 =====
         async function resetPassword() {
             const email = document.getElementById('loginEmail').value.trim();
             
@@ -865,6 +910,7 @@
             }
         }
 
+        // ===== 監聽 Enter 鍵 =====
         document.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 const activeTab = document.querySelector('.tab.active').textContent;
@@ -876,6 +922,7 @@
             }
         });
 
+        // ===== 優化觸控體驗 =====
         document.addEventListener('touchstart', function(e) {
         }, { passive: true });
     </script>
