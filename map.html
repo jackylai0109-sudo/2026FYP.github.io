@@ -1478,12 +1478,11 @@
                 </div>
 
                 <div class="map-actions">
-                    <!-- 交通模式切換 -->
+                    <!-- 交通模式切換 - 已移除單車選項 -->
                     <div class="route-mode-group" id="routeModeGroup">
                         <button class="route-mode-btn active" data-mode="DRIVING" onclick="setTravelMode('DRIVING')"><i>🚗</i> 開車</button>
                         <button class="route-mode-btn" data-mode="TRANSIT" onclick="setTravelMode('TRANSIT')"><i>🚆</i> 大眾運輸</button>
                         <button class="route-mode-btn" data-mode="WALKING" onclick="setTravelMode('WALKING')"><i>🚶</i> 步行</button>
-                        <button class="route-mode-btn" data-mode="BICYCLING" onclick="setTravelMode('BICYCLING')"><i>🚲</i> 單車</button>
                     </div>
                     <button class="map-action-btn" onclick="window.location.href='meeting.html'">🎯 建立會合點</button>
                     <button class="map-action-btn" onclick="window.location.href='weather.html'">☀️ 天氣查詢</button>
@@ -1657,6 +1656,26 @@
             }, 3000);
         }
 
+        // 可以設定顯示時間的 Toast 函數
+        function showToastWithDuration(message, duration = 3000) {
+            const toast = document.createElement('div');
+            toast.className = 'toast-message';
+            toast.style.whiteSpace = 'pre-line';
+            toast.style.maxWidth = '300px';
+            toast.style.lineHeight = '1.6';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'slideUp 0.3s ease reverse';
+                setTimeout(() => {
+                    if (document.body.contains(toast)) {
+                        document.body.removeChild(toast);
+                    }
+                }, 300);
+            }, duration);
+        }
+
         // 切換路線摘要折疊狀態
         window.toggleRouteCollapse = function() {
             const routeSummary = document.getElementById('routeSummary');
@@ -1737,83 +1756,84 @@
             }
         };
 
-       // ========== 從行程頁面讀取地點（修改版 - 完全比照一般搜尋） ==========
-function loadLocationFromItinerary() {
-    try {
-        const savedLocation = localStorage.getItem('viewLocation');
-        if (savedLocation) {
-            const locationData = JSON.parse(savedLocation);
-            const now = new Date().getTime();
-            
-            // 檢查是否在 30 秒內（避免讀取到舊資料）
-            if (now - locationData.timestamp < 30000) {
-                console.log('從行程頁面載入地點:', locationData);
-                
-                const position = {
-                    lat: locationData.lat,
-                    lng: locationData.lng
-                };
-                
-                // 完全比照 handlePlaceSelected 的邏輯
-                currentDestinationPosition = {
-                    lat: position.lat,
-                    lng: position.lng
-                };
-                
-                // 移動地圖
-                map.setCenter(position);
-                map.setZoom(17);
-                
-                // 清除舊標記
-                if (searchMarker) {
-                    searchMarker.setMap(null);
-                }
-                
-                // 建立新標記（和搜尋結果一樣）
-                searchMarker = new google.maps.Marker({
-                    map: map,
-                    position: position,
-                    title: locationData.title || '行程地點',
-                    animation: google.maps.Animation.DROP
-                });
-                
-                // 顯示資訊視窗（和搜尋結果一樣）
-                const infoWindow = new google.maps.InfoWindow({
-                    content: `
-                        <div class="info-window">
-                            <div class="info-window-title">${locationData.title || '行程地點'}</div>
-                            <div class="info-window-address">${locationData.address || ''}</div>
-                            <small style="color:var(--accent);">✅ 選擇交通模式自動規劃路線</small>
-                        </div>
-                    `
-                });
-                
-                infoWindow.open(map, searchMarker);
-                currentInfoWindow = infoWindow;
+        // ========== 從行程頁面讀取地點 ==========
+        function loadLocationFromItinerary() {
+            try {
+                const savedLocation = localStorage.getItem('viewLocation');
+                if (savedLocation) {
+                    const locationData = JSON.parse(savedLocation);
+                    const now = new Date().getTime();
+                    
+                    // 檢查是否在 30 秒內（避免讀取到舊資料）
+                    if (now - locationData.timestamp < 30000) {
+                        console.log('從行程頁面載入地點:', locationData);
+                        
+                        const position = {
+                            lat: locationData.lat,
+                            lng: locationData.lng
+                        };
+                        
+                        // 完全比照 handlePlaceSelected 的邏輯
+                        currentDestinationPosition = {
+                            lat: position.lat,
+                            lng: position.lng
+                        };
+                        
+                        // 移動地圖
+                        map.setCenter(position);
+                        map.setZoom(17);
+                        
+                        // 清除舊標記
+                        if (searchMarker) {
+                            searchMarker.setMap(null);
+                        }
+                        
+                        // 建立新標記（和搜尋結果一樣）
+                        searchMarker = new google.maps.Marker({
+                            map: map,
+                            position: position,
+                            title: locationData.title || '行程地點',
+                            animation: google.maps.Animation.DROP
+                        });
+                        
+                        // 顯示資訊視窗（和搜尋結果一樣）
+                        const infoWindow = new google.maps.InfoWindow({
+                            content: `
+                                <div class="info-window">
+                                    <div class="info-window-title">${locationData.title || '行程地點'}</div>
+                                    <div class="info-window-address">${locationData.address || ''}</div>
+                                    <small style="color:var(--accent);">✅ 選擇交通模式自動規劃路線</small>
+                                </div>
+                            `
+                        });
+                        
+                        infoWindow.open(map, searchMarker);
+                        currentInfoWindow = infoWindow;
 
-                // 清除路線（和搜尋結果一樣）
-                if (directionsRenderer) directionsRenderer.setDirections({ routes: [] });
-                document.getElementById('routeSummary').classList.remove('show');
-                
-                // 如果有目前位置，自動規劃路線（和搜尋結果一樣）
-                if (lastOriginPosition) {
-                    autoPlanRoute();
-                }
+                        // 清除路線（和搜尋結果一樣）
+                        if (directionsRenderer) directionsRenderer.setDirections({ routes: [] });
+                        document.getElementById('routeSummary').classList.remove('show');
+                        
+                        // 如果有目前位置，自動規劃路線（和搜尋結果一樣）
+                        if (lastOriginPosition) {
+                            autoPlanRoute();
+                        }
 
-                // 清除 localStorage，避免重複使用
-                localStorage.removeItem('viewLocation');
-                
-                showToast(`📍 已顯示行程地點：${locationData.title}`);
-            } else {
-                // 超過 30 秒，清除舊資料
+                        // 清除 localStorage，避免重複使用
+                        localStorage.removeItem('viewLocation');
+                        
+                        showToast(`📍 已顯示行程地點：${locationData.title}`);
+                    } else {
+                        // 超過 30 秒，清除舊資料
+                        localStorage.removeItem('viewLocation');
+                    }
+                }
+            } catch (error) {
+                console.error('讀取行程地點錯誤:', error);
                 localStorage.removeItem('viewLocation');
             }
         }
-    } catch (error) {
-        console.error('讀取行程地點錯誤:', error);
-        localStorage.removeItem('viewLocation');
-    }
-}
+
         // ========== 設為起點 ==========
         window.setAsStartPoint = function(lat, lng, title) {
             const position = { lat, lng };
@@ -3016,14 +3036,18 @@ function loadLocationFromItinerary() {
 
         function getGoogleTravelMode(mode) {
             switch(mode) {
-                case 'DRIVING': return google.maps.TravelMode.DRIVING;
-                case 'TRANSIT': return google.maps.TravelMode.TRANSIT;
-                case 'WALKING': return google.maps.TravelMode.WALKING;
-                case 'BICYCLING': return google.maps.TravelMode.BICYCLING;
-                default: return google.maps.TravelMode.DRIVING;
+                case 'DRIVING': 
+                    return google.maps.TravelMode.DRIVING;
+                case 'TRANSIT': 
+                    return google.maps.TravelMode.TRANSIT;
+                case 'WALKING': 
+                    return google.maps.TravelMode.WALKING;
+                default: 
+                    return google.maps.TravelMode.DRIVING;
             }
         }
 
+        // ========== 修正後的 calculateAndDisplayRoute 函數（已移除單車模式）==========
         function calculateAndDisplayRoute(origin, destination, mode) {
             if (!directionsService || !directionsRenderer) return;
 
@@ -3036,6 +3060,7 @@ function loadLocationFromItinerary() {
                 unitSystem: google.maps.UnitSystem.METRIC
             };
 
+            // 為大眾運輸模式添加特定選項
             if (mode === 'TRANSIT') {
                 request.transitOptions = {
                     modes: [google.maps.TransitMode.BUS, google.maps.TransitMode.RAIL],
@@ -3043,7 +3068,11 @@ function loadLocationFromItinerary() {
                 };
             }
 
+            console.log('路線請求:', mode, request);
+
             directionsService.route(request, (result, status) => {
+                console.log('路線規劃結果:', status);
+                
                 if (status === google.maps.DirectionsStatus.OK) {
                     directionsRenderer.setDirections(result);
                     
@@ -3054,18 +3083,24 @@ function loadLocationFromItinerary() {
                         const duration = leg.duration.text;
                         
                         let modeIcon = '🚗';
-                        if (mode === 'TRANSIT') modeIcon = '🚆';
-                        else if (mode === 'WALKING') modeIcon = '🚶';
-                        else if (mode === 'BICYCLING') modeIcon = '🚲';
+                        let modeName = '開車';
+                        if (mode === 'TRANSIT') {
+                            modeIcon = '🚆';
+                            modeName = '大眾運輸';
+                        } else if (mode === 'WALKING') {
+                            modeIcon = '🚶';
+                            modeName = '步行';
+                        }
                         
                         let summaryHtml = `
-                            <strong>${modeIcon} 最佳路線 (${getModeName(mode)})</strong><br>
+                            <strong>${modeIcon} 最佳路線 (${modeName})</strong><br>
                             <span>距離: ${distance} | 時間: ${duration}</span><br>
                             <small>起點: ${leg.start_address.split(',')[0]}</small><br>
                             <small>終點: ${leg.end_address.split(',')[0]}</small>
                         `;
                         document.getElementById('routeSummaryContent').innerHTML = summaryHtml;
 
+                        // 大眾運輸詳細資訊
                         if (mode === 'TRANSIT' && leg.steps) {
                             let transitStepsHtml = '<hr style="margin:8px 0"><strong>🚉 轉乘資訊</strong>';
                             leg.steps.forEach((step) => {
@@ -3095,6 +3130,36 @@ function loadLocationFromItinerary() {
                     }
                 } else {
                     console.log('路線規劃失敗:', status);
+                    
+                    // 顯示更具體的錯誤訊息
+                    let errorMessage = '路線規劃失敗';
+                    switch(status) {
+                        case google.maps.DirectionsStatus.NOT_FOUND:
+                            errorMessage = '找不到路線，請檢查起點和終點是否有效';
+                            break;
+                        case google.maps.DirectionsStatus.ZERO_RESULTS:
+                            errorMessage = '找不到符合條件的路線，請嘗試其他交通方式';
+                            break;
+                        case google.maps.DirectionsStatus.MAX_WAYPOINTS_EXCEEDED:
+                            errorMessage = '超過路線點數限制';
+                            break;
+                        case google.maps.DirectionsStatus.INVALID_REQUEST:
+                            errorMessage = '無效的請求參數';
+                            break;
+                        case google.maps.DirectionsStatus.OVER_QUERY_LIMIT:
+                            errorMessage = '超過查詢次數限制，請稍後再試';
+                            break;
+                        case google.maps.DirectionsStatus.REQUEST_DENIED:
+                            errorMessage = '請求被拒絕';
+                            break;
+                        case google.maps.DirectionsStatus.UNKNOWN_ERROR:
+                            errorMessage = '未知錯誤，請稍後再試';
+                            break;
+                        default:
+                            errorMessage = `路線規劃失敗 (${status})`;
+                    }
+                    
+                    showToast(errorMessage);
                 }
             });
         }
@@ -3104,7 +3169,6 @@ function loadLocationFromItinerary() {
                 case 'DRIVING': return '開車';
                 case 'TRANSIT': return '大眾運輸';
                 case 'WALKING': return '步行';
-                case 'BICYCLING': return '單車';
                 default: return '未知';
             }
         }
