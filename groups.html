@@ -25,6 +25,8 @@
             --card: #ffffff;
             --muted: #6b7b86;
             --radius: 14px;
+            --danger: #ff5a5f;
+            --danger-dark: #ff4449;
             --safe-area-bottom: env(safe-area-inset-bottom, 0px);
         }
 
@@ -265,10 +267,10 @@
             border-radius: var(--radius);
             padding: 20px;
             box-shadow: 0 6px 20px rgba(6, 30, 38, 0.06);
-            cursor: pointer;
             transition: all 0.3s ease;
             border: 2px solid transparent;
             -webkit-tap-highlight-color: transparent;
+            position: relative;
         }
 
         .group-card:hover {
@@ -277,14 +279,30 @@
             box-shadow: 0 12px 30px rgba(44, 197, 194, 0.15);
         }
 
-        .group-card:active {
-            transform: scale(0.98);
-            border-color: var(--accent);
-        }
-
         .group-card.active {
             border-color: var(--accent);
             background: linear-gradient(135deg, #f0fcfc, white);
+        }
+
+        /* 角色徽章 - 右上角 */
+        .role-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            color: white;
+            z-index: 2;
+        }
+
+        .role-badge.admin {
+            background: linear-gradient(135deg, var(--accent-dark), #1a4b6e);
+        }
+
+        .role-badge.member {
+            background: linear-gradient(135deg, var(--accent), #7fe6e3);
         }
 
         .group-header {
@@ -292,6 +310,8 @@
             align-items: center;
             gap: 15px;
             margin-bottom: 15px;
+            cursor: pointer;
+            padding-right: 60px; /* 為右上角徽章留空間 */
         }
 
         .group-avatar {
@@ -332,12 +352,98 @@
             color: var(--muted);
         }
 
+        /* 成員列表樣式 */
+        .group-members-section {
+            margin: 15px 0;
+            padding: 10px 0;
+            border-top: 1px solid #eef2f2;
+            border-bottom: 1px solid #eef2f2;
+            cursor: pointer;
+        }
+
+        .group-members-title {
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .group-members-list {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .member-avatar-mini {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            overflow: hidden;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            position: relative;
+        }
+
+        .member-avatar-mini:hover {
+            transform: scale(1.1);
+            z-index: 2;
+        }
+
+        .member-avatar-mini img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .member-avatar-mini span {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+        }
+
+        .member-more {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #f0f8f8;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: var(--accent-dark);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .member-more:hover {
+            background: var(--accent);
+            color: white;
+            transform: scale(1.1);
+        }
+
         .group-stats {
             display: flex;
             gap: 15px;
-            margin-top: 10px;
+            margin: 15px 0;
             padding-top: 10px;
-            border-top: 1px solid #eef2f2;
+            cursor: pointer;
         }
 
         .stat {
@@ -352,22 +458,72 @@
             color: var(--accent);
         }
 
-        .badge {
+        .current-group-indicator {
+            color: var(--accent);
+            font-size: 12px;
+            margin: 10px 0;
+            text-align: right;
+        }
+
+        .group-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            border-top: 1px solid #eef2f2;
+            padding-top: 15px;
+        }
+
+        .group-action-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            transition: all 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .group-action-btn:active {
+            transform: scale(0.95);
+        }
+
+        .group-action-btn.chat {
             background: var(--accent);
             color: white;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 600;
         }
 
-        .badge.admin {
-            background: var(--accent-dark);
+        .group-action-btn.chat:hover {
+            background: #28b5b2;
+            transform: translateY(-2px);
         }
 
-        .badge.warning {
-            background: #ffc107;
-            color: #333;
+        .group-action-btn.leave {
+            background: white;
+            border: 1px solid var(--danger);
+            color: var(--danger);
+        }
+
+        .group-action-btn.leave:hover {
+            background: var(--danger);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .group-action-btn.leave:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .group-action-btn.leave:disabled:hover {
+            background: white;
+            color: var(--danger);
         }
 
         .empty-state {
@@ -439,6 +595,232 @@
             background: #1a3f4d;
         }
 
+        /* 成員詳細資訊浮層 */
+        .member-info-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .member-info-card {
+            background: white;
+            border-radius: 24px;
+            padding: 24px;
+            max-width: 320px;
+            width: 90%;
+            text-align: center;
+            animation: slideUp 0.3s ease;
+        }
+
+        .member-info-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            overflow: hidden;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 32px;
+            font-weight: bold;
+            border: 3px solid white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .member-info-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .member-info-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--accent-dark);
+            margin-bottom: 5px;
+        }
+
+        .member-info-email {
+            font-size: 14px;
+            color: var(--muted);
+            margin-bottom: 15px;
+            word-break: break-all;
+        }
+
+        .member-info-close {
+            padding: 10px 20px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .member-info-close:hover {
+            background: #28b5b2;
+            transform: translateY(-2px);
+        }
+
+        .member-info-close:active {
+            transform: scale(0.95);
+        }
+
+        /* 確認對話框樣式 */
+        .confirm-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .confirm-dialog {
+            background: white;
+            border-radius: 24px;
+            padding: 32px;
+            max-width: 380px;
+            width: 90%;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .confirm-dialog::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--danger), #ff8a8a);
+        }
+
+        .confirm-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, rgba(255, 90, 95, 0.1), rgba(255, 68, 73, 0.1));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 40px;
+        }
+
+        .confirm-dialog h3 {
+            color: var(--accent-dark);
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .confirm-dialog p {
+            color: var(--muted);
+            font-size: 15px;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .confirm-group-name {
+            font-weight: 700;
+            color: var(--accent-dark);
+            background: #f0f8f8;
+            padding: 8px 16px;
+            border-radius: 30px;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .confirm-button-group {
+            display: flex;
+            gap: 12px;
+        }
+
+        .confirm-btn {
+            flex: 1;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .confirm-btn.cancel {
+            background: #f0f4f4;
+            color: var(--muted);
+        }
+
+        .confirm-btn.cancel:hover {
+            background: #e5eaea;
+            transform: translateY(-2px);
+        }
+
+        .confirm-btn.cancel:active {
+            transform: scale(0.98);
+        }
+
+        .confirm-btn.confirm {
+            background: linear-gradient(135deg, var(--danger), var(--danger-dark));
+            color: white;
+            box-shadow: 0 10px 20px -5px rgba(255, 90, 95, 0.3);
+        }
+
+        .confirm-btn.confirm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px -5px rgba(255, 90, 95, 0.4);
+        }
+
+        .confirm-btn.confirm:active {
+            transform: scale(0.98);
+        }
+
+        .confirm-btn.loading {
+            position: relative;
+            color: transparent;
+            pointer-events: none;
+        }
+
+        .confirm-btn.loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid white;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
         .loading {
             text-align: center;
             padding: 60px;
@@ -454,9 +836,31 @@
             margin: 0 auto 15px;
         }
 
+        .spinner.small {
+            width: 20px;
+            height: 20px;
+            border-width: 2px;
+        }
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .error-message {
@@ -557,6 +961,22 @@
             transform: scale(0.95);
         }
 
+        .toast-message {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent-dark);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 14px;
+            z-index: 10000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            animation: slideUp 0.3s ease;
+            margin-bottom: var(--safe-area-bottom);
+        }
+
         /* 手機版優化 - 導航移到下方 */
         @media (max-width: 768px) {
             body {
@@ -605,6 +1025,17 @@
                 padding: 15px;
             }
 
+            .role-badge {
+                top: 10px;
+                right: 10px;
+                padding: 3px 8px;
+                font-size: 10px;
+            }
+
+            .group-header {
+                padding-right: 50px;
+            }
+
             .group-avatar {
                 width: 50px;
                 height: 50px;
@@ -620,14 +1051,26 @@
                 font-size: 12px;
             }
 
-            .group-stats {
-                gap: 12px;
+            .member-avatar-mini {
+                width: 28px;
+                height: 28px;
                 font-size: 12px;
             }
+            
+            .member-more {
+                width: 28px;
+                height: 28px;
+                font-size: 11px;
+            }
 
-            .badge {
-                padding: 3px 6px;
-                font-size: 10px;
+            .group-actions {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .group-action-btn {
+                padding: 12px;
+                font-size: 14px;
             }
 
             .empty-state {
@@ -659,6 +1102,51 @@
                 right: 10px;
                 padding: 10px 20px;
                 font-size: 13px;
+            }
+
+            .confirm-dialog {
+                padding: 24px;
+                width: 90%;
+                max-width: 320px;
+            }
+
+            .confirm-icon {
+                width: 60px;
+                height: 60px;
+                font-size: 30px;
+            }
+
+            .confirm-dialog h3 {
+                font-size: 20px;
+            }
+
+            .confirm-dialog p {
+                font-size: 14px;
+                margin-bottom: 25px;
+            }
+
+            .confirm-button-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .confirm-btn {
+                padding: 12px;
+                font-size: 15px;
+            }
+
+            .member-info-card {
+                padding: 20px;
+            }
+
+            .member-info-avatar {
+                width: 60px;
+                height: 60px;
+                font-size: 24px;
+            }
+
+            .member-info-name {
+                font-size: 18px;
             }
         }
 
@@ -706,14 +1194,34 @@
                 font-size: 15px;
             }
 
-            .group-stats {
-                flex-direction: column;
-                gap: 8px;
-                align-items: flex-start;
+            .group-members-section {
+                margin: 12px 0;
+                padding: 8px 0;
             }
 
-            .stat {
-                width: 100%;
+            .group-members-list {
+                gap: 6px;
+            }
+
+            .member-avatar-mini {
+                width: 26px;
+                height: 26px;
+                font-size: 11px;
+            }
+
+            .member-more {
+                width: 26px;
+                height: 26px;
+                font-size: 10px;
+            }
+
+            .group-actions {
+                padding-top: 12px;
+            }
+
+            .group-action-btn {
+                padding: 10px;
+                font-size: 13px;
             }
 
             .empty-state {
@@ -778,13 +1286,21 @@
                 font-size: 11px;
             }
 
-            .badge {
-                padding: 2px 4px;
+            .member-avatar-mini {
+                width: 24px;
+                height: 24px;
+                font-size: 10px;
+            }
+
+            .member-more {
+                width: 24px;
+                height: 24px;
                 font-size: 9px;
             }
 
-            .stat {
-                font-size: 11px;
+            .group-action-btn {
+                padding: 8px;
+                font-size: 12px;
             }
 
             .empty-state .icon {
@@ -806,12 +1322,26 @@
             .bottom-nav-label {
                 font-size: 8px;
             }
+
+            .confirm-dialog {
+                padding: 20px;
+            }
+
+            .confirm-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 25px;
+            }
         }
 
         /* iOS 安全區域支援 */
         @supports (padding: max(0px)) {
             .bottom-nav {
                 padding-bottom: max(8px, env(safe-area-inset-bottom));
+            }
+            
+            .toast-message {
+                margin-bottom: max(30px, env(safe-area-inset-bottom));
             }
         }
     </style>
@@ -933,6 +1463,200 @@
 
         let debugLogs = [];
         let debugEnabled = false;
+
+        // 顯示提示訊息
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast-message';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'slideUp 0.3s ease reverse';
+                setTimeout(() => {
+                    if (document.body.contains(toast)) {
+                        document.body.removeChild(toast);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // 顯示成員詳細資訊
+        window.showMemberInfo = function(member) {
+            if (document.querySelector('.member-info-overlay')) {
+                return;
+            }
+
+            const overlay = document.createElement('div');
+            overlay.className = 'member-info-overlay';
+            overlay.onclick = (e) => {
+                if (e.target === overlay) {
+                    document.body.removeChild(overlay);
+                }
+            };
+
+            const avatarHtml = member.avatarUrl 
+                ? `<img src="${member.avatarUrl}" alt="${member.name}">`
+                : `<span>${member.name ? member.name.charAt(0).toUpperCase() : '?'}</span>`;
+
+            overlay.innerHTML = `
+                <div class="member-info-card">
+                    <div class="member-info-avatar">
+                        ${avatarHtml}
+                    </div>
+                    <div class="member-info-name">${member.name || '未知用戶'}</div>
+                    <div class="member-info-email">${member.email || '無電子郵件'}</div>
+                    <button class="member-info-close" onclick="this.closest('.member-info-overlay').remove()">關閉</button>
+                </div>
+            `;
+
+            document.body.appendChild(overlay);
+        };
+
+        // 顯示確認對話框
+        function showConfirmDialog(groupId, groupName) {
+            if (document.querySelector('.confirm-overlay')) {
+                return;
+            }
+
+            const overlay = document.createElement('div');
+            overlay.className = 'confirm-overlay';
+
+            const dialog = document.createElement('div');
+            dialog.className = 'confirm-dialog';
+
+            dialog.innerHTML = `
+                <div class="confirm-icon">👋</div>
+                <h3>離開群組？</h3>
+                <div class="confirm-group-name">${groupName}</div>
+                <p>離開後將無法再接收此群組的訊息<br>確定要離開嗎？</p>
+                <div class="confirm-button-group">
+                    <button class="confirm-btn cancel" id="cancelLeave">
+                        ✕ 取消
+                    </button>
+                    <button class="confirm-btn confirm" id="confirmLeave">
+                        ✓ 確認離開
+                    </button>
+                </div>
+            `;
+
+            overlay.appendChild(dialog);
+            document.body.appendChild(overlay);
+
+            const cancelBtn = document.getElementById('cancelLeave');
+            cancelBtn.addEventListener('click', () => {
+                overlay.style.animation = 'fadeIn 0.2s ease reverse';
+                dialog.style.animation = 'slideUp 0.2s ease reverse';
+                
+                setTimeout(() => {
+                    if (document.body.contains(overlay)) {
+                        document.body.removeChild(overlay);
+                    }
+                }, 200);
+            });
+
+            const confirmBtn = document.getElementById('confirmLeave');
+            confirmBtn.addEventListener('click', async () => {
+                confirmBtn.classList.add('loading');
+                confirmBtn.textContent = '';
+                cancelBtn.disabled = true;
+                
+                await leaveGroup(groupId);
+                
+                setTimeout(() => {
+                    if (document.body.contains(overlay)) {
+                        document.body.removeChild(overlay);
+                    }
+                }, 200);
+            });
+
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    overlay.style.animation = 'fadeIn 0.2s ease reverse';
+                    dialog.style.animation = 'slideUp 0.2s ease reverse';
+                    
+                    setTimeout(() => {
+                        if (document.body.contains(overlay)) {
+                            document.body.removeChild(overlay);
+                        }
+                    }, 200);
+                }
+            });
+        }
+
+        // 離開群組
+        window.leaveGroup = async function(groupId) {
+            const user = auth.currentUser;
+            if (!user) return;
+
+            addDebugLog(`嘗試離開群組: ${groupId}`, 'info');
+
+            try {
+                // 1. 從群組的 members 集合中移除自己
+                await db.collection('groups')
+                    .doc(groupId)
+                    .collection('members')
+                    .doc(user.uid)
+                    .delete();
+
+                addDebugLog('已從群組 members 集合中移除', 'success');
+
+                // 2. 從使用者的群組列表中移除
+                const userRef = db.collection('users').doc(user.uid);
+                const userDoc = await userRef.get();
+
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    let updatedGroups = [];
+
+                    if (Array.isArray(userData.groups)) {
+                        updatedGroups = userData.groups.filter(g => {
+                            if (typeof g === 'object') {
+                                return g.groupId !== groupId;
+                            }
+                            return g !== groupId;
+                        });
+                    } else if (userData.groups && typeof userData.groups === 'object') {
+                        // 如果是物件格式，轉換為陣列並過濾
+                        const groupsArray = Object.values(userData.groups);
+                        const filteredGroups = groupsArray.filter(g => g.groupId !== groupId);
+                        
+                        // 轉回物件格式
+                        const groupsObj = {};
+                        filteredGroups.forEach(g => {
+                            groupsObj[g.groupId] = g;
+                        });
+                        updatedGroups = groupsObj;
+                    }
+
+                    // 更新使用者文件
+                    await userRef.update({
+                        groups: updatedGroups
+                    });
+
+                    addDebugLog('已從使用者群組列表中移除', 'success');
+
+                    // 3. 如果離開的是當前所在的群組，清除 currentGroupId
+                    if (userData.currentGroupId === groupId) {
+                        await userRef.update({
+                            currentGroupId: null
+                        });
+                        addDebugLog('已清除 currentGroupId', 'info');
+                    }
+
+                    showToast(`✅ 已離開群組`);
+                    
+                    // 重新載入群組列表
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                }
+
+            } catch (error) {
+                addDebugLog('離開群組錯誤', 'error', error.message);
+                showToast('❌ 離開群組失敗：' + error.message);
+            }
+        };
 
         window.showDebugPanel = function() {
             document.getElementById('debugPanel').style.display = 'block';
@@ -1133,13 +1857,64 @@
                             const groupData = groupDoc.data();
                             addDebugLog(`群組 ${group.groupId} 讀取成功`, 'success', groupData);
                             
-                            return {
-                                groupId: group.groupId,
-                                groupName: groupData.name || '未命名群組',
-                                role: group.role || 'member',
-                                joinedAt: group.joinedAt,
-                                isCurrent: group.groupId === userData.currentGroupId
-                            };
+                            // 獲取成員總數
+                            try {
+                                const membersSnapshot = await db.collection('groups')
+                                    .doc(group.groupId)
+                                    .collection('members')
+                                    .get();
+                                
+                                const totalMembers = membersSnapshot.size;
+                                addDebugLog(`群組 ${group.groupId} 有 ${totalMembers} 位成員`, 'info');
+                                
+                                // 獲取前5位成員的資料
+                                const memberPromises = membersSnapshot.docs.slice(0, 5).map(async (memberDoc) => {
+                                    const memberData = memberDoc.data();
+                                    try {
+                                        const userDoc = await db.collection('users').doc(memberDoc.id).get();
+                                        if (userDoc.exists) {
+                                            const userData = userDoc.data();
+                                            return {
+                                                id: memberDoc.id,
+                                                name: userData.username || memberData.name || '用戶',
+                                                avatarUrl: userData.profileImageUrl || null,
+                                                email: userData.email || ''
+                                            };
+                                        }
+                                    } catch (e) {
+                                        console.error('獲取用戶資料錯誤:', e);
+                                    }
+                                    return {
+                                        id: memberDoc.id,
+                                        name: memberData.name || '用戶',
+                                        avatarUrl: null,
+                                        email: ''
+                                    };
+                                });
+                                
+                                const members = await Promise.all(memberPromises);
+                                
+                                return {
+                                    groupId: group.groupId,
+                                    groupName: groupData.name || '未命名群組',
+                                    role: group.role || 'member',
+                                    joinedAt: group.joinedAt,
+                                    isCurrent: group.groupId === userData.currentGroupId,
+                                    members: members,
+                                    totalMembers: totalMembers
+                                };
+                            } catch (e) {
+                                addDebugLog(`獲取群組 ${group.groupId} 成員失敗`, 'error', e.message);
+                                return {
+                                    groupId: group.groupId,
+                                    groupName: groupData.name || '未命名群組',
+                                    role: group.role || 'member',
+                                    joinedAt: group.joinedAt,
+                                    isCurrent: group.groupId === userData.currentGroupId,
+                                    members: [],
+                                    totalMembers: 0
+                                };
+                            }
                         } else {
                             addDebugLog(`群組 ${group.groupId} 不存在`, 'warning');
                         }
@@ -1199,32 +1974,69 @@
                     }
                 } catch (e) {}
 
+                const isCurrent = group.groupId === currentGroupId;
+
+                // 生成成員頭像 HTML
+                const membersHtml = group.members.map(member => {
+                    const displayName = member.name || '用戶';
+                    const initial = displayName.charAt(0).toUpperCase();
+                    
+                    // 使用 JSON.stringify 但處理特殊字符
+                    const memberJson = JSON.stringify(member).replace(/"/g, '&quot;');
+                    
+                    return `
+                        <div class="member-avatar-mini" onclick="event.stopPropagation(); showMemberInfo(${memberJson})" title="${displayName}">
+                            ${member.avatarUrl 
+                                ? `<img src="${member.avatarUrl}" alt="${displayName}">`
+                                : `<span>${initial}</span>`
+                            }
+                        </div>
+                    `;
+                }).join('');
+
+                // 角色徽章
+                const roleBadge = group.role === 'admin' 
+                    ? '<span class="role-badge admin">admin</span>'
+                    : '<span class="role-badge member">member</span>';
+
                 return `
-                    <div class="group-card ${group.groupId === currentGroupId ? 'active' : ''}" 
-                         onclick="switchToGroupChat('${group.groupId}')">
-                        <div class="group-header">
+                    <div class="group-card ${isCurrent ? 'active' : ''}">
+                        ${roleBadge}
+                        <div class="group-header" onclick="switchToGroupChat('${group.groupId}')">
                             <div class="group-avatar">
                                 ${group.groupName ? group.groupName.charAt(0).toUpperCase() : 'G'}
                             </div>
                             <div class="group-info">
                                 <div class="group-name">
                                     ${group.groupName || '未命名群組'}
-                                    ${group.role === 'admin' ? '<span class="badge admin">管理員</span>' : ''}
                                 </div>
                                 <div class="group-meta">
                                     加入於 ${joinDate}
                                 </div>
                             </div>
                         </div>
-                        <div class="group-stats">
-                            <div class="stat">
-                                <i>👥</i> 成員
+                        
+                        <!-- 成員列表區域 -->
+                        <div class="group-members-section" onclick="switchToGroupChat('${group.groupId}')">
+                            <div class="group-members-title">
+                                <span>👥 成員 (${group.totalMembers})</span>
                             </div>
-                            <div class="stat">
-                                <i>👤</i> ${group.role || 'member'}
+                            <div class="group-members-list">
+                                ${membersHtml}
+                                ${group.totalMembers > 5 ? `<div class="member-more" title="還有 ${group.totalMembers - 5} 位成員" onclick="event.stopPropagation(); alert('查看全部成員功能開發中')">+${group.totalMembers - 5}</div>` : ''}
                             </div>
                         </div>
-                        ${group.groupId === currentGroupId ? '<div style="color: var(--accent); font-size: 12px; margin-top: 10px; text-align: right;">✓ 目前所在群組</div>' : ''}
+                        
+                        ${isCurrent ? '<div class="current-group-indicator">✓ 目前所在群組</div>' : ''}
+                        
+                        <div class="group-actions">
+                            <button class="group-action-btn chat" onclick="switchToGroupChat('${group.groupId}')">
+                                💬 聊天室
+                            </button>
+                            <button class="group-action-btn leave" onclick="showConfirmDialog('${group.groupId}', '${group.groupName.replace(/'/g, "\\'")}')">
+                                🚪 離開
+                            </button>
+                        </div>
                     </div>
                 `;
             }).join('');
