@@ -10,8 +10,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     
-    <!-- Google Maps API 載入 -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDXCOcFaB80u9FjnEkQf-DlMOPqAJyGngA&libraries=places&callback=initMap&loading=async" async defer></script>
+    <!-- Google Maps API 載入 - 移除 callback，我們自己控制載入時機 -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDXCOcFaB80u9FjnEkQf-DlMOPqAJyGngA&libraries=places&loading=async"></script>
     
     <!-- Flatpickr 日期選擇器 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -19,6 +19,7 @@
     <script src="https://npmcdn.com/flatpickr/dist/l10n/zh-tw.js"></script>
     
     <style>
+        /* 所有樣式保持不變 */
         * {
             margin: 0;
             padding: 0;
@@ -355,6 +356,41 @@
         .group-members {
             font-size: 13px;
             color: var(--muted);
+        }
+
+        .no-group-message {
+            text-align: center;
+            padding: 30px 20px;
+        }
+
+        .no-group-message .icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .no-group-message p {
+            color: var(--muted);
+            margin-bottom: 15px;
+        }
+
+        .create-group-link {
+            display: inline-block;
+            padding: 10px 20px;
+            background: var(--accent);
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .create-group-link:hover {
+            background: #28b5b2;
+            transform: translateY(-2px);
+        }
+
+        .create-group-link:active {
+            transform: scale(0.95);
         }
 
         .datetime-container {
@@ -1144,6 +1180,10 @@
                 <span class="nav-icon">🗺️</span>
                 <span class="nav-label">地圖</span>
             </a>
+            <a href="itinerary.html" class="nav-item">
+                <span class="nav-icon">📅</span>
+                <span class="nav-label">行程</span>
+            </a>
             <a href="groups.html" class="nav-item">
                 <span class="nav-icon">👥</span>
                 <span class="nav-label">群組</span>
@@ -1168,6 +1208,10 @@
         <a href="map.html" class="bottom-nav-item">
             <span class="bottom-nav-icon">🗺️</span>
             <span class="bottom-nav-label">地圖</span>
+        </a>
+        <a href="itinerary.html" class="bottom-nav-item">
+            <span class="bottom-nav-icon">📅</span>
+            <span class="bottom-nav-label">行程</span>
         </a>
         <a href="groups.html" class="bottom-nav-item">
             <span class="bottom-nav-icon">👥</span>
@@ -1372,7 +1416,8 @@
         let resizeTimer;
         let datePicker;
 
-        window.initMap = function() {
+        // 初始化地圖的函數
+        function initMap() {
             console.log('Google Maps API 初始化成功');
             
             try {
@@ -1413,7 +1458,17 @@
                     <button class="retry-btn" onclick="retryMapLoad()">重試</button>
                 `;
             }
-        };
+        }
+
+        // 等待 Google Maps API 載入
+        function waitForGoogleMaps() {
+            if (window.google && window.google.maps) {
+                initMap();
+            } else {
+                console.log('等待 Google Maps API 載入...');
+                setTimeout(waitForGoogleMaps, 100);
+            }
+        }
 
         window.addEventListener('resize', function() {
             clearTimeout(resizeTimer);
@@ -1712,7 +1767,17 @@
                 }
 
                 const userData = userDoc.data();
-                groups = userData.groups || [];
+                
+                let groups = [];
+                if (userData.groups) {
+                    if (Array.isArray(userData.groups)) {
+                        groups = userData.groups;
+                    } else if (typeof userData.groups === 'object') {
+                        groups = Object.values(userData.groups);
+                    }
+                }
+                
+                console.log('找到群組數量:', groups.length);
                 
                 if (groups.length === 0) {
                     groupList.innerHTML = `
@@ -1731,19 +1796,23 @@
                 
                 for (const group of groups) {
                     try {
-                        const groupDoc = await db.collection('groups').doc(group.groupId).get();
+                        const groupId = typeof group === 'object' ? group.groupId : group;
+                        if (!groupId) continue;
+                        
+                        const groupDoc = await db.collection('groups').doc(groupId).get();
                         if (groupDoc.exists) {
                             const groupData = groupDoc.data();
+                            
                             const membersSnapshot = await db.collection('groups')
-                                .doc(group.groupId)
+                                .doc(groupId)
                                 .collection('members')
                                 .get();
                             
                             html += `
-                                <div class="group-item" onclick="selectGroup('${group.groupId}', '${groupData.name.replace(/'/g, "\\'")}')">
-                                    <div class="group-avatar">${groupData.name.charAt(0).toUpperCase()}</div>
+                                <div class="group-item" onclick="selectGroup('${groupId}', '${groupData.name.replace(/'/g, "\\'")}')">
+                                    <div class="group-avatar">${groupData.name ? groupData.name.charAt(0).toUpperCase() : '?'}</div>
                                     <div class="group-info">
-                                        <div class="group-name">${groupData.name}</div>
+                                        <div class="group-name">${groupData.name || '未命名群組'}</div>
                                         <div class="group-members">👥 ${membersSnapshot.size} 位成員</div>
                                     </div>
                                 </div>
@@ -1759,7 +1828,7 @@
                     groupList.innerHTML = `
                         <div class="no-group-message">
                             <div class="icon">📭</div>
-                            <p>還沒有加入任何群組</p>
+                            <p>找不到可用的群組</p>
                             <a href="createJoin.html" class="create-group-link">＋ 建立或加入群組</a>
                         </div>
                     `;
@@ -1773,9 +1842,9 @@
                 console.error('載入群組錯誤:', error);
                 groupList.innerHTML = `
                     <div class="no-group-message">
-                        <div class="icon">📭</div>
-                        <p>還沒有加入任何群組</p>
-                        <a href="createJoin.html" class="create-group-link">＋ 建立或加入群組</a>
+                        <div class="icon">⚠️</div>
+                        <p>載入群組失敗：${error.message}</p>
+                        <button class="retry-btn" onclick="loadUserGroups()">重試</button>
                     </div>
                 `;
                 nextBtn.disabled = true;
@@ -2108,9 +2177,8 @@
                 loadUserGroups();
                 initDateTimePicker();
                 
-                waitForMap(() => {
-                    console.log('地圖已就緒');
-                });
+                // 開始等待 Google Maps 載入
+                waitForGoogleMaps();
             } else {
                 window.location.href = 'loginPage.html';
             }

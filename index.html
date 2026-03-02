@@ -188,6 +188,166 @@
             font-weight: 500;
         }
 
+        /* 登出確認對話框樣式 */
+        .logout-confirm-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .logout-confirm-dialog {
+            background: white;
+            border-radius: 24px;
+            padding: 32px;
+            max-width: 380px;
+            width: 90%;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logout-confirm-dialog::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-dark));
+        }
+
+        .logout-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, rgba(44, 197, 194, 0.1), rgba(12, 52, 78, 0.1));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 40px;
+            animation: wave 2s infinite;
+        }
+
+        @keyframes wave {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(10deg); }
+            75% { transform: rotate(-10deg); }
+        }
+
+        .logout-confirm-dialog h3 {
+            color: var(--accent-dark);
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .logout-confirm-dialog p {
+            color: var(--muted);
+            font-size: 15px;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .logout-button-group {
+            display: flex;
+            gap: 12px;
+        }
+
+        .logout-btn {
+            flex: 1;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .logout-btn.cancel {
+            background: #f0f4f4;
+            color: var(--muted);
+        }
+
+        .logout-btn.cancel:hover {
+            background: #e5eaea;
+            transform: translateY(-2px);
+        }
+
+        .logout-btn.cancel:active {
+            transform: scale(0.98);
+        }
+
+        .logout-btn.confirm {
+            background: linear-gradient(135deg, #ff5a5f, #ff4449);
+            color: white;
+            box-shadow: 0 10px 20px -5px rgba(255, 90, 95, 0.3);
+        }
+
+        .logout-btn.confirm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px -5px rgba(255, 90, 95, 0.4);
+        }
+
+        .logout-btn.confirm:active {
+            transform: scale(0.98);
+        }
+
+        .logout-btn.loading {
+            position: relative;
+            color: transparent;
+            pointer-events: none;
+        }
+
+        .logout-btn.loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid white;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         .download-btn {
             display: flex;
             align-items: center;
@@ -243,11 +403,6 @@
             margin: 0 auto 15px;
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
         .success-toast {
             position: fixed;
             bottom: 100px;
@@ -262,17 +417,6 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
             animation: slideUp 0.3s ease;
             display: none;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translate(-50%, 20px);
-            }
-            to {
-                opacity: 1;
-                transform: translate(-50%, 0);
-            }
         }
 
         .location-info {
@@ -1184,6 +1328,24 @@
             .step-navigation .btn {
                 width: 100%;
             }
+
+            .logout-confirm-dialog {
+                padding: 24px;
+            }
+
+            .logout-icon {
+                width: 60px;
+                height: 60px;
+                font-size: 30px;
+            }
+
+            .logout-confirm-dialog h3 {
+                font-size: 20px;
+            }
+
+            .logout-button-group {
+                flex-direction: column;
+            }
         }
 
         @media (max-width: 480px) {
@@ -1512,6 +1674,107 @@
         }
         const auth = firebase.auth();
         const db = firebase.firestore();
+
+        // ========== 顯示登出確認對話框（與 profile.html 相同） ==========
+        window.showLogoutConfirm = function() {
+            if (document.querySelector('.logout-confirm-overlay')) {
+                return;
+            }
+
+            const overlay = document.createElement('div');
+            overlay.className = 'logout-confirm-overlay';
+
+            const dialog = document.createElement('div');
+            dialog.className = 'logout-confirm-dialog';
+
+            dialog.innerHTML = `
+                <div class="logout-icon">👋</div>
+                <h3>準備離開？</h3>
+                <p>登出後將無法接收即時訊息<br>確定要登出嗎？</p>
+                <div class="logout-button-group">
+                    <button class="logout-btn cancel" id="cancelLogout">
+                        ✕ 取消
+                    </button>
+                    <button class="logout-btn confirm" id="confirmLogout">
+                        ✓ 確認登出
+                    </button>
+                </div>
+            `;
+
+            overlay.appendChild(dialog);
+            document.body.appendChild(overlay);
+
+            const cancelBtn = document.getElementById('cancelLogout');
+            cancelBtn.addEventListener('click', () => {
+                overlay.style.animation = 'fadeIn 0.2s ease reverse';
+                dialog.style.animation = 'slideUp 0.2s ease reverse';
+                
+                setTimeout(() => {
+                    if (document.body.contains(overlay)) {
+                        document.body.removeChild(overlay);
+                    }
+                }, 200);
+            });
+
+            const confirmBtn = document.getElementById('confirmLogout');
+            confirmBtn.addEventListener('click', async () => {
+                confirmBtn.classList.add('loading');
+                confirmBtn.textContent = '';
+                cancelBtn.disabled = true;
+                
+                try {
+                    await auth.signOut();
+                    
+                    dialog.innerHTML = `
+                        <div class="logout-icon" style="animation: none;">✅</div>
+                        <h3>登出成功！</h3>
+                        <p>感謝您的使用，期待再相見</p>
+                    `;
+                    
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1500);
+                    
+                } catch (error) {
+                    console.error('登出錯誤:', error);
+                    
+                    confirmBtn.classList.remove('loading');
+                    confirmBtn.innerHTML = '✓ 確認登出';
+                    cancelBtn.disabled = false;
+                    
+                    alert('登出失敗：' + error.message);
+                }
+            });
+
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    overlay.style.animation = 'fadeIn 0.2s ease reverse';
+                    dialog.style.animation = 'slideUp 0.2s ease reverse';
+                    
+                    setTimeout(() => {
+                        if (document.body.contains(overlay)) {
+                            document.body.removeChild(overlay);
+                        }
+                    }, 200);
+                }
+            });
+
+            const escHandler = (e) => {
+                if (e.key === 'Escape') {
+                    document.removeEventListener('keydown', escHandler);
+                    
+                    overlay.style.animation = 'fadeIn 0.2s ease reverse';
+                    dialog.style.animation = 'slideUp 0.2s ease reverse';
+                    
+                    setTimeout(() => {
+                        if (document.body.contains(overlay)) {
+                            document.body.removeChild(overlay);
+                        }
+                    }, 200);
+                }
+            };
+            document.addEventListener('keydown', escHandler);
+        };
 
         // 修正版：載入群組預覽
         async function loadGroupPreview() {
@@ -2018,14 +2281,6 @@
                 window.location.href = 'profile.html';
             } else {
                 window.location.href = 'loginPage.html';
-            }
-        };
-
-        window.showLogoutConfirm = function() {
-            if (confirm('確定要登出嗎？')) {
-                auth.signOut().then(() => {
-                    window.location.href = 'index.html';
-                });
             }
         };
 

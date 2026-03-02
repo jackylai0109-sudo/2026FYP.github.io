@@ -191,30 +191,37 @@
             font-weight: 500;
         }
 
-        .auto-fix-notice {
+        /* 純 Loading 圖示 - 無文字 */
+        .loading-icon {
             position: fixed;
             top: 20px;
             right: 20px;
-            background: var(--accent-dark);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 30px;
-            font-size: 14px;
             z-index: 2000;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             display: none;
-            animation: slideIn 0.3s ease;
+            animation: fadeIn 0.3s ease;
         }
 
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
+        .loading-icon.show {
+            display: block;
+        }
+
+        .loading-spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(44, 197, 194, 0.2);
+            border-top: 3px solid var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         .header {
@@ -586,15 +593,6 @@
             background: #f0fcfc;
         }
 
-        .btn.debug {
-            background: var(--accent-dark);
-            margin-left: 10px;
-        }
-
-        .btn.debug:hover {
-            background: #1a3f4d;
-        }
-
         /* 成員詳細資訊浮層 */
         .member-info-overlay {
             position: fixed;
@@ -842,11 +840,6 @@
             border-width: 2px;
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
@@ -877,88 +870,6 @@
             border: none;
             border-radius: 20px;
             cursor: pointer;
-        }
-
-        .debug-panel {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            max-width: 500px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            z-index: 2000;
-            font-size: 12px;
-            border-left: 4px solid var(--accent);
-            display: none;
-        }
-
-        .debug-panel h3 {
-            color: var(--accent-dark);
-            margin-bottom: 10px;
-            font-size: 16px;
-        }
-
-        .debug-log {
-            background: #1e1e1e;
-            color: #f0f0f0;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            font-family: 'Courier New', monospace;
-            white-space: pre-wrap;
-            word-break: break-word;
-            max-height: 400px;
-            overflow-y: auto;
-            font-size: 12px;
-        }
-
-        .debug-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .debug-error {
-            color: #ff6b6b;
-        }
-
-        .debug-success {
-            color: #69db7e;
-        }
-
-        .debug-info {
-            color: #4dabf7;
-        }
-
-        .debug-warning {
-            color: #ffd43b;
-        }
-
-        .debug-timestamp {
-            color: #868e96;
-            margin-right: 8px;
-        }
-
-        .debug-close {
-            background: none;
-            border: none;
-            font-size: 20px;
-            cursor: pointer;
-            color: var(--muted);
-        }
-
-        .debug-close:hover {
-            color: var(--accent-dark);
-        }
-
-        .debug-close:active {
-            transform: scale(0.95);
         }
 
         .toast-message {
@@ -1085,23 +996,9 @@
                 font-size: 15px;
             }
 
-            .debug-panel {
+            .loading-icon {
                 top: 10px;
                 right: 10px;
-                padding: 15px;
-                width: 95%;
-            }
-
-            .debug-log {
-                font-size: 11px;
-                padding: 10px;
-            }
-
-            .auto-fix-notice {
-                top: 10px;
-                right: 10px;
-                padding: 10px 20px;
-                font-size: 13px;
             }
 
             .confirm-dialog {
@@ -1231,23 +1128,6 @@
             .empty-state .btn {
                 padding: 10px 20px;
                 font-size: 14px;
-            }
-
-            .debug-panel {
-                padding: 12px;
-            }
-
-            .debug-panel h3 {
-                font-size: 14px;
-            }
-
-            .debug-log {
-                max-height: 300px;
-            }
-
-            .auto-fix-notice {
-                padding: 8px 16px;
-                font-size: 12px;
             }
 
             .bottom-nav-item {
@@ -1405,32 +1285,16 @@
     </a>
 </div>
 
-    <!-- 自動修復提示 -->
-    <div class="auto-fix-notice" id="autoFixNotice">
-        🔄 正在自動修復群組資料...
+    <!-- 純 Loading 圖示 - 無文字 -->
+    <div class="loading-icon" id="loadingIcon">
+        <div class="loading-spinner"></div>
     </div>
 
     <div class="header">
         <a href="index.html" class="back-btn">← 返回</a>
         <h1>我的群組</h1>
         <div style="display: flex; gap: 10px; margin-left: auto;">
-            <button class="btn small debug" onclick="showDebugPanel()">🔍 除錯</button>
             <a href="createJoin.html" class="btn small">＋ 加入</a>
-        </div>
-    </div>
-
-    <!-- 除錯面板 -->
-    <div class="debug-panel" id="debugPanel">
-        <div class="debug-header">
-            <h3>📋 除錯日誌</h3>
-            <button class="debug-close" onclick="hideDebugPanel()">✕</button>
-        </div>
-        <div class="debug-log" id="debugLog">
-            點擊「重新載入」按鈕查看日誌...
-        </div>
-        <div style="display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap;">
-            <button class="btn small secondary" onclick="clearDebugLogs()">清除</button>
-            <button class="btn small" onclick="reloadWithDebug()">重新載入</button>
         </div>
     </div>
 
@@ -1460,9 +1324,6 @@
         }
         const auth = firebase.auth();
         const db = firebase.firestore();
-
-        let debugLogs = [];
-        let debugEnabled = false;
 
         // 顯示提示訊息
         function showToast(message) {
@@ -1589,19 +1450,120 @@
             const user = auth.currentUser;
             if (!user) return;
 
-            addDebugLog(`嘗試離開群組: ${groupId}`, 'info');
-
             try {
-                // 1. 從群組的 members 集合中移除自己
-                await db.collection('groups')
+                // 檢查是否為管理員
+                const memberRef = db.collection('groups')
                     .doc(groupId)
                     .collection('members')
-                    .doc(user.uid)
-                    .delete();
+                    .doc(user.uid);
+                
+                const memberDoc = await memberRef.get();
+                
+                // 先檢查成員文件是否存在
+                if (!memberDoc.exists) {
+                    // 直接更新用戶的群組列表
+                } else {
+                    const isAdmin = memberDoc.data().role === 'admin';
+                    
+                    // 如果是管理員，檢查是否為最後一位管理員
+                    if (isAdmin) {
+                        // 獲取所有管理員
+                        const adminSnapshot = await db.collection('groups')
+                            .doc(groupId)
+                            .collection('members')
+                            .where('role', '==', 'admin')
+                            .get();
+                        
+                        const adminCount = adminSnapshot.size;
+                        
+                        // 如果這是最後一位管理員
+                        if (adminCount <= 1) {
+                            // 獲取所有成員，按加入時間排序
+                            const allMembersSnapshot = await db.collection('groups')
+                                .doc(groupId)
+                                .collection('members')
+                                .orderBy('joinedAt', 'asc')
+                                .get();
+                            
+                            // 找到最早加入且不是當前用戶的成員
+                            let earliestMember = null;
+                            for (const doc of allMembersSnapshot.docs) {
+                                if (doc.id !== user.uid) {
+                                    earliestMember = {
+                                        id: doc.id,
+                                        data: doc.data()
+                                    };
+                                    break;
+                                }
+                            }
+                            
+                            if (earliestMember) {
+                                // 轉移管理員權限給最早加入的成員
+                                await db.collection('groups')
+                                    .doc(groupId)
+                                    .collection('members')
+                                    .doc(earliestMember.id)
+                                    .update({
+                                        role: 'admin'
+                                    });
+                                
+                                // 發送系統訊息通知管理員變更
+                                const earliestMemberName = earliestMember.data.name || 
+                                    (await db.collection('users').doc(earliestMember.id).get()).data()?.username || '成員';
+                                
+                                const transferMessage = {
+                                    senderId: 'system',
+                                    senderName: '系統',
+                                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                                    text: `管理員已轉移給 ${earliestMemberName}`,
+                                    type: 'system',
+                                    metadata: {
+                                        systemType: 'admin_transfer',
+                                        newAdminId: earliestMember.id,
+                                        newAdminName: earliestMemberName
+                                    }
+                                };
+                                
+                                await db.collection('groups')
+                                    .doc(groupId)
+                                    .collection('messages')
+                                    .add(transferMessage);
+                                
+                            } else {
+                                // 沒有其他成員，群組將被解散
+                                const dissolveMessage = {
+                                    senderId: 'system',
+                                    senderName: '系統',
+                                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                                    text: '最後一位管理員離開，群組即將解散',
+                                    type: 'system',
+                                    metadata: {
+                                        systemType: 'group_dissolve'
+                                    }
+                                };
+                                
+                                await db.collection('groups')
+                                    .doc(groupId)
+                                    .collection('messages')
+                                    .add(dissolveMessage);
+                                
+                                await db.collection('groups').doc(groupId).update({
+                                    status: 'dissolved',
+                                    dissolvedAt: firebase.firestore.FieldValue.serverTimestamp()
+                                });
+                            }
+                        }
+                    }
+                }
 
-                addDebugLog('已從群組 members 集合中移除', 'success');
+                // 從群組的 members 集合中移除自己
+                try {
+                    await memberRef.delete();
+                } catch (deleteError) {
+                    // 忽略刪除錯誤
+                }
 
-                // 2. 從使用者的群組列表中移除
+                // 從使用者的群組列表中移除
                 const userRef = db.collection('users').doc(user.uid);
                 const userDoc = await userRef.get();
 
@@ -1617,11 +1579,9 @@
                             return g !== groupId;
                         });
                     } else if (userData.groups && typeof userData.groups === 'object') {
-                        // 如果是物件格式，轉換為陣列並過濾
                         const groupsArray = Object.values(userData.groups);
                         const filteredGroups = groupsArray.filter(g => g.groupId !== groupId);
                         
-                        // 轉回物件格式
                         const groupsObj = {};
                         filteredGroups.forEach(g => {
                             groupsObj[g.groupId] = g;
@@ -1634,103 +1594,96 @@
                         groups: updatedGroups
                     });
 
-                    addDebugLog('已從使用者群組列表中移除', 'success');
-
-                    // 3. 如果離開的是當前所在的群組，清除 currentGroupId
+                    // 如果離開的是當前所在的群組，清除 currentGroupId
                     if (userData.currentGroupId === groupId) {
                         await userRef.update({
                             currentGroupId: null
                         });
-                        addDebugLog('已清除 currentGroupId', 'info');
+                    }
+
+                    // 從群組的位置分享中移除
+                    try {
+                        await db.collection('groups')
+                            .doc(groupId)
+                            .collection('locations')
+                            .doc(user.uid)
+                            .delete();
+                    } catch (locationError) {
+                        // 忽略錯誤
+                    }
+
+                    // 發送離開訊息
+                    const leaveMessage = {
+                        senderId: 'system',
+                        senderName: '系統',
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                        text: `${userData.username || user.displayName || '用戶'} 離開了群組`,
+                        type: 'system',
+                        metadata: {
+                            systemType: 'leave',
+                            memberId: user.uid,
+                            memberName: userData.username || user.displayName || '用戶'
+                        }
+                    };
+                    
+                    try {
+                        await db.collection('groups')
+                            .doc(groupId)
+                            .collection('messages')
+                            .add(leaveMessage);
+                    } catch (messageError) {
+                        // 忽略錯誤
                     }
 
                     showToast(`✅ 已離開群組`);
                     
-                    // 重新載入群組列表
                     setTimeout(() => {
                         location.reload();
                     }, 1500);
                 }
 
             } catch (error) {
-                addDebugLog('離開群組錯誤', 'error', error.message);
-                showToast('❌ 離開群組失敗：' + error.message);
-            }
-        };
-
-        window.showDebugPanel = function() {
-            document.getElementById('debugPanel').style.display = 'block';
-            renderDebugLogs();
-        };
-
-        window.hideDebugPanel = function() {
-            document.getElementById('debugPanel').style.display = 'none';
-        };
-
-        window.clearDebugLogs = function() {
-            debugLogs = [];
-            renderDebugLogs();
-        };
-
-        window.reloadWithDebug = function() {
-            debugEnabled = true;
-            location.reload();
-        };
-
-        function addDebugLog(message, type = 'info', data = null) {
-            const timestamp = new Date().toLocaleTimeString();
-            const log = { 
-                timestamp, 
-                message, 
-                type,
-                data: data ? JSON.stringify(data, null, 2) : null
-            };
-            debugLogs.push(log);
-            
-            console.log(`[${type}] ${message}`, data || '');
-            
-            if (document.getElementById('debugPanel').style.display === 'block') {
-                renderDebugLogs();
-            }
-        }
-
-        function renderDebugLogs() {
-            const logEl = document.getElementById('debugLog');
-            if (debugLogs.length === 0) {
-                logEl.innerHTML = '尚無日誌紀錄...';
-                return;
-            }
-
-            logEl.innerHTML = debugLogs.map(log => {
-                let colorClass = 'debug-info';
-                if (log.type === 'error') colorClass = 'debug-error';
-                else if (log.type === 'success') colorClass = 'debug-success';
-                else if (log.type === 'warning') colorClass = 'debug-warning';
-                
-                let html = `<div><span class="debug-timestamp">${log.timestamp}</span> `;
-                html += `<span class="${colorClass}">[${log.type}]</span> ${log.message}</div>`;
-                
-                if (log.data) {
-                    html += `<pre style="margin-left: 20px; margin-bottom: 10px; color: #adb5bd;">${log.data}</pre>`;
+                let errorMessage = '離開群組失敗';
+                if (error.code === 'permission-denied') {
+                    errorMessage = '權限不足，請確認您有權限離開此群組';
+                } else {
+                    errorMessage = error.message;
                 }
                 
-                return html;
-            }).join('');
-            
-            logEl.scrollTop = logEl.scrollHeight;
-        }
+                showToast('❌ ' + errorMessage);
+            }
+        };
 
-        async function autoFixGroups() {
+        // 背景修復群組（不阻塞主要載入）
+        async function runAutoFixInBackground() {
             const user = auth.currentUser;
-            if (!user) return false;
+            if (!user) return;
 
-            const notice = document.getElementById('autoFixNotice');
-            notice.style.display = 'block';
-            notice.textContent = '🔄 正在掃描群組...';
-
-            addDebugLog('開始自動修復群組資料', 'warning');
+            const loadingIcon = document.getElementById('loadingIcon');
+            loadingIcon.classList.add('show');
 
             try {
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                if (!userDoc.exists) {
+                    loadingIcon.classList.remove('show');
+                    return;
+                }
+
+                const userData = userDoc.data();
+                let groups = [];
+
+                if (Array.isArray(userData.groups)) {
+                    groups = userData.groups;
+                } else if (userData.groups && typeof userData.groups === 'object') {
+                    groups = Object.values(userData.groups);
+                }
+
+                // 如果已經有群組，不需要修復
+                if (groups.length > 0) {
+                    loadingIcon.classList.remove('show');
+                    return;
+                }
+
                 const groupsSnapshot = await db.collection('groups').get();
                 const groupsObj = {};
                 let foundCount = 0;
@@ -1754,41 +1707,29 @@
                             lastRead: new Date(),
                             role: memberData.role || 'member'
                         };
-
-                        addDebugLog(`✅ 找到群組: ${groupData.name || groupDoc.id}`, 'success');
                     }
                 }
-
-                addDebugLog(`📊 您是 ${foundCount} 個群組的成員`, 'info');
 
                 if (foundCount > 0) {
                     await db.collection('users').doc(user.uid).update({
                         groups: groupsObj
                     });
 
-                    notice.textContent = `✅ 修復完成！已更新 ${foundCount} 個群組`;
-                    addDebugLog('✅ 自動修復完成', 'success');
-
+                    // 修復完成後重新載入頁面
                     setTimeout(() => {
-                        notice.style.display = 'none';
-                    }, 3000);
-
-                    return true;
+                        loadingIcon.classList.remove('show');
+                        location.reload();
+                    }, 500);
                 } else {
-                    notice.style.display = 'none';
-                    return false;
+                    loadingIcon.classList.remove('show');
                 }
-
             } catch (error) {
-                addDebugLog('❌ 自動修復失敗: ' + error.message, 'error');
-                notice.textContent = '❌ 修復失敗';
-                setTimeout(() => {
-                    notice.style.display = 'none';
-                }, 3000);
-                return false;
+                console.error('背景修復錯誤:', error);
+                loadingIcon.classList.remove('show');
             }
         }
 
+        // 載入用戶群組
         async function loadUserGroups() {
             const user = auth.currentUser;
             if (!user) {
@@ -1796,14 +1737,11 @@
                 return;
             }
 
-            addDebugLog('開始載入群組', 'info', { userId: user.uid });
-
             try {
-                addDebugLog('讀取 users 文件...', 'info');
                 const userDoc = await db.collection('users').doc(user.uid).get();
                 
                 if (!userDoc.exists) {
-                    addDebugLog('users 文件不存在', 'warning');
+                    // 用戶文件不存在，直接顯示空狀態
                     document.getElementById('loadingSection').style.display = 'none';
                     document.getElementById('groupsSection').style.display = 'block';
                     showEmptyState();
@@ -1811,51 +1749,40 @@
                 }
 
                 const userData = userDoc.data();
-                addDebugLog('users 文件讀取成功', 'success', userData);
                 
+                // 快速檢查用戶是否有群組
                 let groups = [];
-                if (Array.isArray(userData.groups)) {
-                    groups = userData.groups;
-                    addDebugLog(`groups 是陣列，長度: ${groups.length}`, 'info');
-                } else if (userData.groups && typeof userData.groups === 'object') {
-                    groups = Object.values(userData.groups);
-                    addDebugLog(`groups 是物件，轉換為陣列長度: ${groups.length}`, 'warning');
-                } else {
-                    addDebugLog('groups 格式錯誤', 'error', userData.groups);
-                }
-                
-                if (groups.length === 0) {
-                    addDebugLog('groups 為空', 'warning');
-                    
-                    addDebugLog('嘗試自動修復...', 'warning');
-                    const fixed = await autoFixGroups();
-                    
-                    if (fixed) {
-                        location.reload();
-                        return;
-                    } else {
-                        document.getElementById('loadingSection').style.display = 'none';
-                        document.getElementById('groupsSection').style.display = 'block';
-                        showEmptyState();
-                        return;
+                if (userData.groups) {
+                    if (Array.isArray(userData.groups)) {
+                        groups = userData.groups;
+                    } else if (typeof userData.groups === 'object') {
+                        groups = Object.values(userData.groups);
                     }
                 }
+                
+                // 如果沒有群組，直接顯示空狀態，不執行自動修復
+                if (groups.length === 0) {
+                    document.getElementById('loadingSection').style.display = 'none';
+                    document.getElementById('groupsSection').style.display = 'block';
+                    showEmptyState();
+                    
+                    // 在背景執行修復（不阻塞）
+                    setTimeout(() => {
+                        runAutoFixInBackground();
+                    }, 100);
+                    
+                    return;
+                }
 
-                addDebugLog(`開始載入 ${groups.length} 個群組詳細資訊`, 'info', groups);
-
+                // 有群組才繼續載入詳細資訊
                 const groupPromises = groups.map(async (group, index) => {
                     try {
-                        if (!group || !group.groupId) {
-                            addDebugLog(`第 ${index + 1} 個群組格式錯誤`, 'error', group);
-                            return null;
-                        }
+                        if (!group || !group.groupId) return null;
                         
-                        addDebugLog(`讀取群組 ${group.groupId}`, 'info');
                         const groupDoc = await db.collection('groups').doc(group.groupId).get();
                         
                         if (groupDoc.exists) {
                             const groupData = groupDoc.data();
-                            addDebugLog(`群組 ${group.groupId} 讀取成功`, 'success', groupData);
                             
                             // 獲取成員總數
                             try {
@@ -1865,7 +1792,6 @@
                                     .get();
                                 
                                 const totalMembers = membersSnapshot.size;
-                                addDebugLog(`群組 ${group.groupId} 有 ${totalMembers} 位成員`, 'info');
                                 
                                 // 獲取前5位成員的資料
                                 const memberPromises = membersSnapshot.docs.slice(0, 5).map(async (memberDoc) => {
@@ -1904,7 +1830,6 @@
                                     totalMembers: totalMembers
                                 };
                             } catch (e) {
-                                addDebugLog(`獲取群組 ${group.groupId} 成員失敗`, 'error', e.message);
                                 return {
                                     groupId: group.groupId,
                                     groupName: groupData.name || '未命名群組',
@@ -1916,29 +1841,27 @@
                                 };
                             }
                         } else {
-                            addDebugLog(`群組 ${group.groupId} 不存在`, 'warning');
+                            return null;
                         }
                     } catch (e) {
-                        addDebugLog(`讀取群組失敗: ${group?.groupId}`, 'error', e.message);
+                        return null;
                     }
-                    return null;
                 });
 
                 const groupsWithDetails = (await Promise.all(groupPromises))
                     .filter(g => g !== null);
 
-                addDebugLog(`成功載入 ${groupsWithDetails.length} 個群組`, 'success');
-
                 renderGroups(groupsWithDetails, userData.currentGroupId);
 
             } catch (error) {
-                addDebugLog('載入群組錯誤', 'error', error.message);
+                console.error('載入群組錯誤:', error);
                 document.getElementById('loadingSection').style.display = 'none';
                 document.getElementById('groupsSection').style.display = 'block';
                 showEmptyState();
             }
         }
 
+        // 渲染群組列表
         function renderGroups(groups, currentGroupId) {
             document.getElementById('loadingSection').style.display = 'none';
             document.getElementById('groupsSection').style.display = 'block';
@@ -1949,8 +1872,6 @@
                 showEmptyState();
                 return;
             }
-
-            addDebugLog('開始渲染群組列表', 'info', { count: groups.length });
 
             groups.sort((a, b) => {
                 const timeA = a.joinedAt ? new Date(a.joinedAt).getTime() : 0;
@@ -2040,10 +1961,9 @@
                     </div>
                 `;
             }).join('');
-
-            addDebugLog('群組列表渲染完成', 'success');
         }
 
+        // 顯示空狀態
         function showEmptyState() {
             const grid = document.getElementById('groupsGrid');
             grid.innerHTML = `
@@ -2055,27 +1975,24 @@
             `;
         }
 
+        // 切換到群組聊天室
         window.switchToGroupChat = async function(groupId) {
             const user = auth.currentUser;
             if (!user) return;
-
-            addDebugLog(`切換到群組: ${groupId}`, 'info');
 
             try {
                 await db.collection('users').doc(user.uid).update({
                     currentGroupId: groupId
                 });
                 
-                addDebugLog('更新 currentGroupId 成功', 'success');
-                
                 window.location.href = `ChatMessage.html?groupId=${groupId}`;
                 
             } catch (error) {
-                addDebugLog('切換群組錯誤', 'error', error.message);
                 alert('切換失敗：' + error.message);
             }
         };
 
+        // 監聽認證狀態
         auth.onAuthStateChanged((user) => {
             if (user) {
                 loadUserGroups();
