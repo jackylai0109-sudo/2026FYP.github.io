@@ -487,72 +487,87 @@
             border-top-color: rgba(255, 255, 255, 0.2);
         }
 
-        /* 檔案訊息樣式 */
-        .message-file {
-            background: #f5f5f5;
-            padding: 12px;
+        /* 語音訊息樣式 */
+        .message-voice {
+            background: #f0f8f8;
             border-radius: 12px;
+            padding: 12px;
+            min-width: 200px;
             display: flex;
             align-items: center;
             gap: 12px;
+            border: 1px solid var(--border);
             cursor: pointer;
             transition: all 0.3s ease;
-            border: 1px solid var(--border);
-            min-width: 200px;
         }
 
-        .message-file:hover {
-            background: #e8e8e8;
+        .message-voice:hover {
+            background: #e0f5f5;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(44, 197, 194, 0.2);
         }
 
-        .own-message .message-file {
+        .own-message .message-voice {
             background: rgba(255, 255, 255, 0.15);
             border-color: rgba(255, 255, 255, 0.3);
         }
 
-        .own-message .message-file:hover {
+        .own-message .message-voice:hover {
             background: rgba(255, 255, 255, 0.25);
         }
 
-        .file-icon {
+        .voice-icon {
             font-size: 32px;
-            color: var(--primary-dark);
+            color: var(--primary);
         }
 
-        .own-message .file-icon {
+        .own-message .voice-icon {
             color: white;
         }
 
-        .file-info {
+        .voice-info {
             flex: 1;
         }
 
-        .file-name {
-            font-weight: 600;
-            font-size: 14px;
-            color: var(--text-dark);
-            word-break: break-word;
+        .voice-duration {
+            font-size: 12px;
+            color: var(--text-muted);
             margin-bottom: 4px;
         }
 
-        .own-message .file-name {
-            color: white;
+        .voice-wave {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            height: 30px;
         }
 
-        .file-size {
-            font-size: 11px;
-            color: var(--text-muted);
+        .voice-wave-bar {
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to top, var(--primary), var(--primary-dark));
+            border-radius: 2px;
+            animation: wave 1s ease-in-out infinite;
+            transform-origin: bottom;
         }
 
-        .own-message .file-size {
-            color: rgba(255, 255, 255, 0.7);
+        .own-message .voice-wave-bar {
+            background: white;
         }
 
-        .download-icon {
-            font-size: 18px;
-            color: var(--text-muted);
+        .voice-wave-bar:nth-child(1) { animation-delay: 0s; }
+        .voice-wave-bar:nth-child(2) { animation-delay: 0.1s; }
+        .voice-wave-bar:nth-child(3) { animation-delay: 0.2s; }
+        .voice-wave-bar:nth-child(4) { animation-delay: 0.3s; }
+        .voice-wave-bar:nth-child(5) { animation-delay: 0.4s; }
+
+        @keyframes wave {
+            0%, 100% { transform: scaleY(0.3); }
+            50% { transform: scaleY(1); }
+        }
+
+        .voice-wave.playing .voice-wave-bar {
+            animation: wave 0.5s ease-in-out infinite;
         }
 
         /* 位置訊息樣式 */
@@ -767,6 +782,50 @@
 
         .send-btn:active {
             transform: scale(0.95);
+        }
+
+        .voice-record-btn {
+            background: var(--member-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 24px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            -webkit-tap-highlight-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .voice-record-btn:hover {
+            background: var(--meeting-dark);
+            transform: scale(1.05);
+        }
+
+        .voice-record-btn:active {
+            transform: scale(0.95);
+        }
+
+        .voice-record-btn.recording {
+            background: #ff5a5f;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(255, 90, 95, 0.7);
+            }
+            70% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 10px rgba(255, 90, 95, 0);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(255, 90, 95, 0);
+            }
         }
 
         /* 上傳進度條 */
@@ -1305,15 +1364,6 @@
                 max-width: 200px;
             }
             
-            .message-file {
-                min-width: 150px;
-                padding: 10px;
-            }
-            
-            .file-icon {
-                font-size: 28px;
-            }
-            
             .tool-btn {
                 padding: 6px 12px;
                 font-size: 0.85rem;
@@ -1323,9 +1373,18 @@
                 padding: 10px 20px;
                 font-size: 0.95rem;
             }
+
+            .voice-record-btn {
+                padding: 10px 20px;
+                font-size: 0.95rem;
+            }
             
             .message-input-area {
                 padding: 15px;
+            }
+
+            .input-wrapper {
+                gap: 8px;
             }
             
             .upload-progress {
@@ -1403,6 +1462,11 @@
                 padding: 8px 16px;
                 font-size: 0.9rem;
             }
+
+            .voice-record-btn {
+                padding: 8px 16px;
+                font-size: 0.9rem;
+            }
             
             .upload-progress {
                 width: 90%;
@@ -1452,14 +1516,6 @@
             
             .message-image {
                 max-width: 150px;
-            }
-            
-            .file-icon {
-                font-size: 24px;
-            }
-            
-            .file-name {
-                font-size: 12px;
             }
 
             .bottom-nav-item {
@@ -1586,13 +1642,13 @@
                     <div class="input-wrapper">
                         <input type="text" id="messageInput" placeholder="輸入訊息..." disabled>
                         <button class="send-btn" onclick="sendMessage()" id="sendButton" disabled>發送</button>
+                        <button class="voice-record-btn" onclick="toggleVoiceRecording()" id="voiceButton" disabled>
+                            <i>🎤</i> 語音
+                        </button>
                     </div>
                     <div class="toolbar">
                         <button class="tool-btn" onclick="attachImage()" id="imageButton" disabled>
                             <i>📷</i> 圖片
-                        </button>
-                        <button class="tool-btn" onclick="attachFile()" id="fileButton" disabled>
-                            <i>📎</i> 檔案
                         </button>
                         <button class="tool-btn" onclick="shareCurrentLocation()" id="shareLocationBtn" disabled>
                             <i>📍</i> 分享位置
@@ -1644,10 +1700,8 @@
 
     <!-- 隱藏的檔案選擇器 -->
     <input type="file" id="imagePicker" accept="image/*" style="display: none;">
-    <input type="file" id="filePicker" style="display: none;">
 
     <script>
-
         const firebaseConfig = {
             apiKey: "AIzaSyCIwmeMV5XHSEPlneNN9vlRsI7feaoQm18",
             authDomain: "project-221c4.firebaseapp.com",
@@ -1673,6 +1727,13 @@
         let presenceInterval = null;
         let previousMembers = new Map(); // 用於追蹤成員變化
         let isFirstLoad = true; // 標記是否為第一次載入
+        
+        // 語音錄製相關變數
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let isRecording = false;
+        let recordingStartTime = null;
+        let recordingTimer = null;
 
         function getUrlParameter(name) {
             const urlParams = new URLSearchParams(window.location.search);
@@ -1796,6 +1857,13 @@
             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
 
+        // 格式化時間（秒轉為 mm:ss）
+        function formatDuration(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
         // 格式化最後上線時間
         function formatLastSeen(timestamp) {
             if (!timestamp) return '從未上線';
@@ -1852,20 +1920,6 @@
                 const caption = prompt('輸入圖片說明（選填）：');
                 
                 await uploadFile(file, 'image', caption);
-                
-                // 清空選擇器
-                picker.value = '';
-            });
-        }
-
-        // 初始化檔案選擇器
-        function initFilePicker() {
-            const picker = document.getElementById('filePicker');
-            picker.addEventListener('change', async function(e) {
-                const file = e.target.files[0];
-                if (!file) return;
-                
-                await uploadFile(file, 'file');
                 
                 // 清空選擇器
                 picker.value = '';
@@ -2066,14 +2120,168 @@
             }
         }
 
+        // 上傳語音
+        async function uploadVoice(audioBlob, duration) {
+            if (!currentUser || !currentGroupId) {
+                alert('請先加入群組');
+                return;
+            }
+
+            const progressDiv = document.getElementById('uploadProgress');
+            const progressFill = document.getElementById('progressFill');
+            
+            progressDiv.classList.add('show');
+            progressFill.style.width = '0%';
+
+            try {
+                const timestamp = Date.now();
+                const fileName = `voice_${timestamp}.webm`;
+                const filePath = `group_files/${currentGroupId}/voice/${fileName}`;
+                const fileRef = storage.ref().child(filePath);
+                
+                const uploadTask = fileRef.put(audioBlob);
+                
+                uploadTask.on('state_changed',
+                    (snapshot) => {
+                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                        progressFill.style.width = progress + '%';
+                    },
+                    (error) => {
+                        console.error('上傳語音錯誤:', error);
+                        progressDiv.classList.remove('show');
+                        showToast('語音上傳失敗：' + error.message);
+                    },
+                    async () => {
+                        const downloadURL = await fileRef.getDownloadURL();
+                        
+                        let senderName = currentUser.displayName;
+                        if (!senderName) {
+                            const userDoc = await db.collection('users').doc(currentUser.uid).get();
+                            senderName = userDoc.exists ? userDoc.data().username : '匿名用戶';
+                        }
+                        
+                        const message = {
+                            senderId: currentUser.uid,
+                            senderName: senderName,
+                            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                            text: '',
+                            type: 'voice',
+                            metadata: {
+                                fileName: fileName,
+                                fileSize: audioBlob.size,
+                                fileType: 'audio/webm',
+                                url: downloadURL,
+                                duration: duration
+                            }
+                        };
+                        
+                        await db.collection('groups')
+                            .doc(currentGroupId)
+                            .collection('messages')
+                            .add(message);
+                        
+                        progressDiv.classList.remove('show');
+                        showToast(`✅ 語音訊息發送成功 (${formatDuration(duration)})`);
+                    }
+                );
+                
+            } catch (error) {
+                console.error('上傳語音錯誤:', error);
+                progressDiv.classList.remove('show');
+                showToast('語音上傳失敗：' + error.message);
+            }
+        }
+
+        // 播放語音
+        function playVoice(url) {
+            const audio = new Audio(url);
+            audio.play().catch(error => {
+                console.error('播放語音錯誤:', error);
+                showToast('無法播放語音');
+            });
+        }
+
+        // 切換語音錄製
+        window.toggleVoiceRecording = async function() {
+            if (!currentUser || !currentGroupId) {
+                alert('請先加入群組');
+                return;
+            }
+
+            const voiceBtn = document.getElementById('voiceButton');
+
+            if (!isRecording) {
+                // 開始錄製
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+                    
+                    mediaRecorder.ondataavailable = (event) => {
+                        if (event.data.size > 0) {
+                            audioChunks.push(event.data);
+                        }
+                    };
+                    
+                    mediaRecorder.onstop = async () => {
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                        const duration = (Date.now() - recordingStartTime) / 1000;
+                        
+                        // 停止所有音軌
+                        stream.getTracks().forEach(track => track.stop());
+                        
+                        // 上傳語音
+                        await uploadVoice(audioBlob, duration);
+                        
+                        // 重置按鈕狀態
+                        voiceBtn.classList.remove('recording');
+                        voiceBtn.innerHTML = '<i>🎤</i> 語音';
+                        isRecording = false;
+                        
+                        if (recordingTimer) {
+                            clearInterval(recordingTimer);
+                            recordingTimer = null;
+                        }
+                    };
+                    
+                    mediaRecorder.start();
+                    isRecording = true;
+                    recordingStartTime = Date.now();
+                    
+                    // 更新按鈕樣式
+                    voiceBtn.classList.add('recording');
+                    voiceBtn.innerHTML = '<i>⏹️</i> 停止';
+                    
+                    // 顯示錄製時間
+                    let seconds = 0;
+                    recordingTimer = setInterval(() => {
+                        seconds++;
+                        voiceBtn.innerHTML = `<i>⏹️</i> ${formatDuration(seconds)}`;
+                    }, 1000);
+                    
+                    // 30秒後自動停止
+                    setTimeout(() => {
+                        if (isRecording && mediaRecorder && mediaRecorder.state !== 'inactive') {
+                            mediaRecorder.stop();
+                        }
+                    }, 30000);
+                    
+                } catch (error) {
+                    console.error('無法存取麥克風:', error);
+                    showToast('無法存取麥克風，請檢查權限');
+                }
+            } else {
+                // 停止錄製
+                if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                    mediaRecorder.stop();
+                }
+            }
+        };
+
         // 附加圖片
         window.attachImage = function() {
             document.getElementById('imagePicker').click();
-        };
-
-        // 附加檔案
-        window.attachFile = function() {
-            document.getElementById('filePicker').click();
         };
 
         // 分享目前位置
@@ -2418,29 +2626,23 @@
                         `;
                         break;
                         
-                    case 'file':
-                        const fileName = msg.content.metadata.fileName || '未知檔案';
-                        const fileSize = msg.content.metadata.fileSize ? formatFileSize(msg.content.metadata.fileSize) : '';
-                        const fileUrl = msg.content.metadata.url || '#';
-                        
-                        let fileIcon = '📎';
-                        const ext = fileName.split('.').pop().toLowerCase();
-                        if (['jpg', 'jpeg', 'png', 'gif', 'bmp'].includes(ext)) fileIcon = '🖼️';
-                        else if (['pdf'].includes(ext)) fileIcon = '📕';
-                        else if (['doc', 'docx'].includes(ext)) fileIcon = '📘';
-                        else if (['xls', 'xlsx'].includes(ext)) fileIcon = '📗';
-                        else if (['zip', 'rar', '7z'].includes(ext)) fileIcon = '🗜️';
-                        else if (['mp3', 'wav', 'flac'].includes(ext)) fileIcon = '🎵';
-                        else if (['mp4', 'avi', 'mov'].includes(ext)) fileIcon = '🎬';
+                    case 'voice':
+                        const voiceUrl = msg.content.metadata.url;
+                        const duration = msg.content.metadata.duration || 0;
                         
                         contentHtml = `
-                            <div class="message-file" onclick="window.open('${fileUrl}', '_blank')">
-                                <span class="file-icon">${fileIcon}</span>
-                                <div class="file-info">
-                                    <div class="file-name">${fileName}</div>
-                                    ${fileSize ? `<div class="file-size">${fileSize}</div>` : ''}
+                            <div class="message-voice" onclick="playVoice('${voiceUrl}')">
+                                <span class="voice-icon">🎤</span>
+                                <div class="voice-info">
+                                    <div class="voice-duration">${formatDuration(duration)}</div>
+                                    <div class="voice-wave">
+                                        <div class="voice-wave-bar"></div>
+                                        <div class="voice-wave-bar"></div>
+                                        <div class="voice-wave-bar"></div>
+                                        <div class="voice-wave-bar"></div>
+                                        <div class="voice-wave-bar"></div>
+                                    </div>
                                 </div>
-                                <span class="download-icon">⬇️</span>
                             </div>
                         `;
                         break;
@@ -2686,8 +2888,8 @@
         function enableInputs(enabled) {
             document.getElementById('messageInput').disabled = !enabled;
             document.getElementById('sendButton').disabled = !enabled;
+            document.getElementById('voiceButton').disabled = !enabled;
             document.getElementById('imageButton').disabled = !enabled;
-            document.getElementById('fileButton').disabled = !enabled;
             document.getElementById('shareLocationBtn').disabled = !enabled;
         }
 
@@ -2714,14 +2916,15 @@
             if (unsubscribeMembers) unsubscribeMembers();
             if (unsubscribeLocations) unsubscribeLocations();
             
-            // 可選：離開時清除該群組的 sessionStorage
-            // sessionStorage.removeItem(`members_loaded_${currentGroupId}`);
+            // 如果正在錄音，停止錄音
+            if (isRecording && mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+            }
             
             window.location.href = 'index.html';
         }
 
         initImagePicker();
-        initFilePicker();
 
         auth.onAuthStateChanged((user) => {
             if (user) {
@@ -2752,11 +2955,17 @@
             if (unsubscribeMessages) unsubscribeMessages();
             if (unsubscribeMembers) unsubscribeMembers();
             if (unsubscribeLocations) unsubscribeLocations();
+            
+            // 如果正在錄音，停止錄音
+            if (isRecording && mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+            }
         });
 
         window.openLocationOnMap = openLocationOnMap;
         window.previewImage = previewImage;
-        window.formatFileSize = formatFileSize;
+        window.playVoice = playVoice;
+        window.formatDuration = formatDuration;
 
         document.addEventListener('touchstart', function(e) {
         }, { passive: true });
