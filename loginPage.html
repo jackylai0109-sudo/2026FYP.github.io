@@ -988,6 +988,7 @@
 
         // ===== 切換頁籤 =====
 // ===== 切換頁籤 =====
+// ===== 切換頁籤 =====
 function switchTab(tab) {
     const loginTab = document.getElementById('loginTab');
     const registerTab = document.getElementById('registerTab');
@@ -1011,8 +1012,10 @@ function switchTab(tab) {
         // 重置所有狀態
         if (emailInput) {
             emailInput.value = '';
-            emailInput.dataset.emailAvailable = 'false';
-            delete emailInput.dataset.lastChecked;
+            if (emailInput.dataset) {
+                emailInput.dataset.emailAvailable = 'false';
+                delete emailInput.dataset.lastChecked;
+            }
         }
         if (emailError) {
             emailError.textContent = '';
@@ -1051,13 +1054,12 @@ function switchTab(tab) {
         }
 
         // ===== 即時檢查 Email 是否可用 =====
-// ===== 即時檢查 Email 是否可用（加強版） =====
-// ===== 即時檢查 Email 是否可用（加強版） =====
-// ===== 即時檢查 Email 是否可用（加強版） =====
+// ===== 修正版 Email 檢查（使用 fetchSignInMethodsForEmail） =====
+// ===== 直接查詢 Firestore 檢查 Email 是否已被使用 =====
 window.checkEmailAvailability = async function(email) {
     const emailError = document.getElementById('registerEmailError');
     const registerBtn = document.getElementById('registerBtn');
-    const emailInput = document.getElementById('registerEmail'); // 🔥 加入這行
+    const emailInput = document.getElementById('registerEmail');
     
     if (emailCheckTimeout) {
         clearTimeout(emailCheckTimeout);
@@ -1087,78 +1089,57 @@ window.checkEmailAvailability = async function(email) {
     
     emailCheckTimeout = setTimeout(async () => {
         try {
-            // 多次檢查確保結果穩定
-            let methods = [];
-            let retryCount = 0;
-            const maxRetries = 3;
-            let lastError = null;
+            // 🔥 直接查詢 Firestore 的 users 集合，找出是否有這個 email
+            const querySnapshot = await db.collection('users')
+                .where('email', '==', email)
+                .limit(1)
+                .get();
             
-            while (retryCount < maxRetries) {
-                try {
-                    methods = await auth.fetchSignInMethodsForEmail(email);
-                    console.log(`Email 檢查結果 (嘗試 ${retryCount + 1}/${maxRetries}):`, methods);
-                    
-                    // 如果成功且 methods 長度為 0，可以跳出循環
-                    if (methods.length === 0) {
-                        break;
-                    }
-                    
-                    // 如果發現已被註冊，立即跳出
-                    if (methods.length > 0) {
-                        break;
-                    }
-                    
-                    retryCount++;
-                    if (retryCount < maxRetries) {
-                        console.log(`檢查結果不一致，${retryCount + 1}秒後重試...`);
-                        await new Promise(resolve => setTimeout(resolve, 1000));
-                    }
-                } catch (e) {
-                    lastError = e;
-                    retryCount++;
-                    if (retryCount < maxRetries) {
-                        console.log(`檢查失敗，${retryCount + 1}秒後重試...`);
-                        await new Promise(resolve => setTimeout(resolve, 1000));
-                    }
-                }
-            }
+            console.log('Firestore 查詢結果:', querySnapshot.empty ? '無此 Email' : 'Email 已存在');
             
-            if (methods.length > 0) {
+            if (!querySnapshot.empty) {
+                // Email 已被註冊
                 if (emailError) {
                     emailError.innerHTML = '❌ 此電子郵件已被註冊 <span style="font-size: 12px; display: block; margin-top: 4px;">👉 點擊上方「登入」頁籤直接登入</span>';
                     emailError.style.color = '#ff5a5f';
                 }
                 if (registerBtn) registerBtn.disabled = true;
-                
-                // 儲存檢查結果到 dataset
-                if (emailInput) {
-                    emailInput.dataset.emailAvailable = 'false';
-                }
-            } else if (methods.length === 0) {
+                if (emailInput) emailInput.dataset.emailAvailable = 'false';
+            } else {
+                // Email 可用
                 if (emailError) {
                     emailError.innerHTML = '✅ 此電子郵件可以使用';
                     emailError.style.color = '#4caf50';
                 }
                 if (registerBtn) registerBtn.disabled = false;
-                
-                // 儲存檢查結果到 dataset
                 if (emailInput) {
                     emailInput.dataset.emailAvailable = 'true';
                     emailInput.dataset.lastChecked = Date.now();
                 }
-            } else {
-                throw lastError || new Error('檢查失敗');
             }
         } catch (error) {
             console.error('檢查 Email 錯誤:', error);
-            if (emailError) {
-                emailError.innerHTML = '⚠️ 檢查失敗，請稍後再試';
-                emailError.style.color = '#ff5a5f';
+            
+            // 處理特定錯誤
+            if (error.code === 'permission-denied') {
+                if (emailError) {
+                    emailError.innerHTML = '⚠️ 無法檢查，請稍後再試';
+                    emailError.style.color = '#ff5a5f';
+                }
+            } else if (error.code === 'unavailable') {
+                if (emailError) {
+                    emailError.innerHTML = '⚠️ 服務暫時無法使用，請稍後再試';
+                    emailError.style.color = '#ff5a5f';
+                }
+            } else {
+                if (emailError) {
+                    emailError.innerHTML = '⚠️ 檢查失敗，請稍後再試';
+                    emailError.style.color = '#ff5a5f';
+                }
             }
+            
             if (registerBtn) registerBtn.disabled = true;
-            if (emailInput) {
-                emailInput.dataset.emailAvailable = 'false';
-            }
+            if (emailInput) emailInput.dataset.emailAvailable = 'false';
         }
     }, 800);
 };
@@ -1241,6 +1222,8 @@ window.checkEmailAvailability = async function(email) {
         // ===== 處理註冊 =====
 // ===== 處理註冊（加強版） =====
 // ===== 處理註冊（最終版） =====
+// ===== 處理註冊 =====
+// ===== 處理註冊 =====
 async function handleRegister() {
     clearErrors();
 
@@ -1283,7 +1266,16 @@ async function handleRegister() {
         return;
     }
 
-    // 🔥 註冊前強制再次檢查
+    // 檢查註冊按鈕狀態
+    if (registerBtn.disabled) {
+        if (emailError) {
+            emailError.innerHTML = '❌ 請等待 Email 檢查完成';
+            emailError.style.color = '#ff5a5f';
+        }
+        return;
+    }
+
+    // 🔥 註冊前最後一次確認
     if (emailError) {
         emailError.innerHTML = '⏳ 最終確認中...';
         emailError.style.color = '#6B7B86';
@@ -1291,24 +1283,22 @@ async function handleRegister() {
     if (registerBtn) registerBtn.disabled = true;
 
     try {
-        // 最後一次檢查，使用 Promise.race 設定 timeout
-        const checkPromise = auth.fetchSignInMethodsForEmail(email);
-        const timeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('檢查超時')), 5000)
-        );
+        // 最後一次查詢 Firestore 確認 Email 未被使用
+        const querySnapshot = await db.collection('users')
+            .where('email', '==', email)
+            .limit(1)
+            .get();
         
-        const methods = await Promise.race([checkPromise, timeoutPromise]);
-        
-        if (methods.length > 0) {
+        if (!querySnapshot.empty) {
             if (emailError) {
-                emailError.innerHTML = '❌ 此電子郵件已被註冊，請使用其他郵件或點擊上方「登入」';
+                emailError.innerHTML = '❌ 此電子郵件已被註冊，請點擊上方「登入」';
                 emailError.style.color = '#ff5a5f';
             }
             if (registerBtn) registerBtn.disabled = true;
             return;
         }
 
-        // 所有檢查通過，開始註冊
+        // 開始註冊流程
         if (emailError) {
             emailError.innerHTML = '✅ 確認完成，正在註冊...';
             emailError.style.color = '#4caf50';
@@ -1356,7 +1346,6 @@ async function handleRegister() {
         
         let errorMessage = '註冊失敗';
         
-        // 處理各種錯誤情況
         if (error.code === 'auth/email-already-in-use') {
             errorMessage = '此電子郵件已被註冊，請使用其他郵件或直接登入';
             if (emailError) {
@@ -1370,8 +1359,6 @@ async function handleRegister() {
             errorMessage = '密碼強度不足，請使用至少6位數的密碼';
         } else if (error.code === 'auth/network-request-failed') {
             errorMessage = '網路連線失敗，請檢查網路設定';
-        } else if (error.message === '檢查超時') {
-            errorMessage = '檢查超時，請稍後再試';
         } else {
             errorMessage = error.message || '註冊失敗，請稍後再試';
         }
