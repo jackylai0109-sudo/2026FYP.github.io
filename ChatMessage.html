@@ -487,12 +487,12 @@
             border-top-color: rgba(255, 255, 255, 0.2);
         }
 
-        /* 語音訊息樣式 */
+        /* 語音訊息新樣式 - 不使用麥克風圖示 */
         .message-voice {
             background: #f0f8f8;
             border-radius: 12px;
-            padding: 12px;
-            min-width: 200px;
+            padding: 12px 16px;
+            min-width: 180px;
             display: flex;
             align-items: center;
             gap: 12px;
@@ -516,30 +516,33 @@
             background: rgba(255, 255, 255, 0.25);
         }
 
-        .voice-icon {
-            font-size: 32px;
-            color: var(--primary);
-        }
-
-        .own-message .voice-icon {
-            color: white;
-        }
-
-        .voice-info {
-            flex: 1;
+        .play-pause-icon {
+            font-size: 24px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .voice-duration {
-            font-size: 12px;
+            font-size: 14px;
             color: var(--text-muted);
-            margin-bottom: 4px;
+            font-weight: 500;
+            min-width: 45px;
+        }
+
+        .own-message .voice-duration {
+            color: rgba(255, 255, 255, 0.9);
         }
 
         .voice-wave {
-            display: flex;
+            display: none;
             align-items: center;
             gap: 3px;
             height: 30px;
+            flex: 1;
+            margin-left: 4px;
         }
 
         .voice-wave-bar {
@@ -564,10 +567,6 @@
         @keyframes wave {
             0%, 100% { transform: scaleY(0.3); }
             50% { transform: scaleY(1); }
-        }
-
-        .voice-wave.playing .voice-wave-bar {
-            animation: wave 0.5s ease-in-out infinite;
         }
 
         /* 位置訊息樣式 */
@@ -1437,6 +1436,21 @@
                 max-width: 180px;
             }
             
+            .message-voice {
+                min-width: 150px;
+                padding: 10px 12px;
+            }
+            
+            .play-pause-icon {
+                font-size: 20px;
+                width: 28px;
+                height: 28px;
+            }
+            
+            .voice-duration {
+                font-size: 13px;
+            }
+            
             .toolbar {
                 justify-content: space-between;
             }
@@ -1516,6 +1530,21 @@
             
             .message-image {
                 max-width: 150px;
+            }
+            
+            .message-voice {
+                min-width: 130px;
+                padding: 8px 10px;
+            }
+            
+            .play-pause-icon {
+                font-size: 18px;
+                width: 24px;
+                height: 24px;
+            }
+            
+            .voice-duration {
+                font-size: 12px;
             }
 
             .bottom-nav-item {
@@ -1734,6 +1763,10 @@
         let isRecording = false;
         let recordingStartTime = null;
         let recordingTimer = null;
+        
+        // 語音播放相關全域變數
+        let currentAudio = null;
+        let currentVoiceElement = null;
 
         function getUrlParameter(name) {
             const urlParams = new URLSearchParams(window.location.search);
@@ -1908,6 +1941,108 @@
             content.appendChild(closeBtn);
             overlay.appendChild(content);
             document.body.appendChild(overlay);
+        }
+
+        // ========== 語音播放控制 ==========
+        function toggleVoicePlayback(url, element, duration) {
+            const playPauseIcon = element.querySelector('.play-pause-icon');
+            const voiceWave = element.querySelector('.voice-wave');
+            const voiceDuration = element.querySelector('.voice-duration');
+            
+            // 如果正在播放同一個語音
+            if (currentAudio && currentAudio.src === url) {
+                if (!currentAudio.paused) {
+                    // 暫停播放
+                    currentAudio.pause();
+                    playPauseIcon.textContent = '▶️';
+                    if (voiceWave) voiceWave.style.display = 'none';
+                    if (voiceDuration) voiceDuration.style.display = 'inline';
+                } else {
+                    // 繼續播放
+                    currentAudio.play();
+                    playPauseIcon.textContent = '⏸️';
+                    if (voiceWave) voiceWave.style.display = 'flex';
+                    if (voiceDuration) voiceDuration.style.display = 'none';
+                }
+                return;
+            }
+            
+            // 停止當前播放的語音
+            if (currentAudio) {
+                currentAudio.pause();
+                if (currentVoiceElement) {
+                    const oldIcon = currentVoiceElement.querySelector('.play-pause-icon');
+                    const oldWave = currentVoiceElement.querySelector('.voice-wave');
+                    const oldDuration = currentVoiceElement.querySelector('.voice-duration');
+                    if (oldIcon) oldIcon.textContent = '▶️';
+                    if (oldWave) oldWave.style.display = 'none';
+                    if (oldDuration) oldDuration.style.display = 'inline';
+                }
+            }
+            
+            // 播放新的語音
+            const audio = new Audio(url);
+            audio.play().catch(error => {
+                console.error('播放語音錯誤:', error);
+                showToast('無法播放語音');
+                return;
+            });
+            
+            // 更新 UI
+            playPauseIcon.textContent = '⏸️';
+            if (voiceWave) voiceWave.style.display = 'flex';
+            if (voiceDuration) voiceDuration.style.display = 'none';
+            
+            // 設定事件監聽
+            audio.addEventListener('ended', () => {
+                playPauseIcon.textContent = '▶️';
+                if (voiceWave) voiceWave.style.display = 'none';
+                if (voiceDuration) voiceDuration.style.display = 'inline';
+                currentAudio = null;
+                currentVoiceElement = null;
+            });
+            
+            audio.addEventListener('pause', () => {
+                playPauseIcon.textContent = '▶️';
+                if (voiceWave) voiceWave.style.display = 'none';
+                if (voiceDuration) voiceDuration.style.display = 'inline';
+            });
+            
+            audio.addEventListener('play', () => {
+                playPauseIcon.textContent = '⏸️';
+                if (voiceWave) voiceWave.style.display = 'flex';
+                if (voiceDuration) voiceDuration.style.display = 'none';
+            });
+            
+            audio.addEventListener('error', () => {
+                console.error('語音播放錯誤');
+                playPauseIcon.textContent = '▶️';
+                if (voiceWave) voiceWave.style.display = 'none';
+                if (voiceDuration) voiceDuration.style.display = 'inline';
+                showToast('播放失敗');
+                currentAudio = null;
+                currentVoiceElement = null;
+            });
+            
+            // 更新全域變數
+            currentAudio = audio;
+            currentVoiceElement = element;
+        }
+
+        function stopAllVoicePlayback() {
+            if (currentAudio) {
+                currentAudio.pause();
+                if (currentVoiceElement) {
+                    const oldIcon = currentVoiceElement.querySelector('.play-pause-icon');
+                    const oldWave = currentVoiceElement.querySelector('.voice-wave');
+                    const oldDuration = currentVoiceElement.querySelector('.voice-duration');
+                    if (oldIcon) oldIcon.textContent = '▶️';
+                    if (oldWave) oldWave.style.display = 'none';
+                    if (oldDuration) oldDuration.style.display = 'inline';
+                }
+                currentAudio = null;
+                currentVoiceElement = null;
+            }
         }
 
         // 初始化圖片選擇器
@@ -2190,15 +2325,6 @@
                 progressDiv.classList.remove('show');
                 showToast('語音上傳失敗：' + error.message);
             }
-        }
-
-        // 播放語音
-        function playVoice(url) {
-            const audio = new Audio(url);
-            audio.play().catch(error => {
-                console.error('播放語音錯誤:', error);
-                showToast('無法播放語音');
-            });
         }
 
         // 切換語音錄製
@@ -2630,18 +2756,19 @@
                         const voiceUrl = msg.content.metadata.url;
                         const duration = msg.content.metadata.duration || 0;
                         
+                        // 格式化時長
+                        const durationText = formatDuration(duration);
+                        
                         contentHtml = `
-                            <div class="message-voice" onclick="playVoice('${voiceUrl}')">
-                                <span class="voice-icon">🎤</span>
-                                <div class="voice-info">
-                                    <div class="voice-duration">${formatDuration(duration)}</div>
-                                    <div class="voice-wave">
-                                        <div class="voice-wave-bar"></div>
-                                        <div class="voice-wave-bar"></div>
-                                        <div class="voice-wave-bar"></div>
-                                        <div class="voice-wave-bar"></div>
-                                        <div class="voice-wave-bar"></div>
-                                    </div>
+                            <div class="message-voice" onclick="toggleVoicePlayback('${voiceUrl}', this, ${duration})">
+                                <span class="play-pause-icon">▶️</span>
+                                <span class="voice-duration">${durationText}</span>
+                                <div class="voice-wave" style="display: none;">
+                                    <div class="voice-wave-bar"></div>
+                                    <div class="voice-wave-bar"></div>
+                                    <div class="voice-wave-bar"></div>
+                                    <div class="voice-wave-bar"></div>
+                                    <div class="voice-wave-bar"></div>
                                 </div>
                             </div>
                         `;
@@ -2916,6 +3043,9 @@
             if (unsubscribeMembers) unsubscribeMembers();
             if (unsubscribeLocations) unsubscribeLocations();
             
+            // 停止所有語音播放
+            stopAllVoicePlayback();
+            
             // 如果正在錄音，停止錄音
             if (isRecording && mediaRecorder && mediaRecorder.state !== 'inactive') {
                 mediaRecorder.stop();
@@ -2956,6 +3086,9 @@
             if (unsubscribeMembers) unsubscribeMembers();
             if (unsubscribeLocations) unsubscribeLocations();
             
+            // 停止所有語音播放
+            stopAllVoicePlayback();
+            
             // 如果正在錄音，停止錄音
             if (isRecording && mediaRecorder && mediaRecorder.state !== 'inactive') {
                 mediaRecorder.stop();
@@ -2964,7 +3097,7 @@
 
         window.openLocationOnMap = openLocationOnMap;
         window.previewImage = previewImage;
-        window.playVoice = playVoice;
+        window.toggleVoicePlayback = toggleVoicePlayback;
         window.formatDuration = formatDuration;
 
         document.addEventListener('touchstart', function(e) {
