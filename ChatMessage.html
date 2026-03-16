@@ -827,6 +827,326 @@
             }
         }
 
+        /* 投票相關樣式 - 修復版本 */
+        .poll-button {
+            background: var(--member-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-right: 8px;
+        }
+
+        .poll-button:hover {
+            background: #e69e3f;
+            transform: scale(1.05);
+        }
+
+        .poll-button:active {
+            transform: scale(0.95);
+        }
+
+        .poll-form-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 4000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .poll-form-panel {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 24px;
+            padding: 24px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            animation: slideIn 0.3s ease;
+        }
+
+        .poll-form-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .poll-form-header h3 {
+            color: var(--primary-dark);
+            font-size: 1.3rem;
+        }
+
+        .poll-form-close {
+            width: 36px;
+            height: 36px;
+            background: var(--bg-light);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            color: var(--text-muted);
+            transition: all 0.3s;
+        }
+
+        .poll-form-close:hover {
+            background: var(--border);
+            transform: scale(1.1);
+        }
+
+        .poll-form-group {
+            margin-bottom: 16px;
+        }
+
+        .poll-form-group label {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+
+        .poll-form-group input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-size: 14px;
+        }
+
+        .poll-form-group input[type="text"]:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        .poll-option-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .poll-option-row input {
+            flex: 1;
+        }
+
+        .poll-option-row button {
+            width: 40px;
+            height: 40px;
+            background: #ff5a5f;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .poll-option-row button:hover {
+            background: #ff3b3f;
+            transform: scale(1.1);
+        }
+
+        .add-option-btn {
+            background: var(--bg-light);
+            border: 1px dashed var(--primary);
+            color: var(--primary);
+            padding: 10px;
+            width: 100%;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 8px;
+            transition: all 0.3s;
+        }
+
+        .add-option-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .poll-submit-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px;
+            width: 100%;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+
+        .poll-submit-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(44, 197, 194, 0.3);
+        }
+
+        /* 投票訊息樣式 - 完全修復版本 */
+        .poll-message {
+            background: #f0f9ff;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 8px 0;
+            border-left: 4px solid var(--member-color);
+        }
+
+        .poll-question {
+            font-weight: 700;
+            color: var(--primary-dark);
+            font-size: 16px;
+            margin-bottom: 12px;
+        }
+
+        .poll-options {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 12px 0;
+        }
+
+        .poll-option-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 4px;
+            padding: 10px 14px;
+            background: white;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid var(--border);
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+
+        .poll-option-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px rgba(44, 197, 194, 0.2);
+            background: #f5f5f5;
+        }
+
+        .poll-option-item.selected {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .poll-option-item.selected:hover {
+            background: var(--primary-dark);
+        }
+
+        .poll-option-text {
+            flex: 1;
+            font-size: 14px;
+        }
+
+        .poll-option-count {
+            font-weight: 600;
+            font-size: 14px;
+            min-width: 80px;
+            text-align: right;
+            color: var(--primary-dark);
+        }
+
+        .poll-option-item.selected .poll-option-count {
+            color: white;
+        }
+
+        /* 投票進度條容器 */
+        .poll-option-bar-container {
+            margin: 0 0 8px 0;
+            padding: 0 4px;
+        }
+
+        .poll-option-bar {
+            height: 6px;
+            background: var(--primary);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+            opacity: 0.7;
+        }
+
+        /* 自己發送的投票訊息內的進度條 */
+        .own-message .poll-option-bar {
+            background: white;
+            opacity: 0.9;
+        }
+
+        .poll-footer {
+            margin-top: 16px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        .poll-vote-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .poll-vote-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .own-message .poll-vote-status span:first-child {
+            color: white;
+            font-weight: 600;
+        }
+
+        .poll-hint {
+            font-size: 11px;
+            color: #0C344E;
+            font-weight: 600;
+            opacity: 1;
+            background: #E6F3F2;
+            padding: 2px 8px;
+            border-radius: 12px;
+            display: inline-block;
+            border: 1px solid #2CC5C2;
+        }
+
+        .own-message .poll-hint {
+            color: #FFFFFF;
+            background: rgba(255, 255, 255, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            font-weight: 600;
+        }
+
+        .own-message .poll-message {
+            background: rgba(255, 255, 255, 0.15);
+            border-left-color: white;
+        }
+
+        .own-message .poll-footer span {
+            color: white;
+        }
+
+        .own-message .poll-footer {
+            border-top-color: rgba(255, 255, 255, 0.2);
+        }
+
         /* 上傳進度條 */
         .upload-progress {
             position: fixed;
@@ -1363,27 +1683,50 @@
                 max-width: 200px;
             }
             
+            .message-voice {
+                min-width: 150px;
+                padding: 10px 12px;
+            }
+            
+            .play-pause-icon {
+                font-size: 20px;
+                width: 28px;
+                height: 28px;
+            }
+            
+            .voice-duration {
+                font-size: 13px;
+            }
+            
+            .toolbar {
+                justify-content: space-between;
+            }
+            
             .tool-btn {
-                padding: 6px 12px;
-                font-size: 0.85rem;
+                flex: 1;
+                text-align: center;
+                padding: 8px 4px;
+                font-size: 0.8rem;
+                justify-content: center;
+            }
+            
+            .input-wrapper {
+                gap: 8px;
+            }
+            
+            #messageInput {
+                padding: 10px;
+                font-size: 0.9rem;
             }
             
             .send-btn {
-                padding: 10px 20px;
-                font-size: 0.95rem;
+                padding: 8px 16px;
+                font-size: 0.9rem;
             }
 
             .voice-record-btn {
-                padding: 10px 20px;
-                font-size: 0.95rem;
-            }
-            
-            .message-input-area {
-                padding: 15px;
-            }
-
-            .input-wrapper {
-                gap: 8px;
+                padding: 8px 16px;
+                font-size: 0.9rem;
             }
             
             .upload-progress {
@@ -1437,49 +1780,42 @@
             }
             
             .message-voice {
-                min-width: 150px;
-                padding: 10px 12px;
+                min-width: 130px;
+                padding: 8px 10px;
             }
             
             .play-pause-icon {
-                font-size: 20px;
-                width: 28px;
-                height: 28px;
+                font-size: 18px;
+                width: 24px;
+                height: 24px;
             }
             
             .voice-duration {
-                font-size: 13px;
-            }
-            
-            .toolbar {
-                justify-content: space-between;
+                font-size: 12px;
             }
             
             .tool-btn {
-                flex: 1;
-                text-align: center;
-                padding: 8px 4px;
-                font-size: 0.8rem;
-                justify-content: center;
+                padding: 6px 2px;
+                font-size: 0.75rem;
             }
             
             .input-wrapper {
-                gap: 8px;
+                gap: 6px;
             }
             
             #messageInput {
-                padding: 10px;
-                font-size: 0.9rem;
+                padding: 8px;
+                font-size: 0.85rem;
             }
             
             .send-btn {
-                padding: 8px 16px;
-                font-size: 0.9rem;
+                padding: 6px 12px;
+                font-size: 0.85rem;
             }
 
             .voice-record-btn {
-                padding: 8px 16px;
-                font-size: 0.9rem;
+                padding: 6px 12px;
+                font-size: 0.85rem;
             }
             
             .upload-progress {
@@ -1682,6 +2018,10 @@
                         <button class="tool-btn" onclick="shareCurrentLocation()" id="shareLocationBtn" disabled>
                             <i>📍</i> 分享位置
                         </button>
+                        <!-- 投票按鈕 -->
+                        <button class="poll-button" onclick="showPollForm()" id="pollButton" disabled>
+                            <i>📊</i> 投票
+                        </button>
                     </div>
                 </div>
             </div>
@@ -1729,6 +2069,43 @@
 
     <!-- 隱藏的檔案選擇器 -->
     <input type="file" id="imagePicker" accept="image/*" style="display: none;">
+
+<!-- 投票表單浮層 - 修改這個部分 -->
+<div class="poll-form-modal" id="pollFormModal" onclick="closePollForm(event)">
+    <div class="poll-form-panel" onclick="event.stopPropagation()">
+        <div class="poll-form-header">
+            <h3>建立投票</h3>
+            <button class="poll-form-close" onclick="closePollForm(event)">✕</button>
+        </div>
+        
+        <div class="poll-form-group">
+            <label>投票問題</label>
+            <input type="text" id="pollQuestion" placeholder="請輸入投票問題...">
+        </div>
+        
+        <div class="poll-form-group">
+            <label>投票選項</label>
+            <div id="pollOptions">
+                <div class="poll-option-row">
+                    <input type="text" class="poll-option" placeholder="選項 1">
+                    <button onclick="removeOption(this)">✕</button>
+                </div>
+                <div class="poll-option-row">
+                    <input type="text" class="poll-option" placeholder="選項 2">
+                    <button onclick="removeOption(this)">✕</button>
+                </div>
+            </div>
+            
+            <button class="add-option-btn" onclick="addOption()">
+                + 新增選項
+            </button>
+        </div>
+        
+        <button class="poll-submit-btn" onclick="createPoll()">
+            發送投票
+        </button>
+    </div>
+</div>
 
     <script>
         const firebaseConfig = {
@@ -2042,6 +2419,228 @@
                 }
                 currentAudio = null;
                 currentVoiceElement = null;
+            }
+        }
+
+        // ========== 投票相關函數 ==========
+// ========== 投票相關函數 ==========
+function showPollForm() {
+    if (!currentUser || !currentGroupId) {
+        alert('請先加入群組');
+        return;
+    }
+    document.getElementById('pollFormModal').style.display = 'block';
+}
+
+function closePollForm(event) {
+    if (event.target.classList.contains('poll-form-close') || 
+        event.target.classList.contains('poll-form-modal')) {
+        document.getElementById('pollFormModal').style.display = 'none';
+        // 重置表單 - 改為只有2個預設選項
+        document.getElementById('pollQuestion').value = '';
+        const optionsContainer = document.getElementById('pollOptions');
+        optionsContainer.innerHTML = `
+            <div class="poll-option-row">
+                <input type="text" class="poll-option" placeholder="選項 1">
+                <button onclick="removeOption(this)">✕</button>
+            </div>
+            <div class="poll-option-row">
+                <input type="text" class="poll-option" placeholder="選項 2">
+                <button onclick="removeOption(this)">✕</button>
+            </div>
+        `;
+    }
+}
+
+function addOption() {
+    const optionsContainer = document.getElementById('pollOptions');
+    const optionCount = optionsContainer.children.length;
+    
+    if (optionCount >= 10) {
+        alert('最多只能新增 10 個選項');
+        return;
+    }
+    
+    // 計算新的選項編號
+    const newOptionNumber = optionCount + 1;
+    
+    const newOption = document.createElement('div');
+    newOption.className = 'poll-option-row';
+    newOption.innerHTML = `
+        <input type="text" class="poll-option" placeholder="選項 ${newOptionNumber}">
+        <button onclick="removeOption(this)">✕</button>
+    `;
+    optionsContainer.appendChild(newOption);
+}
+
+function removeOption(button) {
+    const optionsContainer = document.getElementById('pollOptions');
+    if (optionsContainer.children.length <= 2) {
+        alert('至少需要 2 個選項');
+        return;
+    }
+    button.parentElement.remove();
+    
+    // 重新編號剩餘選項的 placeholder
+    const rows = optionsContainer.querySelectorAll('.poll-option-row');
+    rows.forEach((row, index) => {
+        const input = row.querySelector('.poll-option');
+        input.placeholder = `選項 ${index + 1}`;
+    });
+}
+
+async function createPoll() {
+    const question = document.getElementById('pollQuestion').value.trim();
+    if (!question) {
+        alert('請輸入投票問題');
+        return;
+    }
+    
+    const optionInputs = document.querySelectorAll('.poll-option');
+    const options = [];
+    for (let input of optionInputs) {
+        const option = input.value.trim();
+        if (option) {
+            options.push(option);
+        }
+    }
+    
+    if (options.length < 2) {
+        alert('至少需要 2 個有效選項');
+        return;
+    }
+    
+    if (options.length > 10) {
+        alert('最多只能有 10 個選項');
+        return;
+    }
+    
+    // 初始化投票結果
+    const votes = {};
+    options.forEach(option => {
+        votes[option] = 0;
+    });
+    
+    try {
+        let senderName = currentUser.displayName;
+        if (!senderName) {
+            const userDoc = await db.collection('users').doc(currentUser.uid).get();
+            senderName = userDoc.exists ? userDoc.data().username : '匿名用戶';
+        }
+        
+        const pollMessage = {
+            senderId: currentUser.uid,
+            senderName: senderName,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            type: 'poll',
+            text: '',
+            metadata: {
+                question: question,
+                options: options,
+                votes: votes,
+                voters: {}, // 記錄誰投了哪個選項
+                totalVotes: 0
+            }
+        };
+        
+        await db.collection('groups')
+            .doc(currentGroupId)
+            .collection('messages')
+            .add(pollMessage);
+        
+        // 關閉表單
+        document.getElementById('pollFormModal').style.display = 'none';
+        showToast('✅ 投票已發送');
+        
+        // 重置表單
+        document.getElementById('pollQuestion').value = '';
+        const optionsContainer = document.getElementById('pollOptions');
+        optionsContainer.innerHTML = `
+            <div class="poll-option-row">
+                <input type="text" class="poll-option" placeholder="選項 1">
+                <button onclick="removeOption(this)">✕</button>
+            </div>
+            <div class="poll-option-row">
+                <input type="text" class="poll-option" placeholder="選項 2">
+                <button onclick="removeOption(this)">✕</button>
+            </div>
+        `;
+        
+    } catch (error) {
+        console.error('發送投票失敗:', error);
+        alert('發送失敗：' + error.message);
+    }
+}
+
+        // 投票或修改投票
+        async function vote(messageId, selectedOption) {
+            if (!currentUser) {
+                alert('請先登入');
+                return;
+            }
+            
+            try {
+                // 從 Firestore 獲取最新的訊息資料
+                const messageRef = db.collection('groups')
+                    .doc(currentGroupId)
+                    .collection('messages')
+                    .doc(messageId);
+                
+                const messageDoc = await messageRef.get();
+                
+                if (!messageDoc.exists) {
+                    alert('投票不存在');
+                    return;
+                }
+                
+                const metadata = messageDoc.data().metadata || {};
+                let currentVotes = metadata.votes || {};
+                let currentVoters = metadata.voters || {};
+                
+                // 檢查是否已經投過票
+                if (currentVoters[currentUser.uid]) {
+                    const oldOption = currentVoters[currentUser.uid];
+                    
+                    // 如果點擊的是同一個選項，提示已經投過
+                    if (oldOption === selectedOption) {
+                        alert('你已經投過這個選項了');
+                        return;
+                    }
+                    
+                    // 詢問是否要更改投票
+                    if (!confirm(`你已經投給「${oldOption}」，要更改為「${selectedOption}」嗎？`)) {
+                        return;
+                    }
+                    
+                    // 減少舊選項的票數
+                    if (currentVotes[oldOption] > 0) {
+                        currentVotes[oldOption]--;
+                    }
+                }
+                
+                // 更新投票計數（增加新選項的票數）
+                const newVotes = {...currentVotes};
+                newVotes[selectedOption] = (newVotes[selectedOption] || 0) + 1;
+                
+                // 記錄投票者
+                const newVoters = {...(currentVoters || {})};
+                newVoters[currentUser.uid] = selectedOption;
+                
+                // 計算總投票數
+                const totalVotes = Object.values(newVotes).reduce((a, b) => a + b, 0);
+                
+                // 更新 Firestore
+                await messageRef.update({
+                    'metadata.votes': newVotes,
+                    'metadata.voters': newVoters,
+                    'metadata.totalVotes': totalVotes
+                });
+                
+                showToast('✅ 投票成功');
+                
+            } catch (error) {
+                console.error('投票失敗:', error);
+                alert('投票失敗：' + error.message);
             }
         }
 
@@ -2795,6 +3394,64 @@
                         `;
                         break;
                         
+                    case 'poll':
+                        const question = msg.content.metadata.question;
+                        const options = msg.content.metadata.options || [];
+                        const votes = msg.content.metadata.votes || {};
+                        const voters = msg.content.metadata.voters || {};
+                        const totalVotes = msg.content.metadata.totalVotes || 0;
+                        
+                        // 檢查當前用戶是否已經投票
+                        const hasVoted = voters && voters[currentUser?.uid];
+                        const userVote = hasVoted ? voters[currentUser?.uid] : null;
+                        
+                        let optionsHtml = '';
+                        options.forEach(option => {
+                            const voteCount = votes[option] || 0;
+                            const percentage = totalVotes > 0 ? Math.round((voteCount / totalVotes) * 100) : 0;
+                            const isSelected = userVote === option;
+                            
+                            optionsHtml += `
+                                <li class="poll-option-item ${isSelected ? 'selected' : ''}" 
+                                    onclick="vote('${msg.id}', '${option.replace(/'/g, "\\'")}')">
+                                    <span class="poll-option-text">${option}</span>
+                                    <span class="poll-option-count">${voteCount} 票 (${percentage}%)</span>
+                                </li>
+                                <div class="poll-option-bar-container">
+                                    <div class="poll-option-bar" style="width: ${percentage}%;"></div>
+                                </div>
+                            `;
+                        });
+                        
+                        // 顯示投票狀態提示
+                        let voteStatus = '';
+                        if (hasVoted) {
+                            voteStatus = `
+                                <div class="poll-vote-status">
+                                    <span>✅ 你已投票給「${userVote}」</span>
+                                    <span class="poll-hint">(點擊其他選項可修改投票)</span>
+                                </div>
+                            `;
+                        } else {
+                            voteStatus = '<span class="poll-hint">點擊選項即可投票</span>';
+                        }
+                        
+                        contentHtml = `
+                            <div class="poll-message">
+                                <div class="poll-question">📊 ${question}</div>
+                                <ul class="poll-options">
+                                    ${optionsHtml}
+                                </ul>
+                                <div class="poll-footer">
+                                    <div class="poll-vote-info">
+                                        <span>總投票數：${totalVotes}</span>
+                                        ${voteStatus}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        break;
+                        
                     default:
                         contentHtml = `<div>${msg.content.text}</div>`;
                 }
@@ -3018,6 +3675,7 @@
             document.getElementById('voiceButton').disabled = !enabled;
             document.getElementById('imageButton').disabled = !enabled;
             document.getElementById('shareLocationBtn').disabled = !enabled;
+            document.getElementById('pollButton').disabled = !enabled;
         }
 
         window.toggleMobileMembers = function() {
@@ -3099,6 +3757,12 @@
         window.previewImage = previewImage;
         window.toggleVoicePlayback = toggleVoicePlayback;
         window.formatDuration = formatDuration;
+        window.showPollForm = showPollForm;
+        window.closePollForm = closePollForm;
+        window.addOption = addOption;
+        window.removeOption = removeOption;
+        window.createPoll = createPoll;
+        window.vote = vote;
 
         document.addEventListener('touchstart', function(e) {
         }, { passive: true });
