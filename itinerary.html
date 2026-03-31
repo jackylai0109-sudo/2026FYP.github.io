@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>TravelSync · 行程規劃 (地圖檢視)</title>
+    <title>TravelSync · 行程規劃</title>
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -40,7 +40,6 @@
             transition: padding 0.3s ease;
         }
 
-        /* ==================== 側邊導航 ==================== */
         .side-nav {
             position: fixed;
             left: 10px;
@@ -132,7 +131,6 @@
             opacity: 1;
         }
 
-        /* ==================== 底部導航 ==================== */
         .bottom-nav {
             display: none;
             position: fixed;
@@ -183,7 +181,6 @@
             font-weight: 500;
         }
 
-        /* 頁面標頭 + 群組選擇器 */
         .page-header {
             display: flex;
             align-items: center;
@@ -242,7 +239,6 @@
             box-shadow: 0 8px 18px rgba(44,197,194,0.4);
         }
 
-        /* 行程列表 */
         .trip-list {
             display: flex;
             flex-direction: column;
@@ -341,7 +337,6 @@
             color: #d32f2f;
         }
 
-        /* 新增/編輯浮層 */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -421,6 +416,15 @@
             display: flex;
             align-items: center;
             gap: 4px;
+            flex-wrap: wrap;
+        }
+        .location-hint .city-badge {
+            background: #e8f5e9;
+            color: #2E7D32;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 500;
         }
         .location-hint .coord {
             font-family: monospace;
@@ -470,7 +474,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* 空狀態 */
         .empty-state {
             text-align: center;
             padding: 60px 20px;
@@ -483,7 +486,6 @@
             margin-bottom: 16px;
         }
 
-        /* 載入中 */
         .loading {
             text-align: center;
             padding: 40px;
@@ -499,7 +501,6 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* 提示訊息 */
         .toast-message {
             position: fixed;
             bottom: 30px;
@@ -515,7 +516,6 @@
             animation: slideUp 0.3s ease;
         }
 
-        /* 響應式 */
         @media (max-width: 768px) {
             body {
                 padding: 15px 15px 70px 15px;
@@ -530,7 +530,6 @@
     </style>
 </head>
 <body>
-    <!-- 側邊導航 -->
     <div class="side-nav">
         <div class="nav-items">
             <a href="index.html" class="nav-item"><span class="nav-icon">🏠</span><span class="nav-label">主頁</span></a>
@@ -542,7 +541,6 @@
         </div>
     </div>
 
-    <!-- 底部導航 -->
     <div class="bottom-nav">
         <a href="index.html" class="bottom-nav-item"><span class="bottom-nav-icon">🏠</span><span class="bottom-nav-label">主頁</span></a>
         <a href="map.html" class="bottom-nav-item"><span class="bottom-nav-icon">🗺️</span><span class="bottom-nav-label">地圖</span></a>
@@ -552,7 +550,6 @@
         <a href="profile.html" class="bottom-nav-item"><span class="bottom-nav-icon">👤</span><span class="bottom-nav-label">帳號</span></a>
     </div>
 
-    <!-- 主要內容 -->
     <div style="max-width: 1000px; margin: 0 auto;">
         <div class="page-header">
             <h1>📅 群組行程</h1>
@@ -572,39 +569,45 @@
         </div>
     </div>
 
-    <!-- 新增/編輯行程浮層 -->
     <div class="modal-overlay" id="tripModal">
         <div class="modal-card">
             <h2 id="modalTitle">新增行程</h2>
             <form id="tripForm">
                 <div class="form-group">
-                    <label>行程標題 *</label>
-                    <input type="text" id="tripTitle" placeholder="例如：艾菲爾鐵塔參觀" required>
+                    <label>📍 搜尋地點 *</label>
+                    <input type="text" id="tripLocation" placeholder="輸入關鍵字搜尋地點..." autocomplete="off" required>
+                    <div class="location-hint" id="locationHint">
+                        <span>🔍 選擇地點後會自動填入城市</span>
+                    </div>
                 </div>
+                
+                <div class="form-group">
+                    <label>🏙️ 城市</label>
+                    <input type="text" id="tripCity" readonly placeholder="選擇地點後自動填入" style="background: #f8f8f8;">
+                </div>
+                
                 <div class="form-row">
                     <div class="form-group">
-                        <label>日期 *</label>
+                        <label>📅 日期 *</label>
                         <input type="date" id="tripDate" required>
                     </div>
                     <div class="form-group">
-                        <label>時間 (選填)</label>
+                        <label>⏰ 時間 (選填)</label>
                         <input type="time" id="tripTime">
                     </div>
                 </div>
+                
                 <div class="form-group">
-                    <label>地點 (可搜尋)</label>
-                    <input type="text" id="tripLocation" placeholder="輸入關鍵字搜尋地點..." autocomplete="off">
-                    <div class="location-hint" id="locationHint">
-                        <span>📍 選擇地點後會自動記錄座標</span>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>備註</label>
+                    <label>📝 備註 (選填)</label>
                     <textarea id="tripNotes" rows="3" placeholder="任何想記錄的細節..."></textarea>
                 </div>
+                
                 <input type="hidden" id="editingId" value="">
                 <input type="hidden" id="editingLat" value="">
                 <input type="hidden" id="editingLng" value="">
+                <input type="hidden" id="selectedPlaceName" value="">
+                <input type="hidden" id="selectedPlaceAddress" value="">
+                
                 <div class="modal-actions">
                     <button type="button" class="btn-secondary" id="cancelModalBtn">取消</button>
                     <button type="submit" class="btn-primary" id="saveTripBtn">儲存行程</button>
@@ -615,7 +618,6 @@
 
     <script>
         // Firebase 配置
-
         const firebaseConfig = {
             apiKey: "AIzaSyCIwmeMV5XHSEPlneNN9vlRsI7feaoQm18",
             authDomain: "project-221c4.firebaseapp.com",
@@ -638,14 +640,16 @@
         const modal = document.getElementById('tripModal');
         const modalTitle = document.getElementById('modalTitle');
         const tripForm = document.getElementById('tripForm');
-        const tripTitle = document.getElementById('tripTitle');
+        const tripLocation = document.getElementById('tripLocation');
+        const tripCity = document.getElementById('tripCity');
         const tripDate = document.getElementById('tripDate');
         const tripTime = document.getElementById('tripTime');
-        const tripLocation = document.getElementById('tripLocation');
         const tripNotes = document.getElementById('tripNotes');
         const editingId = document.getElementById('editingId');
         const editingLat = document.getElementById('editingLat');
         const editingLng = document.getElementById('editingLng');
+        const selectedPlaceName = document.getElementById('selectedPlaceName');
+        const selectedPlaceAddress = document.getElementById('selectedPlaceAddress');
         const locationHint = document.getElementById('locationHint');
         const cancelModalBtn = document.getElementById('cancelModalBtn');
         const openAddModalBtn = document.getElementById('openAddModalBtn');
@@ -655,6 +659,56 @@
         let userGroups = [];
         let currentGroupId = null;
         let autocomplete = null;
+
+        // ========== 獲取城市名稱 ==========
+        async function getCityNameFromCoordinates(lat, lng) {
+            if (!lat || !lng) return '';
+            
+            return new Promise((resolve) => {
+                const geocoder = new google.maps.Geocoder();
+                geocoder.geocode({ location: { lat, lng } }, (results, status) => {
+                    if (status === 'OK' && results && results[0]) {
+                        for (const component of results[0].address_components) {
+                            if (component.types.includes('locality')) {
+                                resolve(component.long_name);
+                                return;
+                            }
+                        }
+                        for (const component of results[0].address_components) {
+                            if (component.types.includes('administrative_area_level_2')) {
+                                resolve(component.long_name);
+                                return;
+                            }
+                        }
+                        for (const component of results[0].address_components) {
+                            if (component.types.includes('administrative_area_level_1')) {
+                                resolve(component.long_name);
+                                return;
+                            }
+                        }
+                        resolve('');
+                    } else {
+                        resolve('');
+                    }
+                });
+            });
+        }
+
+        // ========== 獲取詳細地址 ==========
+        async function getAddressFromCoordinates(lat, lng) {
+            if (!lat || !lng) return '';
+            
+            return new Promise((resolve) => {
+                const geocoder = new google.maps.Geocoder();
+                geocoder.geocode({ location: { lat, lng } }, (results, status) => {
+                    if (status === 'OK' && results && results[0]) {
+                        resolve(results[0].formatted_address);
+                    } else {
+                        resolve('');
+                    }
+                });
+            });
+        }
 
         // ========== 初始化地點自動完成 ==========
         function initAutocomplete() {
@@ -677,12 +731,15 @@
                     fields: ['place_id', 'name', 'formatted_address', 'geometry']
                 });
 
-                autocomplete.addListener('place_changed', function() {
+                autocomplete.addListener('place_changed', async function() {
                     const place = autocomplete.getPlace();
                     
                     if (!place.geometry) {
                         editingLat.value = '';
                         editingLng.value = '';
+                        selectedPlaceName.value = '';
+                        selectedPlaceAddress.value = '';
+                        tripCity.value = '';
                         locationHint.innerHTML = '⚠️ 請從下拉清單中選擇一個地點';
                         return;
                     }
@@ -691,9 +748,18 @@
                     const lng = place.geometry.location.lng();
                     editingLat.value = lat;
                     editingLng.value = lng;
+                    
+                    selectedPlaceName.value = place.name || '';
+                    selectedPlaceAddress.value = place.formatted_address || '';
+                    
+                    const city = await getCityNameFromCoordinates(lat, lng);
+                    tripCity.value = city;
+                    
+                    tripLocation.value = place.name || place.formatted_address;
 
                     locationHint.innerHTML = `
                         <span>📍 ${place.formatted_address || place.name}</span>
+                        ${city ? `<span class="city-badge">🏙️ ${city}</span>` : ''}
                         <span class="coord">${lat.toFixed(6)}, ${lng.toFixed(6)}</span>
                     `;
                 });
@@ -761,104 +827,125 @@
             loadTrips();
         }
 
-        // ========== 載入行程 ==========
-        async function loadTrips() {
-            if (!currentUser || !currentGroupId) return;
+      // ========== 載入行程（將 UTC 轉為本地時間顯示） ==========
+async function loadTrips() {
+    if (!currentUser || !currentGroupId) return;
 
-            try {
-                const tripsRef = db.collection('groups')
-                    .doc(currentGroupId)
-                    .collection('destinations')
-                    .orderBy('time', 'asc');
+    try {
+        const tripsRef = db.collection('groups')
+            .doc(currentGroupId)
+            .collection('destinations')
+            .orderBy('dateTime', 'asc');
 
-                const snapshot = await tripsRef.get();
+        const snapshot = await tripsRef.get();
 
-                loadingEl.style.display = 'none';
+        loadingEl.style.display = 'none';
 
-                if (snapshot.empty) {
-                    tripListContainer.style.display = 'none';
-                    emptyState.style.display = 'block';
-                    return;
-                }
-
-                const tripsByDate = {};
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    let dateStr = '未指定日期';
-                    if (data.time) {
-                        const parts = data.time.split('T');
-                        dateStr = parts[0];
-                    }
-
-                    if (!tripsByDate[dateStr]) tripsByDate[dateStr] = [];
-                    tripsByDate[dateStr].push({
-                        id: doc.id,
-                        title: data.name || '無標題',
-                        destination: data.destination || '',
-                        time: data.time || '',
-                        lat: data.lat || null,
-                        lng: data.lng || null,
-                        notes: data.notes || ''
-                    });
-                });
-
-                const sortedDates = Object.keys(tripsByDate).sort((a,b) => a.localeCompare(b));
-
-                let html = '';
-                for (let date of sortedDates) {
-                    let displayDate = date;
-                    if (date !== '未指定日期') {
-                        try {
-                            displayDate = new Date(date + 'T12:00:00').toLocaleDateString('zh-TW', {
-                                year: 'numeric', month: 'long', day: 'numeric', weekday: 'short'
-                            });
-                        } catch (e) {}
-                    }
-                    html += `<div class="date-group">📅 ${displayDate}</div>`;
-
-                    tripsByDate[date].forEach(trip => {
-                        let timeDisplay = '';
-                        if (trip.time && trip.time.includes('T')) {
-                            timeDisplay = trip.time.split('T')[1].substring(0,5);
-                        }
-
-                        html += `
-                            <div class="trip-card" data-id="${trip.id}">
-                                <div class="trip-info">
-                                    <div class="trip-title">${escapeHtml(trip.title)}</div>
-                                    <div class="trip-meta">
-                                        ${trip.destination ? `<span>📍 ${escapeHtml(trip.destination)}</span>` : ''}
-                                        ${timeDisplay ? `<span>🕒 ${timeDisplay}</span>` : ''}
-                                        ${trip.notes ? `<span>📝 ${escapeHtml(trip.notes.substring(0,30))}${trip.notes.length > 30 ? '…' : ''}</span>` : ''}
-                                       
-                                    </div>
-                                </div>
-                                <div class="trip-actions">
-                                    ${trip.lat && trip.lng ? `
-                                        <button class="icon-btn map-btn" onclick="viewOnMap(${trip.lat}, ${trip.lng}, '${escapeHtml(trip.destination || trip.title)}')" title="在地圖中查看">🗺️</button>
-                                    ` : ''}
-                                    <button class="icon-btn edit" onclick="editTrip('${trip.id}')" title="編輯行程">✏️</button>
-                                    <button class="icon-btn delete" onclick="deleteTrip('${trip.id}')" title="刪除行程">🗑️</button>
-                                </div>
-                            </div>
-                        `;
-                    });
-                }
-
-                tripListContainer.innerHTML = html;
-                tripListContainer.style.display = 'block';
-                emptyState.style.display = 'none';
-
-            } catch (error) {
-                console.error('載入行程錯誤:', error);
-                showToast('載入失敗：' + error.message);
-                loadingEl.style.display = 'none';
-            }
+        if (snapshot.empty) {
+            tripListContainer.style.display = 'none';
+            emptyState.style.display = 'block';
+            return;
         }
 
+        const tripsByDate = {};
+        for (const doc of snapshot.docs) {
+            const data = doc.data();
+            let dateStr = '未指定日期';
+            let timeDisplay = '';
+            
+            const timestamp = data.dateTime;
+            if (timestamp && timestamp.toDate && typeof timestamp.toDate === 'function') {
+                // ✅ 獲取 UTC 時間
+                const utcDate = timestamp.toDate();
+                
+                // ✅ 轉換為本地時間
+                const localDate = new Date(utcDate.getTime() + (utcDate.getTimezoneOffset() * 60 * 1000));
+                
+                // 或者更簡單：直接使用 toLocaleString 獲取本地時間
+                const year = localDate.getFullYear();
+                const month = String(localDate.getMonth() + 1).padStart(2, '0');
+                const day = String(localDate.getDate()).padStart(2, '0');
+                const hours = String(localDate.getHours()).padStart(2, '0');
+                const minutes = String(localDate.getMinutes()).padStart(2, '0');
+                
+                dateStr = `${year}-${month}-${day}`;
+                timeDisplay = `${hours}:${minutes}`;
+            }
+
+            const cityName = data.city || '';
+            const locationName = data.destination || data.name || '';
+
+            if (!tripsByDate[dateStr]) tripsByDate[dateStr] = [];
+            tripsByDate[dateStr].push({
+                id: doc.id,
+                title: cityName || locationName || '未命名',
+                destination: locationName,
+                city: cityName,
+                dateTime: data.dateTime,
+                date: dateStr,
+                time: timeDisplay,
+                lat: data.lat || null,
+                lng: data.lng || null,
+                notes: data.notes || '',
+                address: data.address || ''
+            });
+        }
+
+        const sortedDates = Object.keys(tripsByDate).sort((a, b) => {
+            if (a === '未指定日期') return 1;
+            if (b === '未指定日期') return -1;
+            return a.localeCompare(b);
+        });
+
+        let html = '';
+        for (let date of sortedDates) {
+            let displayDate = date;
+            if (date !== '未指定日期') {
+                try {
+                    displayDate = new Date(date + 'T12:00:00').toLocaleDateString('zh-TW', {
+                        year: 'numeric', month: 'long', day: 'numeric', weekday: 'short'
+                    });
+                } catch (e) {}
+            }
+            html += `<div class="date-group">📅 ${displayDate}</div>`;
+
+            tripsByDate[date].forEach(trip => {
+                let displayTitle = trip.city || trip.destination || '未命名';
+
+                html += `
+                    <div class="trip-card" data-id="${trip.id}">
+                        <div class="trip-info">
+                            <div class="trip-title">${escapeHtml(displayTitle)}</div>
+                            <div class="trip-meta">
+                                ${trip.destination ? `<span>📍 ${escapeHtml(trip.destination)}</span>` : ''}
+                                ${trip.time ? `<span>🕒 ${trip.time}</span>` : ''}
+                                ${trip.notes ? `<span>📝 ${escapeHtml(trip.notes.substring(0,30))}${trip.notes.length > 30 ? '…' : ''}</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="trip-actions">
+                            ${trip.lat && trip.lng ? `
+                                <button class="icon-btn map-btn" onclick="viewOnMap(${trip.lat}, ${trip.lng}, '${escapeHtml(trip.destination || trip.city)}')" title="在地圖中查看">🗺️</button>
+                            ` : ''}
+                            <button class="icon-btn edit" onclick="editTrip('${trip.id}')" title="編輯行程">✏️</button>
+                            <button class="icon-btn delete" onclick="deleteTrip('${trip.id}')" title="刪除行程">🗑️</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        tripListContainer.innerHTML = html;
+        tripListContainer.style.display = 'block';
+        emptyState.style.display = 'none';
+
+    } catch (error) {
+        console.error('載入行程錯誤:', error);
+        showToast('載入失敗：' + error.message);
+        loadingEl.style.display = 'none';
+    }
+}
         // ========== 在地圖中查看 ==========
         window.viewOnMap = function(lat, lng, title) {
-            // 將地點資訊存入 localStorage，讓地圖頁面可以讀取
             const locationData = {
                 lat: lat,
                 lng: lng,
@@ -866,10 +953,7 @@
                 timestamp: new Date().getTime()
             };
             localStorage.setItem('viewLocation', JSON.stringify(locationData));
-            
-            // 跳轉到地圖頁面
             window.location.href = 'map.html';
-            
             showToast('📍 正在開啟地圖...');
         };
 
@@ -879,10 +963,13 @@
             editingId.value = '';
             editingLat.value = '';
             editingLng.value = '';
+            selectedPlaceName.value = '';
+            selectedPlaceAddress.value = '';
+            tripCity.value = '';
             modalTitle.textContent = '新增行程';
             const today = new Date().toISOString().split('T')[0];
             tripDate.value = today;
-            locationHint.innerHTML = '<span>📍 選擇地點後會自動記錄座標</span>';
+            locationHint.innerHTML = '<span>🔍 選擇地點後會自動填入城市</span>';
             modal.style.display = 'flex';
             
             setTimeout(() => {
@@ -898,121 +985,169 @@
             if (e.target === modal) modal.style.display = 'none';
         });
 
-        // ========== 儲存行程 ==========
-        tripForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            if (!currentUser || !currentGroupId) return;
+       // ========== 儲存行程（使用 UTC 時間，與手機版一致） ==========
+tripForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!currentUser || !currentGroupId) return;
 
-            const title = tripTitle.value.trim();
-            const date = tripDate.value;
-            if (!title || !date) {
-                showToast('請填寫標題與日期');
-                return;
-            }
+    const placeName = selectedPlaceName.value.trim();
+    if (!placeName) {
+        showToast('請先選擇一個地點');
+        return;
+    }
 
-            let timeValue = date;
-            if (tripTime.value) {
-                timeValue = date + 'T' + tripTime.value;
-            }
+    const date = tripDate.value;
+    if (!date) {
+        showToast('請選擇日期');
+        return;
+    }
 
-            const destinationData = {
-                name: title,
-                destination: tripLocation.value.trim() || '',
-                time: timeValue,
-                lat: editingLat.value ? parseFloat(editingLat.value) : null,
-                lng: editingLng.value ? parseFloat(editingLng.value) : null,
-                notes: tripNotes.value.trim() || '',
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                createdBy: currentUser.uid,
-                senderId: currentUser.uid
-            };
+    // ✅ 獲取用戶輸入的本地時間
+    let year, month, day, hours = 0, minutes = 0;
+    const dateParts = date.split('-');
+    year = parseInt(dateParts[0]);
+    month = parseInt(dateParts[1]) - 1; // JavaScript 月份從 0 開始
+    day = parseInt(dateParts[2]);
+    
+    if (tripTime.value) {
+        const timeParts = tripTime.value.split(':');
+        hours = parseInt(timeParts[0]);
+        minutes = parseInt(timeParts[1]);
+    }
+    
+    // ✅ 創建本地時間的 Date 物件（使用本地時區）
+    const localDate = new Date(year, month, day, hours, minutes, 0);
+    
+    // ✅ 轉換為 UTC 時間戳（毫秒）
+    const utcTimestamp = localDate.getTime() - (localDate.getTimezoneOffset() * 60 * 1000);
+    
+    // ✅ 創建 UTC 時間的 Date 物件
+    const utcDate = new Date(utcTimestamp);
+    
+    // ✅ 轉換為 Firebase Timestamp
+    const firebaseTimestamp = firebase.firestore.Timestamp.fromDate(utcDate);
 
-            const saveBtn = document.getElementById('saveTripBtn');
-            saveBtn.disabled = true;
-            saveBtn.textContent = '儲存中...';
+    let cityName = tripCity.value;
+    if (!cityName && editingLat.value && editingLng.value) {
+        cityName = await getCityNameFromCoordinates(
+            parseFloat(editingLat.value), 
+            parseFloat(editingLng.value)
+        );
+    }
 
-            try {
-                const destinationsRef = db.collection('groups')
-                    .doc(currentGroupId)
-                    .collection('destinations');
+    const destinationName = placeName;
 
-                if (editingId.value) {
-                    await destinationsRef.doc(editingId.value).update(destinationData);
-                    showToast('行程已更新');
-                } else {
-                    await destinationsRef.add(destinationData);
-                    showToast('行程已新增');
-                }
+    const destinationData = {
+        city: cityName,
+        destination: destinationName,
+        lat: editingLat.value ? parseFloat(editingLat.value) : null,
+        lng: editingLng.value ? parseFloat(editingLng.value) : null,
+        dateTime: firebaseTimestamp,
+        createdBy: currentUser.uid,
+        name: destinationName,
+        address: selectedPlaceAddress.value.trim() || '',
+        notes: tripNotes.value.trim() || '',
+        senderId: currentUser.uid
+    };
 
-                modal.style.display = 'none';
-                loadTrips();
+    const saveBtn = document.getElementById('saveTripBtn');
+    saveBtn.disabled = true;
+    saveBtn.textContent = '儲存中...';
 
-            } catch (error) {
-                console.error('儲存行程錯誤:', error);
-                showToast('儲存失敗：' + error.message);
-            } finally {
-                saveBtn.disabled = false;
-                saveBtn.textContent = '儲存行程';
-            }
-        });
+    try {
+        const destinationsRef = db.collection('groups')
+            .doc(currentGroupId)
+            .collection('destinations');
 
-        // ========== 編輯行程 ==========
-        window.editTrip = async (tripId) => {
-            if (!currentUser || !currentGroupId) return;
+        if (editingId.value) {
+            await destinationsRef.doc(editingId.value).update(destinationData);
+            showToast('行程已更新');
+        } else {
+            await destinationsRef.add(destinationData);
+            showToast('行程已新增');
+        }
 
-            try {
-                const docRef = db.collection('groups')
-                    .doc(currentGroupId)
-                    .collection('destinations')
-                    .doc(tripId);
-                const doc = await docRef.get();
-                if (!doc.exists) {
-                    showToast('行程不存在');
-                    return;
-                }
-                const data = doc.data();
+        modal.style.display = 'none';
+        loadTrips();
 
-                let dateVal = '', timeVal = '';
-                if (data.time) {
-                    if (data.time.includes('T')) {
-                        const parts = data.time.split('T');
-                        dateVal = parts[0];
-                        timeVal = parts[1] ? parts[1].substring(0,5) : '';
-                    } else {
-                        dateVal = data.time;
-                    }
-                }
+    } catch (error) {
+        console.error('儲存行程錯誤:', error);
+        showToast('儲存失敗：' + error.message);
+    } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = '儲存行程';
+    }
+});
 
-                tripTitle.value = data.name || '';
-                tripDate.value = dateVal;
-                tripTime.value = timeVal;
-                tripLocation.value = data.destination || '';
-                tripNotes.value = data.notes || '';
-                editingId.value = tripId;
-                editingLat.value = data.lat || '';
-                editingLng.value = data.lng || '';
-                modalTitle.textContent = '編輯行程';
+       // ========== 編輯行程 ==========
+window.editTrip = async (tripId) => {
+    if (!currentUser || !currentGroupId) return;
 
-                if (data.lat && data.lng) {
-                    locationHint.innerHTML = `
-                        <span>📍 已記錄座標</span>
-                        <span class="coord">${data.lat.toFixed(6)}, ${data.lng.toFixed(6)}</span>
-                    `;
-                } else {
-                    locationHint.innerHTML = '<span>📍 選擇地點後會自動記錄座標</span>';
-                }
+    try {
+        const docRef = db.collection('groups')
+            .doc(currentGroupId)
+            .collection('destinations')
+            .doc(tripId);
+        const doc = await docRef.get();
+        if (!doc.exists) {
+            showToast('行程不存在');
+            return;
+        }
+        const data = doc.data();
 
-                modal.style.display = 'flex';
-                
-                setTimeout(() => {
-                    initAutocomplete();
-                }, 300);
+        let dateVal = '', timeVal = '';
+        
+        const timestamp = data.dateTime;
+        if (timestamp && timestamp.toDate && typeof timestamp.toDate === 'function') {
+            // ✅ 獲取 UTC 時間並轉為本地時間顯示
+            const utcDate = timestamp.toDate();
+            const localDate = new Date(utcDate.getTime() + (utcDate.getTimezoneOffset() * 60 * 1000));
+            
+            const year = localDate.getFullYear();
+            const month = String(localDate.getMonth() + 1).padStart(2, '0');
+            const day = String(localDate.getDate()).padStart(2, '0');
+            const hours = String(localDate.getHours()).padStart(2, '0');
+            const minutes = String(localDate.getMinutes()).padStart(2, '0');
+            
+            dateVal = `${year}-${month}-${day}`;
+            timeVal = `${hours}:${minutes}`;
+        }
 
-            } catch (error) {
-                console.error('讀取行程錯誤:', error);
-                showToast('讀取失敗：' + error.message);
-            }
-        };
+        const locationName = data.destination || data.name || '';
+        
+        tripLocation.value = locationName;
+        tripCity.value = data.city || '';
+        tripDate.value = dateVal;
+        tripTime.value = timeVal;
+        tripNotes.value = data.notes || '';
+        editingId.value = tripId;
+        editingLat.value = data.lat || '';
+        editingLng.value = data.lng || '';
+        selectedPlaceName.value = locationName;
+        selectedPlaceAddress.value = data.address || '';
+        modalTitle.textContent = '編輯行程';
+
+        if (data.lat && data.lng) {
+            locationHint.innerHTML = `
+                <span>📍 ${locationName || '已記錄座標'}</span>
+                ${data.city ? `<span class="city-badge">🏙️ ${data.city}</span>` : ''}
+                <span class="coord">${data.lat.toFixed(6)}, ${data.lng.toFixed(6)}</span>
+            `;
+        } else {
+            locationHint.innerHTML = '<span>🔍 選擇地點後會自動填入城市</span>';
+        }
+
+        modal.style.display = 'flex';
+        
+        setTimeout(() => {
+            initAutocomplete();
+        }, 300);
+
+    } catch (error) {
+        console.error('讀取行程錯誤:', error);
+        showToast('讀取失敗：' + error.message);
+    }
+};
 
         // ========== 刪除行程 ==========
         window.deleteTrip = async (tripId) => {
