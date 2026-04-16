@@ -646,7 +646,7 @@
             background-color: #e8eef0;
         }
 
-        /* ==================== 定位按鈕容器 - 全螢幕模式往上移動 ==================== */
+        /* ==================== 定位按鈕容器 ==================== */
         .location-button-container {
             position: absolute;
             bottom: 20px;
@@ -805,7 +805,7 @@
             background: #FF8C00;
         }
 
-        /* ==================== 路線摘要卡片 - 全螢幕模式往上移動 ==================== */
+        /* ==================== 路線摘要卡片 ==================== */
         .route-summary {
             position: absolute;
             bottom: 120px;
@@ -990,354 +990,52 @@
             margin-left: 8px;
         }
 
-        /* 手機版響應式 - 導航移到下方 */
+        /* 手機版響應式 */
         @media (max-width: 768px) {
             body {
                 padding: 8px 8px 70px 8px;
             }
-
-            .side-nav {
-                display: none;
-            }
-
-            .bottom-nav {
-                display: flex;
-            }
-
-            .header {
-                padding-left: 0;
-                margin-bottom: 10px;
-            }
-
-            .header h1 {
-                font-size: 20px;
-            }
-
-            .back-btn {
-                padding: 8px 16px;
-                font-size: 14px;
-            }
-
-            .container {
-                padding-left: 0;
-                height: calc(100vh - 140px);
-            }
-
-            .map-header {
-                padding: 10px 12px;
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .map-header h2 {
-                font-size: 16px;
-                margin-bottom: 5px;
-            }
-
-            .search-container {
-                max-width: 100%;
-                width: 100%;
-            }
-
-            .search-box {
-                width: 100%;
-            }
-
-            .search-input {
-                padding: 10px 14px;
-                font-size: 14px;
-            }
-
-            .search-btn {
-                padding: 10px 18px;
-                font-size: 14px;
-            }
-
-            .map-actions {
-                width: 100%;
-                justify-content: space-between;
-            }
-
-            .route-mode-group {
-                flex: 1;
-                justify-content: space-around;
-            }
-
-            .route-mode-btn {
-                padding: 6px 10px;
-                font-size: 13px;
-            }
-
-            .map-action-btn {
-                padding: 8px 14px;
-                font-size: 13px;
-            }
-
-            .group-selector {
-                padding: 8px 12px;
-            }
-
-            .group-selector-label {
-                font-size: 13px;
-            }
-
-            .group-badge {
-                padding: 5px 12px;
-                font-size: 12px;
-            }
-
-            .button-row {
-                padding: 8px 12px !important;
-            }
-
-            .nearby-btn {
-                padding: 7px 14px;
-                font-size: 12px;
-            }
-
-            .search-location-selector {
-                gap: 10px;
-            }
-
-            .selector-label {
-                font-size: 12px;
-            }
-
-            .selector-radio {
-                font-size: 12px;
-            }
-
-            .selector-radio input[type="radio"] {
-                width: 14px;
-                height: 14px;
-            }
-
-            .map-container {
-                min-height: 450px;
-            }
-
-            #google-map {
-                min-height: 450px;
-            }
-
-            .location-button {
-                width: 48px;
-                height: 48px;
-                font-size: 24px;
-            }
-
-            .route-summary {
-                bottom: 100px;
-                left: 10px;
-                right: 10px;
-                padding: 12px 15px;
-            }
-            
-            .route-summary.fullscreen-mode {
-                bottom: calc(160px + var(--safe-area-bottom));
-            }
-            
-            .route-summary-arrow {
-                width: 32px;
-                height: 32px;
-                font-size: 18px;
-            }
-
-            .group-badges {
-                overflow-x: auto;
-                flex-wrap: nowrap;
-                padding-bottom: 5px;
-            }
-
-            .group-badge {
-                flex-shrink: 0;
-            }
+            .side-nav { display: none; }
+            .bottom-nav { display: flex; }
+            .header { padding-left: 0; }
+            .container { padding-left: 0; height: calc(100vh - 140px); }
+            .map-header { flex-direction: column; align-items: stretch; }
+            .map-header h2 { font-size: 16px; }
+            .search-container { max-width: 100%; width: 100%; }
+            .search-box { width: 100%; }
+            .map-actions { width: 100%; justify-content: space-between; }
+            .route-mode-group { flex: 1; justify-content: space-around; }
+            .group-selector { padding: 8px 12px; }
+            .group-badges { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 5px; }
+            .group-badge { flex-shrink: 0; }
+            .nearby-buttons { overflow-x: auto; flex-wrap: nowrap; }
+            .nearby-btn { flex-shrink: 0; }
+            .search-location-selector { justify-content: flex-end; }
         }
 
         @media (max-width: 480px) {
-            body {
-                padding: 8px 8px 65px 8px;
-            }
-
-            .map-header h2 {
-                font-size: 16px;
-            }
-
-            .route-mode-btn {
-                padding: 5px 8px;
-                font-size: 12px;
-            }
-
-            .route-mode-btn i {
-                font-size: 14px;
-            }
-
-            .nearby-btn {
-                padding: 6px 12px;
-                font-size: 12px;
-            }
-
-            .nearby-btn i {
-                font-size: 14px;
-            }
-
-            .search-input {
-                padding: 8px 12px;
-                font-size: 13px;
-            }
-
-            .search-btn {
-                padding: 8px 16px;
-                font-size: 13px;
-            }
-
-            .map-action-btn {
-                padding: 6px 12px;
-                font-size: 12px;
-            }
-
-            .map-container {
-                min-height: 400px;
-            }
-
-            #google-map {
-                min-height: 400px;
-            }
-
-            .location-button {
-                width: 44px;
-                height: 44px;
-                font-size: 22px;
-            }
-
-            .group-badge {
-                padding: 4px 10px;
-                font-size: 12px;
-            }
-
-            .selector-label {
-                font-size: 12px;
-            }
-
-            .selector-radio {
-                font-size: 12px;
-            }
-
-            .member-count-badge {
-                font-size: 11px;
-                padding: 2px 6px;
-            }
-
-            .route-summary {
-                bottom: 90px;
-            }
-            
-            .route-summary.fullscreen-mode {
-                bottom: calc(150px + var(--safe-area-bottom));
-            }
-            
-            .route-summary-arrow {
-                width: 30px;
-                height: 30px;
-                font-size: 16px;
-            }
-
-            .bottom-nav-item {
-                font-size: 10px;
-            }
-
-            .bottom-nav-icon {
-                font-size: 18px;
-            }
-
-            .bottom-nav-label {
-                font-size: 9px;
-            }
+            body { padding: 5px 5px 65px 5px; }
+            .route-mode-btn { padding: 5px 8px; font-size: 12px; }
+            .nearby-btn { padding: 6px 12px; font-size: 12px; }
+            .search-input { padding: 8px 12px; font-size: 13px; }
+            .search-btn { padding: 8px 16px; font-size: 13px; }
+            .map-action-btn { padding: 6px 12px; font-size: 12px; }
+            .location-button { width: 44px; height: 44px; font-size: 22px; }
+            .route-summary { bottom: 90px; }
+            .route-summary.fullscreen-mode { bottom: calc(150px + var(--safe-area-bottom)); }
         }
 
         @media (max-width: 375px) {
-            body {
-                padding: 5px 5px 60px 5px;
-            }
-
-            .route-mode-btn {
-                padding: 4px 6px;
-                font-size: 11px;
-            }
-
-            .route-mode-btn i {
-                font-size: 13px;
-            }
-
-            .nearby-btn {
-                padding: 5px 10px;
-                font-size: 11px;
-            }
-
-            .nearby-btn i {
-                font-size: 13px;
-            }
-
-            .search-input {
-                padding: 7px 10px;
-                font-size: 12px;
-            }
-
-            .search-btn {
-                padding: 7px 14px;
-                font-size: 12px;
-            }
-
-            .map-action-btn {
-                padding: 5px 10px;
-                font-size: 11px;
-            }
-
-            .group-badge {
-                padding: 3px 8px;
-                font-size: 11px;
-            }
-
-            .selector-label {
-                font-size: 11px;
-            }
-
-            .selector-radio {
-                font-size: 11px;
-            }
-
-            .selector-radio input[type="radio"] {
-                width: 13px;
-                height: 13px;
-            }
-
-            .map-container {
-                min-height: 350px;
-            }
-
-            #google-map {
-                min-height: 350px;
-            }
-
-            .route-summary {
-                bottom: 80px;
-            }
-            
-            .route-summary.fullscreen-mode {
-                bottom: calc(140px + var(--safe-area-bottom));
-            }
-
-            .bottom-nav-item {
-                font-size: 9px;
-            }
-
-            .bottom-nav-icon {
-                font-size: 16px;
-            }
-
-            .bottom-nav-label {
-                font-size: 8px;
-            }
+            body { padding: 5px 5px 60px 5px; }
+            .route-mode-btn { padding: 4px 6px; font-size: 11px; }
+            .nearby-btn { padding: 5px 10px; font-size: 11px; }
+            .search-input { padding: 7px 10px; font-size: 12px; }
+            .search-btn { padding: 7px 14px; font-size: 12px; }
+            .map-action-btn { padding: 5px 10px; font-size: 11px; }
+            .group-badge { padding: 3px 8px; font-size: 11px; }
+            .location-button { width: 40px; height: 40px; font-size: 20px; }
+            .route-summary { bottom: 80px; }
+            .route-summary.fullscreen-mode { bottom: calc(140px + var(--safe-area-bottom)); }
         }
 
         /* iOS 安全區域支援 */
@@ -1345,43 +1043,11 @@
             .route-summary.fullscreen-mode {
                 bottom: max(180px, calc(160px + env(safe-area-inset-bottom)));
             }
-            
             .location-button-container.fullscreen-mode {
                 bottom: max(80px, env(safe-area-inset-bottom));
             }
-            
             .bottom-nav {
                 padding-bottom: max(8px, env(safe-area-inset-bottom));
-            }
-            
-            @media (max-width: 768px) {
-                .route-summary.fullscreen-mode {
-                    bottom: max(160px, calc(140px + env(safe-area-inset-bottom)));
-                }
-                
-                .location-button-container.fullscreen-mode {
-                    bottom: max(70px, env(safe-area-inset-bottom));
-                }
-            }
-            
-            @media (max-width: 480px) {
-                .route-summary.fullscreen-mode {
-                    bottom: max(150px, calc(130px + env(safe-area-inset-bottom)));
-                }
-                
-                .location-button-container.fullscreen-mode {
-                    bottom: max(60px, env(safe-area-inset-bottom));
-                }
-            }
-            
-            @media (max-width: 375px) {
-                .route-summary.fullscreen-mode {
-                    bottom: max(140px, calc(120px + env(safe-area-inset-bottom)));
-                }
-                
-                .location-button-container.fullscreen-mode {
-                    bottom: max(50px, env(safe-area-inset-bottom));
-                }
             }
         }
     </style>
@@ -1478,7 +1144,7 @@
                 </div>
 
                 <div class="map-actions">
-                    <!-- 交通模式切換 - 已移除單車選項 -->
+                    <!-- 交通模式切換 -->
                     <div class="route-mode-group" id="routeModeGroup">
                         <button class="route-mode-btn active" data-mode="DRIVING" onclick="setTravelMode('DRIVING')"><i>🚗</i> 開車</button>
                         <button class="route-mode-btn" data-mode="TRANSIT" onclick="setTravelMode('TRANSIT')"><i>🚆</i> 大眾運輸</button>
@@ -1586,7 +1252,6 @@
 
     <script>
         // Firebase 配置
-
         const firebaseConfig = {
             apiKey: "AIzaSyCIwmeMV5XHSEPlneNN9vlRsI7feaoQm18",
             authDomain: "project-221c4.firebaseapp.com",
@@ -1631,7 +1296,6 @@
         let isSharingLocation = false;
         let locationShareInterval = null;
         let groupMembersMarkers = [];
-        let unsubscribeLocations = null;
         let unsubscribeGroupLocations = null;
 
         // 全螢幕狀態
@@ -1657,7 +1321,6 @@
             }, 3000);
         }
 
-        // 可以設定顯示時間的 Toast 函數
         function showToastWithDuration(message, duration = 3000) {
             const toast = document.createElement('div');
             toast.className = 'toast-message';
@@ -1765,7 +1428,6 @@
                     const locationData = JSON.parse(savedLocation);
                     const now = new Date().getTime();
                     
-                    // 檢查是否在 30 秒內（避免讀取到舊資料）
                     if (now - locationData.timestamp < 30000) {
                         console.log('從行程頁面載入地點:', locationData);
                         
@@ -1774,22 +1436,18 @@
                             lng: locationData.lng
                         };
                         
-                        // 完全比照 handlePlaceSelected 的邏輯
                         currentDestinationPosition = {
                             lat: position.lat,
                             lng: position.lng
                         };
                         
-                        // 移動地圖
                         map.setCenter(position);
                         map.setZoom(17);
                         
-                        // 清除舊標記
                         if (searchMarker) {
                             searchMarker.setMap(null);
                         }
                         
-                        // 建立新標記（和搜尋結果一樣）
                         searchMarker = new google.maps.Marker({
                             map: map,
                             position: position,
@@ -1797,7 +1455,6 @@
                             animation: google.maps.Animation.DROP
                         });
                         
-                        // 顯示資訊視窗（和搜尋結果一樣）
                         const infoWindow = new google.maps.InfoWindow({
                             content: `
                                 <div class="info-window">
@@ -1811,21 +1468,17 @@
                         infoWindow.open(map, searchMarker);
                         currentInfoWindow = infoWindow;
 
-                        // 清除路線（和搜尋結果一樣）
                         if (directionsRenderer) directionsRenderer.setDirections({ routes: [] });
                         document.getElementById('routeSummary').classList.remove('show');
                         
-                        // 如果有目前位置，自動規劃路線（和搜尋結果一樣）
                         if (lastOriginPosition) {
                             autoPlanRoute();
                         }
 
-                        // 清除 localStorage，避免重複使用
                         localStorage.removeItem('viewLocation');
                         
                         showToast(`📍 已顯示行程地點：${locationData.title}`);
                     } else {
-                        // 超過 30 秒，清除舊資料
                         localStorage.removeItem('viewLocation');
                     }
                 }
@@ -1839,9 +1492,8 @@
         window.setAsStartPoint = function(lat, lng, title) {
             const position = { lat, lng };
             lastOriginPosition = position;
-            currentUserLocation = position; // 同時更新目前位置
+            currentUserLocation = position;
             
-            // 更新用戶位置標記
             if (currentLocationMarker) {
                 currentLocationMarker.setMap(null);
             }
@@ -1849,7 +1501,6 @@
                 userLocationCircle.setMap(null);
             }
             
-            // 建立新的起點標記
             const markerContent = document.createElement('div');
             markerContent.style.position = 'relative';
             markerContent.style.width = '40px';
@@ -1896,12 +1547,10 @@
             
             showToast(`🚩 已設為起點：${title || '所選地點'}`);
             
-            // 如果有目的地，重新規劃路線
             if (currentDestinationPosition) {
                 calculateAndDisplayRoute(position, currentDestinationPosition, currentTravelMode);
             }
             
-            // 關閉目前的資訊視窗
             if (currentInfoWindow) {
                 currentInfoWindow.close();
             }
@@ -1911,14 +1560,11 @@
         window.setAsDestination = function(lat, lng, title) {
             currentDestinationPosition = { lat, lng };
             
-            // 清除附近設施標記
             clearNearbyMarkers();
             
-            // 更新地圖中心
             map.setCenter({ lat, lng });
             map.setZoom(17);
             
-            // 更新目的地標記
             if (searchMarker) {
                 searchMarker.setMap(null);
             }
@@ -1929,19 +1575,17 @@
                 title: title || '目的地',
                 animation: google.maps.Animation.DROP,
                 icon: {
-                    url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png', // 藍色標記代表目的地
+                    url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
                     scaledSize: new google.maps.Size(40, 40)
                 }
             });
             
             showToast(`🎯 已設為目的地：${title || '所選地點'}`);
             
-            // 如果有起點，規劃路線
             if (lastOriginPosition) {
                 calculateAndDisplayRoute(lastOriginPosition, { lat, lng }, currentTravelMode);
             }
             
-            // 關閉目前的資訊視窗
             if (currentInfoWindow) {
                 currentInfoWindow.close();
             }
@@ -1990,10 +1634,7 @@
                 isMapInitialized = true;
                 console.log("所有服務初始化完成");
                 
-                // 先載入會合點
                 showMeetingLocationFromStorage();
-                
-                // 再載入從行程頁面傳來的點
                 loadLocationFromItinerary();
                 
                 google.maps.event.addListener(map, 'center_changed', function() {
@@ -2185,6 +1826,7 @@
             groupMembersMarkers = [];
         }
 
+        // ========== 修改後的 listenSelectedGroupLocation - 同時從三個來源讀取 ==========
         function listenSelectedGroupLocation() {
             const user = auth.currentUser;
             if (!user || !selectedGroupId) return;
@@ -2193,55 +1835,178 @@
                 unsubscribeGroupLocations();
             }
             
-            const locationsRef = db.collection('groups')
-                .doc(selectedGroupId)
-                .collection('locations');
+            // 儲存所有成員位置
+            let allMembers = new Map();
             
-            unsubscribeGroupLocations = locationsRef.onSnapshot((snapshot) => {
-                const onlineCount = snapshot.docs.length;
-                const badge = document.getElementById('memberCountBadge');
+            // 更新地圖標記的函數
+            const updateMarkers = () => {
+                clearGroupMembersMarkers();
                 
+                let onlineCount = 0;
+                
+                allMembers.forEach((member, memberId) => {
+                    // 跳過自己
+                    if (memberId === user.uid) return;
+                    
+                    // 檢查是否有有效的位置
+                    const lat = member.latitude || member.lat;
+                    const lng = member.longitude || member.lng;
+                    
+                    if (lat && lng) {
+                        onlineCount++;
+                        
+                        const position = { lat: lat, lng: lng };
+                        
+                        // 檢查時間戳，如果超過2分鐘就不顯示
+                        if (member.timestamp) {
+                            const lastUpdate = member.timestamp.toDate ? member.timestamp.toDate() : new Date(member.timestamp);
+                            const now = new Date();
+                            const diffMinutes = (now - lastUpdate) / 1000 / 60;
+                            
+                            if (diffMinutes > 2) {
+                                return;
+                            }
+                        }
+                        
+                        updateMemberMarker(memberId, {
+                            latitude: lat,
+                            longitude: lng,
+                            name: member.name || member.username || '成員',
+                            avatarUrl: member.avatarUrl || member.profileImageUrl,
+                            timestamp: member.timestamp
+                        });
+                    }
+                });
+                
+                // 更新在線人數顯示
+                const badge = document.getElementById('memberCountBadge');
+                if (badge) {
+                    if (onlineCount > 0) {
+                        badge.style.display = 'inline-block';
+                        badge.textContent = `${onlineCount} 人在線`;
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                }
+                
+                // 更新群組徽章的在線人數
                 const groupIndex = userGroups.findIndex(g => g.groupId === selectedGroupId);
                 if (groupIndex !== -1) {
                     userGroups[groupIndex].onlineCount = onlineCount;
                     renderGroupBadges();
                 }
-                
-                if (onlineCount > 0) {
-                    badge.style.display = 'inline-block';
-                    badge.textContent = `${onlineCount} 人在線`;
-                } else {
-                    badge.style.display = 'none';
-                }
-                
-                clearGroupMembersMarkers();
+            };
+            
+            // ===== 1. 監聽 groups/{groupId}/locations (App 寫入的資料) =====
+            const locationsRef = db.collection('groups')
+                .doc(selectedGroupId)
+                .collection('locations');
+            
+            const unsubscribe1 = locationsRef.onSnapshot((snapshot) => {
+                console.log('從 locations 收到位置更新，文件數量:', snapshot.docs.length);
                 
                 snapshot.forEach(doc => {
                     const data = doc.data();
-                    const memberId = doc.id;
-                    
-                    if (memberId === user.uid) return;
-                    
-                    updateMemberMarker(memberId, data);
+                    allMembers.set(doc.id, {
+                        latitude: data.latitude,
+                        longitude: data.longitude,
+                        name: data.name,
+                        avatarUrl: data.avatarUrl,
+                        timestamp: data.timestamp
+                    });
                 });
+                
+                updateMarkers();
             }, (error) => {
-                console.error('監聽位置錯誤:', error);
+                console.error('監聽 locations 錯誤:', error);
             });
+            
+            // ===== 2. 監聽 users collection (Android App 和網頁版都會寫入) =====
+            const usersRef = db.collection('users')
+                .whereEqualTo('currentGroupId', selectedGroupId);
+            
+            const unsubscribe2 = usersRef.onSnapshot((snapshot) => {
+                console.log('從 users 收到位置更新，文件數量:', snapshot.docs.length);
+                
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const lat = data.lat;
+                    const lng = data.lng;
+                    
+                    if (lat && lng) {
+                        const existing = allMembers.get(doc.id) || {};
+                        allMembers.set(doc.id, {
+                            latitude: lat,
+                            longitude: lng,
+                            name: data.username || existing.name,
+                            avatarUrl: data.profileImageUrl || existing.avatarUrl,
+                            timestamp: data.timestamp || existing.timestamp,
+                            ...existing
+                        });
+                    } else {
+                        const existing = allMembers.get(doc.id) || {};
+                        allMembers.set(doc.id, {
+                            name: data.username || existing.name,
+                            avatarUrl: data.profileImageUrl || existing.avatarUrl,
+                            ...existing
+                        });
+                    }
+                });
+                
+                updateMarkers();
+            }, (error) => {
+                console.error('監聽 users 錯誤:', error);
+            });
+            
+            // ===== 3. 監聽 members collection 獲取成員名稱 =====
+            const membersRef = db.collection('groups')
+                .doc(selectedGroupId)
+                .collection('members');
+            
+            const unsubscribe3 = membersRef.onSnapshot((snapshot) => {
+                console.log('從 members 收到更新，文件數量:', snapshot.docs.length);
+                
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const existing = allMembers.get(doc.id) || {};
+                    allMembers.set(doc.id, {
+                        name: data.name || existing.name,
+                        avatarUrl: data.avatarUrl || existing.avatarUrl,
+                        ...existing
+                    });
+                });
+                
+                updateMarkers();
+            }, (error) => {
+                console.error('監聽 members 錯誤:', error);
+            });
+            
+            // 儲存取消監聽的函數
+            unsubscribeGroupLocations = () => {
+                unsubscribe1();
+                unsubscribe2();
+                unsubscribe3();
+            };
         }
 
+        // ========== 更新成員標記 ==========
         function updateMemberMarker(memberId, locationData) {
             const lastUpdate = locationData.timestamp?.toDate?.() || new Date(locationData.timestamp);
             const now = new Date();
             const diffMinutes = (now - lastUpdate) / 1000 / 60;
             
-            if (diffMinutes > 1) {
+            if (diffMinutes > 2) {
                 return;
             }
             
-            const position = {
-                lat: locationData.latitude,
-                lng: locationData.longitude
-            };
+            const lat = locationData.latitude || locationData.lat;
+            const lng = locationData.longitude || locationData.lng;
+            
+            if (!lat || !lng) return;
+            
+            const position = { lat, lng };
+            const memberName = locationData.name || locationData.username || '群組成員';
+            const avatarUrl = locationData.avatarUrl || locationData.profileImageUrl;
             
             const markerContent = document.createElement('div');
             markerContent.style.position = 'relative';
@@ -2249,9 +2014,9 @@
             markerContent.style.height = '36px';
             markerContent.style.cursor = 'pointer';
             
-            if (locationData.avatarUrl) {
+            if (avatarUrl) {
                 const img = document.createElement('img');
-                img.src = locationData.avatarUrl;
+                img.src = avatarUrl;
                 img.style.width = '100%';
                 img.style.height = '100%';
                 img.style.borderRadius = '50%';
@@ -2273,10 +2038,11 @@
                 defaultIcon.style.color = 'white';
                 defaultIcon.style.fontSize = '16px';
                 defaultIcon.style.fontWeight = 'bold';
-                defaultIcon.textContent = locationData.name ? locationData.name.charAt(0).toUpperCase() : '?';
+                defaultIcon.textContent = memberName.charAt(0).toUpperCase();
                 markerContent.appendChild(defaultIcon);
             }
             
+            // 添加脈衝動畫
             const pulse = document.createElement('div');
             pulse.style.position = 'absolute';
             pulse.style.top = '50%';
@@ -2296,18 +2062,18 @@
                     map: map,
                     position: position,
                     content: markerContent,
-                    title: locationData.name || '群組成員'
+                    title: memberName
                 });
             } else {
                 marker = new google.maps.Marker({
                     map: map,
                     position: position,
-                    title: locationData.name || '群組成員',
+                    title: memberName,
                     icon: {
-                        url: locationData.avatarUrl || 'data:image/svg+xml,' + encodeURIComponent(`
+                        url: avatarUrl || 'data:image/svg+xml,' + encodeURIComponent(`
                             <svg width="36" height="36" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
                                 <circle cx="18" cy="18" r="16" fill="#FFB347" stroke="white" stroke-width="2"/>
-                                <text x="18" y="24" font-size="14" font-weight="bold" text-anchor="middle" fill="white">${locationData.name ? locationData.name.charAt(0).toUpperCase() : '?'}</text>
+                                <text x="18" y="24" font-size="14" font-weight="bold" text-anchor="middle" fill="white">${memberName.charAt(0).toUpperCase()}</text>
                             </svg>
                         `),
                         scaledSize: new google.maps.Size(36, 36)
@@ -2325,9 +2091,10 @@
                 const infoWindow = new google.maps.InfoWindow({
                     content: `
                         <div style="padding:10px; text-align:center;">
-                            ${locationData.avatarUrl ? `<img src="${locationData.avatarUrl}" style="width:45px; height:45px; border-radius:50%; margin-bottom:8px; object-fit:cover;">` : ''}
-                            <div style="font-weight:bold; color:var(--accent-dark);">${locationData.name || '群組成員'}</div>
+                            ${avatarUrl ? `<img src="${avatarUrl}" style="width:45px; height:45px; border-radius:50%; margin-bottom:8px; object-fit:cover;">` : ''}
+                            <div style="font-weight:bold; color:var(--accent-dark);">${memberName}</div>
                             <div style="font-size:11px; color:var(--muted);">最後更新: ${lastUpdate.toLocaleTimeString()}</div>
+                            <div style="font-size:10px; color:var(--muted); margin-top:5px;">📍 位置已分享</div>
                         </div>
                     `
                 });
@@ -2335,6 +2102,7 @@
             });
         }
 
+        // ========== 位置分享功能 ==========
         window.toggleLocationSharing = function() {
             if (!currentUserLocation) {
                 showToast('請先獲取您的位置');
@@ -3048,7 +2816,6 @@
             }
         }
 
-        // ========== 修正後的 calculateAndDisplayRoute 函數（已移除單車模式）==========
         function calculateAndDisplayRoute(origin, destination, mode) {
             if (!directionsService || !directionsRenderer) return;
 
@@ -3061,7 +2828,6 @@
                 unitSystem: google.maps.UnitSystem.METRIC
             };
 
-            // 為大眾運輸模式添加特定選項
             if (mode === 'TRANSIT') {
                 request.transitOptions = {
                     modes: [google.maps.TransitMode.BUS, google.maps.TransitMode.RAIL],
@@ -3101,7 +2867,6 @@
                         `;
                         document.getElementById('routeSummaryContent').innerHTML = summaryHtml;
 
-                        // 大眾運輸詳細資訊
                         if (mode === 'TRANSIT' && leg.steps) {
                             let transitStepsHtml = '<hr style="margin:8px 0"><strong>🚉 轉乘資訊</strong>';
                             leg.steps.forEach((step) => {
@@ -3132,7 +2897,6 @@
                 } else {
                     console.log('路線規劃失敗:', status);
                     
-                    // 顯示更具體的錯誤訊息
                     let errorMessage = '路線規劃失敗';
                     switch(status) {
                         case google.maps.DirectionsStatus.NOT_FOUND:
@@ -3163,15 +2927,6 @@
                     showToast(errorMessage);
                 }
             });
-        }
-
-        function getModeName(mode) {
-            switch(mode) {
-                case 'DRIVING': return '開車';
-                case 'TRANSIT': return '大眾運輸';
-                case 'WALKING': return '步行';
-                default: return '未知';
-            }
         }
 
         window.closeRoutePanel = function() {
