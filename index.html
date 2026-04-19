@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>TravelSync · 主頁</title>
     
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
@@ -40,7 +39,6 @@
             transition: padding 0.3s ease;
         }
 
-        /* ==================== 側邊導航 - 電腦版 ==================== */
         .side-nav {
             position: fixed;
             left: 10px;
@@ -132,7 +130,6 @@
             opacity: 1;
         }
 
-        /* ==================== 底部導航 - 手機版 ==================== */
         .bottom-nav {
             display: none;
             position: fixed;
@@ -188,7 +185,6 @@
             font-weight: 500;
         }
 
-        /* 登出確認對話框樣式 */
         .logout-confirm-overlay {
             position: fixed;
             top: 0;
@@ -1109,7 +1105,6 @@
             width: min(920px, 96%); z-index: 70; display: none;
         }
 
-        /* 手機版響應式 - 導航移到下方 */
         @media (max-width: 768px) {
             body {
                 padding: 10px 10px 70px 10px;
@@ -1413,7 +1408,6 @@
             }
         }
 
-        /* iOS 安全區域支援 */
         @supports (padding: max(0px)) {
             .bottom-nav {
                 padding-bottom: max(8px, env(safe-area-inset-bottom));
@@ -1422,7 +1416,6 @@
     </style>
 </head>
 <body>
-    <!-- 側邊導航 - 電腦版 -->
 <div class="side-nav">
     <div class="nav-items">
         <a href="index.html" class="nav-item active">
@@ -1452,7 +1445,6 @@
     </div>
 </div>
 
-<!-- 底部導航 - 手機版 -->
 <div class="bottom-nav">
     <a href="index.html" class="bottom-nav-item active">
         <span class="bottom-nav-icon">🏠</span>
@@ -1500,22 +1492,18 @@
         </div>
     </header>
     
-    <!-- 地理位置載入提示 -->
     <div class="location-loading" id="locationLoading">
         <div class="spinner"></div>
         <p>正在獲取您的位置...</p>
         <p style="font-size: 12px; color: var(--muted); margin-top: 10px;">請允許瀏覽器存取位置</p>
     </div>
 
-    <!-- 位置資訊顯示 -->
     <div class="location-info" id="locationInfo"></div>
 
-    <!-- 成功提示 -->
     <div class="success-toast" id="successToast">
         ✅ 已獲取位置，正在開啟 Google Maps...
     </div>
 
-    <!-- 天氣浮層 -->
     <div class="weather-overlay" id="weatherOverlay">
         <div class="weather-modal">
             <div class="weather-header">
@@ -1530,7 +1518,6 @@
         </div>
     </div>
 
-    <!-- 集合點選擇浮層 -->
     <div class="meeting-overlay" id="meetingOverlay">
         <div class="meeting-modal">
             <div class="meeting-header">
@@ -1539,7 +1526,6 @@
             </div>
             
             <div class="meeting-content">
-                <!-- 步驟1: 選擇群組 -->
                 <div class="step" id="step1">
                     <h3>步驟1：選擇群組</h3>
                     <div class="group-list" id="groupList">
@@ -1547,7 +1533,6 @@
                     </div>
                 </div>
                 
-                <!-- 步驟2: 在地圖上選擇地點 -->
                 <div class="step" id="step2" style="display: none;">
                     <h3>步驟2：在地圖上選擇地點</h3>
                     <p class="instruction">👆 <strong>點擊地圖上的任意位置</strong> 選擇會合點，或點擊下方按鈕使用目前位置</p>
@@ -1557,7 +1542,6 @@
                     <div class="selected-location" id="selectedLocation"></div>
                 </div>
                 
-                <!-- 步驟3: 確認並發送 -->
                 <div class="step" id="step3" style="display: none;">
                     <h3>步驟3：確認會合點</h3>
                     <div class="meeting-details" id="meetingDetails"></div>
@@ -1567,7 +1551,6 @@
                     </div>
                 </div>
                 
-                <!-- 導航按鈕 -->
                 <div class="step-navigation">
                     <button class="btn secondary" id="prevBtn" onclick="prevStep()" style="display: none;">上一步</button>
                     <button class="btn" id="nextBtn" onclick="nextStep()">下一步</button>
@@ -1578,7 +1561,6 @@
     </div>
 
     <div class="container">
-        <!-- 英雄區塊 -->
         <div class="hero-section">
             <h1>與朋友一起探索世界</h1>
             <p>即時位置共享、群組聊天、會合點設定，讓旅行更簡單</p>
@@ -1588,7 +1570,6 @@
             </div>
         </div>
 
-        <!-- 功能特色 -->
         <div class="features-row">
             <div class="feature-item">
                 <div class="feature-icon">🗺️</div>
@@ -1612,9 +1593,7 @@
             </div>
         </div>
 
-        <!-- 群組預覽 + 快速操作 -->
         <div class="right-col">
-            <!-- 群組預覽區塊 -->
             <div class="card" style="padding:20px;">
                 <div class="section-title">
                     <span>📋 我的群組</span>
@@ -1625,7 +1604,6 @@
                 </div>
             </div>
 
-            <!-- 快速操作區塊 -->
             <div class="card" style="padding:20px;">
                 <div class="section-title">
                     <span>⚡ 快速操作</span>
@@ -1652,15 +1630,12 @@
         </div>
     </div>
 
-    <!-- 其他浮層 -->
     <div id="chatScreen" class="overlay" style="bottom:100px; top:auto; display:none;"></div>
     <div id="createJoin" class="overlay" style="top:80px; display:none;"></div>
     <div id="auth" class="overlay" style="top:80px; display:none;"></div>
     <div id="groupScreen" class="overlay" style="top:90px; display:none;"></div>
 
     <script>
-        // Firebase 配置
-
         const firebaseConfig = {
             apiKey: "AIzaSyCIwmeMV5XHSEPlneNN9vlRsI7feaoQm18",
             authDomain: "project-221c4.firebaseapp.com",
@@ -1676,7 +1651,6 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // ========== 顯示登出確認對話框（與 profile.html 相同） ==========
         window.showLogoutConfirm = function() {
             if (document.querySelector('.logout-confirm-overlay')) {
                 return;
@@ -1777,7 +1751,6 @@
             document.addEventListener('keydown', escHandler);
         };
 
-        // 修正版：載入群組預覽
         async function loadGroupPreview() {
             const user = auth.currentUser;
             const container = document.getElementById('groupPreviewContainer');
@@ -1807,18 +1780,15 @@
 
                 const userData = userDoc.data();
                 
-                // 修正：安全地獲取 groups 並轉換為陣列
                 let groups = [];
                 if (userData.groups) {
                     if (Array.isArray(userData.groups)) {
                         groups = userData.groups;
                     } else if (typeof userData.groups === 'object') {
-                        // 如果是物件，轉換為陣列
                         groups = Object.values(userData.groups);
                     }
                 }
                 
-                // 確保 groups 是陣列
                 if (!Array.isArray(groups)) {
                     console.error('groups 不是陣列:', groups);
                     groups = [];
@@ -1836,13 +1806,11 @@
                     return;
                 }
 
-                // 安全地使用 slice
                 const recentGroups = groups.slice(0, 3);
                 let previewHtml = '';
 
                 for (const group of recentGroups) {
                     try {
-                        // 檢查 group 是否存在且有 groupId
                         if (!group || !group.groupId) {
                             console.warn('無效的群組資料:', group);
                             continue;
@@ -2164,7 +2132,6 @@
                 
                 const userData = userDoc.data();
                 
-                // 修正：安全地獲取 groups 並轉換為陣列
                 let groups = [];
                 if (userData.groups) {
                     if (Array.isArray(userData.groups)) {

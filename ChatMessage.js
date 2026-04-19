@@ -1,4 +1,3 @@
-// ChatMessage.js - 對應 Android 的 ChatMessage 類別
 class ChatMessage {
     constructor(id, senderId, senderName, timestamp, content) {
         this.id = id;
@@ -8,7 +7,6 @@ class ChatMessage {
         this.content = content || new MContent('', 'text');
     }
 
-    // 對應 Android 的 toMap()
     toMap() {
         const map = {
             id: this.id,
@@ -20,7 +18,6 @@ class ChatMessage {
         return map;
     }
 
-    // 對應 Android 的 fromMap()
     static fromMap(data) {
         const id = data.id;
         const senderId = data.senderId;
@@ -30,7 +27,6 @@ class ChatMessage {
         return new ChatMessage(id, senderId, senderName, timestamp, content);
     }
 
-    // 對應 Android 的 toString()
     toString() {
         if (!this.timestamp) return '[unknown time]';
         
@@ -51,7 +47,6 @@ class ChatMessage {
         return `[${this.senderId} @ ${timeStr}]\n${this.content.getPreview()}`;
     }
 
-    // 格式化顯示時間
     getFormattedTime() {
         if (!this.timestamp) return '';
         
@@ -64,7 +59,6 @@ class ChatMessage {
         });
     }
 
-    // 獲取完整日期時間
     getFullDateTime() {
         if (!this.timestamp) return '';
         
@@ -82,15 +76,13 @@ class ChatMessage {
     }
 }
 
-// MContent 類別 - 對應 Android 的 MContent
 class MContent {
     constructor(text, type = 'text', metadata = {}) {
         this.text = text;
-        this.type = type; // 'text', 'image', 'location', 'file'
-        this.metadata = metadata; // 額外資訊，如圖片URL、座標等
+        this.type = type;
+        this.metadata = metadata;
     }
 
-    // 對應 Android 的 toMap()
     toMap() {
         return {
             text: this.text,
@@ -99,7 +91,6 @@ class MContent {
         };
     }
 
-    // 對應 Android 的 fromMap()
     static fromMap(data) {
         const text = data.text || '';
         const type = data.type || 'text';
@@ -107,7 +98,6 @@ class MContent {
         return new MContent(text, type, metadata);
     }
 
-    // 對應 Android 的 getPreview()
     getPreview() {
         switch(this.type) {
             case 'image':
@@ -121,7 +111,6 @@ class MContent {
         }
     }
 
-    // 判斷是否為特定類型
     isImage() { return this.type === 'image'; }
     isLocation() { return this.type === 'location'; }
     isFile() { return this.type === 'file'; }

@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>TravelSync · 建立/加入群組</title>
     
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
@@ -39,7 +38,6 @@
             transition: padding 0.3s ease;
         }
 
-        /* ==================== 側邊導航 - 電腦版 ==================== */
         .side-nav {
             position: fixed;
             left: 10px;
@@ -135,7 +133,6 @@
             opacity: 1;
         }
 
-        /* ==================== 底部導航 - 手機版 ==================== */
         .bottom-nav {
             display: none;
             position: fixed;
@@ -451,7 +448,6 @@
             word-break: break-all;
         }
 
-        /* 手機版優化 - 導航移到下方 */
         @media (max-width: 768px) {
             body {
                 padding: 15px 15px 70px 15px;
@@ -677,7 +673,6 @@
             }
         }
 
-        /* iOS 安全區域支援 */
         @supports (padding: max(0px)) {
             .bottom-nav {
                 padding-bottom: max(8px, env(safe-area-inset-bottom));
@@ -686,7 +681,6 @@
     </style>
 </head>
 <body>
-    <!-- 側邊導航 - 電腦版 -->
 <div class="side-nav" id="sideNav">
     <div class="nav-items">
         <a href="index.html" class="nav-item">
@@ -716,7 +710,6 @@
     </div>
 </div>
 
-<!-- 底部導航 - 手機版 -->
 <div class="bottom-nav" id="bottomNav">
     <a href="index.html" class="bottom-nav-item">
         <span class="bottom-nav-icon">🏠</span>
@@ -750,7 +743,6 @@
     </div>
 
     <div class="container">
-        <!-- 建立群組表單 -->
         <div class="card">
             <h2>建立新群組</h2>
             <form id="createGroupForm">
@@ -772,7 +764,6 @@
                     <textarea id="description" rows="3" placeholder="簡單描述行程..."></textarea>
                 </div>
 
-                <!-- 顯示將產生的邀請碼格式 -->
                 <div class="join-code-display">
                     <div style="color: var(--muted); margin-bottom: 5px;">邀請碼格式</div>
                     <div class="code" id="codePreview">W64BFI</div>
@@ -793,7 +784,6 @@
             <span>或者</span>
         </div>
 
-        <!-- 加入群組表單 -->
         <div class="card">
             <h2>加入現有群組</h2>
             <div class="form-group">
@@ -827,7 +817,6 @@
     </div>
 
     <script>
-
         const firebaseConfig = {
             apiKey: "AIzaSyCIwmeMV5XHSEPlneNN9vlRsI7feaoQm18",
             authDomain: "project-221c4.firebaseapp.com",

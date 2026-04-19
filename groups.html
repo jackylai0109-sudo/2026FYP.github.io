@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>TravelSync · 我的群組</title>
     
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
@@ -39,7 +38,6 @@
             transition: padding 0.3s ease;
         }
 
-        /* ==================== 側邊導航 - 電腦版 ==================== */
         .side-nav {
             position: fixed;
             left: 10px;
@@ -135,7 +133,6 @@
             opacity: 1;
         }
 
-        /* ==================== 底部導航 - 手機版 ==================== */
         .bottom-nav {
             display: none;
             position: fixed;
@@ -191,7 +188,6 @@
             font-weight: 500;
         }
 
-        /* 純 Loading 圖示 - 無文字 */
         .loading-icon {
             position: fixed;
             top: 20px;
@@ -291,7 +287,6 @@
             background: linear-gradient(135deg, #f0fcfc, white);
         }
 
-        /* 角色徽章 - 右上角 */
         .role-badge {
             position: absolute;
             top: 15px;
@@ -318,7 +313,7 @@
             gap: 15px;
             margin-bottom: 15px;
             cursor: pointer;
-            padding-right: 60px; /* 為右上角徽章留空間 */
+            padding-right: 60px;
         }
 
         .group-avatar {
@@ -359,7 +354,6 @@
             color: var(--muted);
         }
 
-        /* 成員列表樣式 */
         .group-members-section {
             margin: 15px 0;
             padding: 10px 0;
@@ -593,7 +587,6 @@
             background: #f0fcfc;
         }
 
-        /* 成員詳細資訊浮層 */
         .member-info-overlay {
             position: fixed;
             top: 0;
@@ -677,7 +670,6 @@
             transform: scale(0.95);
         }
 
-        /* 確認對話框樣式 */
         .confirm-overlay {
             position: fixed;
             top: 0;
@@ -840,11 +832,6 @@
             border-width: 2px;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
         @keyframes slideUp {
             from {
                 opacity: 0;
@@ -888,7 +875,6 @@
             margin-bottom: var(--safe-area-bottom);
         }
 
-        /* 手機版優化 - 導航移到下方 */
         @media (max-width: 768px) {
             body {
                 padding: 15px 15px 70px 15px;
@@ -1214,7 +1200,6 @@
             }
         }
 
-        /* iOS 安全區域支援 */
         @supports (padding: max(0px)) {
             .bottom-nav {
                 padding-bottom: max(8px, env(safe-area-inset-bottom));
@@ -1227,7 +1212,6 @@
     </style>
 </head>
 <body>
-    <!-- 側邊導航 - 電腦版 -->
 <div class="side-nav">
     <div class="nav-items">
         <a href="index.html" class="nav-item">
@@ -1257,7 +1241,6 @@
     </div>
 </div>
 
-<!-- 底部導航 - 手機版 -->
 <div class="bottom-nav">
     <a href="index.html" class="bottom-nav-item">
         <span class="bottom-nav-icon">🏠</span>
@@ -1285,7 +1268,6 @@
     </a>
 </div>
 
-    <!-- 純 Loading 圖示 - 無文字 -->
     <div class="loading-icon" id="loadingIcon">
         <div class="loading-spinner"></div>
     </div>
@@ -1310,7 +1292,6 @@
     </div>
 
     <script>
-
         const firebaseConfig = {
             apiKey: "AIzaSyCIwmeMV5XHSEPlneNN9vlRsI7feaoQm18",
             authDomain: "project-221c4.firebaseapp.com",
@@ -1326,7 +1307,6 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // 顯示提示訊息
         function showToast(message) {
             const toast = document.createElement('div');
             toast.className = 'toast-message';
@@ -1343,7 +1323,6 @@
             }, 3000);
         }
 
-        // 顯示成員詳細資訊
         window.showMemberInfo = function(member) {
             if (document.querySelector('.member-info-overlay')) {
                 return;
@@ -1375,7 +1354,6 @@
             document.body.appendChild(overlay);
         };
 
-        // 顯示確認對話框
         function showConfirmDialog(groupId, groupName) {
             if (document.querySelector('.confirm-overlay')) {
                 return;
@@ -1446,13 +1424,11 @@
             });
         }
 
-        // 離開群組
         window.leaveGroup = async function(groupId) {
             const user = auth.currentUser;
             if (!user) return;
 
             try {
-                // 檢查是否為管理員
                 const memberRef = db.collection('groups')
                     .doc(groupId)
                     .collection('members')
@@ -1460,15 +1436,11 @@
                 
                 const memberDoc = await memberRef.get();
                 
-                // 先檢查成員文件是否存在
                 if (!memberDoc.exists) {
-                    // 直接更新用戶的群組列表
                 } else {
                     const isAdmin = memberDoc.data().role === 'admin';
                     
-                    // 如果是管理員，檢查是否為最後一位管理員
                     if (isAdmin) {
-                        // 獲取所有管理員
                         const adminSnapshot = await db.collection('groups')
                             .doc(groupId)
                             .collection('members')
@@ -1477,16 +1449,13 @@
                         
                         const adminCount = adminSnapshot.size;
                         
-                        // 如果這是最後一位管理員
                         if (adminCount <= 1) {
-                            // 獲取所有成員，按加入時間排序
                             const allMembersSnapshot = await db.collection('groups')
                                 .doc(groupId)
                                 .collection('members')
                                 .orderBy('joinedAt', 'asc')
                                 .get();
                             
-                            // 找到最早加入且不是當前用戶的成員
                             let earliestMember = null;
                             for (const doc of allMembersSnapshot.docs) {
                                 if (doc.id !== user.uid) {
@@ -1499,7 +1468,6 @@
                             }
                             
                             if (earliestMember) {
-                                // 轉移管理員權限給最早加入的成員
                                 await db.collection('groups')
                                     .doc(groupId)
                                     .collection('members')
@@ -1508,7 +1476,6 @@
                                         role: 'admin'
                                     });
                                 
-                                // 發送系統訊息通知管理員變更
                                 const earliestMemberName = earliestMember.data.name || 
                                     (await db.collection('users').doc(earliestMember.id).get()).data()?.username || '成員';
                                 
@@ -1531,7 +1498,6 @@
                                     .add(transferMessage);
                                 
                             } else {
-                                // 沒有其他成員，群組將被解散
                                 const dissolveMessage = {
                                     senderId: 'system',
                                     senderName: '系統',
@@ -1557,14 +1523,11 @@
                     }
                 }
 
-                // 從群組的 members 集合中移除自己
                 try {
                     await memberRef.delete();
                 } catch (deleteError) {
-                    // 忽略刪除錯誤
                 }
 
-                // 從使用者的群組列表中移除
                 const userRef = db.collection('users').doc(user.uid);
                 const userDoc = await userRef.get();
 
@@ -1590,19 +1553,16 @@
                         updatedGroups = groupsObj;
                     }
 
-                    // 更新使用者文件
                     await userRef.update({
                         groups: updatedGroups
                     });
 
-                    // 如果離開的是當前所在的群組，清除 currentGroupId
                     if (userData.currentGroupId === groupId) {
                         await userRef.update({
                             currentGroupId: null
                         });
                     }
 
-                    // 從群組的位置分享中移除
                     try {
                         await db.collection('groups')
                             .doc(groupId)
@@ -1610,10 +1570,8 @@
                             .doc(user.uid)
                             .delete();
                     } catch (locationError) {
-                        // 忽略錯誤
                     }
 
-                    // 發送離開訊息
                     const leaveMessage = {
                         senderId: 'system',
                         senderName: '系統',
@@ -1633,7 +1591,6 @@
                             .collection('messages')
                             .add(leaveMessage);
                     } catch (messageError) {
-                        // 忽略錯誤
                     }
 
                     showToast(`✅ 已離開群組`);
@@ -1655,7 +1612,6 @@
             }
         };
 
-        // 背景修復群組（不阻塞主要載入）
         async function runAutoFixInBackground() {
             const user = auth.currentUser;
             if (!user) return;
@@ -1679,7 +1635,6 @@
                     groups = Object.values(userData.groups);
                 }
 
-                // 如果已經有群組，不需要修復
                 if (groups.length > 0) {
                     loadingIcon.classList.remove('show');
                     return;
@@ -1716,7 +1671,6 @@
                         groups: groupsObj
                     });
 
-                    // 修復完成後重新載入頁面
                     setTimeout(() => {
                         loadingIcon.classList.remove('show');
                         location.reload();
@@ -1730,7 +1684,6 @@
             }
         }
 
-        // 載入用戶群組
         async function loadUserGroups() {
             const user = auth.currentUser;
             if (!user) {
@@ -1742,7 +1695,6 @@
                 const userDoc = await db.collection('users').doc(user.uid).get();
                 
                 if (!userDoc.exists) {
-                    // 用戶文件不存在，直接顯示空狀態
                     document.getElementById('loadingSection').style.display = 'none';
                     document.getElementById('groupsSection').style.display = 'block';
                     showEmptyState();
@@ -1751,7 +1703,6 @@
 
                 const userData = userDoc.data();
                 
-                // 快速檢查用戶是否有群組
                 let groups = [];
                 if (userData.groups) {
                     if (Array.isArray(userData.groups)) {
@@ -1761,13 +1712,11 @@
                     }
                 }
                 
-                // 如果沒有群組，直接顯示空狀態，不執行自動修復
                 if (groups.length === 0) {
                     document.getElementById('loadingSection').style.display = 'none';
                     document.getElementById('groupsSection').style.display = 'block';
                     showEmptyState();
                     
-                    // 在背景執行修復（不阻塞）
                     setTimeout(() => {
                         runAutoFixInBackground();
                     }, 100);
@@ -1775,7 +1724,6 @@
                     return;
                 }
 
-                // 有群組才繼續載入詳細資訊
                 const groupPromises = groups.map(async (group, index) => {
                     try {
                         if (!group || !group.groupId) return null;
@@ -1785,7 +1733,6 @@
                         if (groupDoc.exists) {
                             const groupData = groupDoc.data();
                             
-                            // 獲取成員總數
                             try {
                                 const membersSnapshot = await db.collection('groups')
                                     .doc(group.groupId)
@@ -1794,7 +1741,6 @@
                                 
                                 const totalMembers = membersSnapshot.size;
                                 
-                                // 獲取前5位成員的資料
                                 const memberPromises = membersSnapshot.docs.slice(0, 5).map(async (memberDoc) => {
                                     const memberData = memberDoc.data();
                                     try {
@@ -1862,7 +1808,6 @@
             }
         }
 
-        // 渲染群組列表
         function renderGroups(groups, currentGroupId) {
             document.getElementById('loadingSection').style.display = 'none';
             document.getElementById('groupsSection').style.display = 'block';
@@ -1898,12 +1843,10 @@
 
                 const isCurrent = group.groupId === currentGroupId;
 
-                // 生成成員頭像 HTML
                 const membersHtml = group.members.map(member => {
                     const displayName = member.name || '用戶';
                     const initial = displayName.charAt(0).toUpperCase();
                     
-                    // 使用 JSON.stringify 但處理特殊字符
                     const memberJson = JSON.stringify(member).replace(/"/g, '&quot;');
                     
                     return `
@@ -1916,7 +1859,6 @@
                     `;
                 }).join('');
 
-                // 角色徽章
                 const roleBadge = group.role === 'admin' 
                     ? '<span class="role-badge admin">admin</span>'
                     : '<span class="role-badge member">member</span>';
@@ -1938,7 +1880,6 @@
                             </div>
                         </div>
                         
-                        <!-- 成員列表區域 -->
                         <div class="group-members-section" onclick="switchToGroupChat('${group.groupId}')">
                             <div class="group-members-title">
                                 <span>👥 成員 (${group.totalMembers})</span>
@@ -1964,7 +1905,6 @@
             }).join('');
         }
 
-        // 顯示空狀態
         function showEmptyState() {
             const grid = document.getElementById('groupsGrid');
             grid.innerHTML = `
@@ -1976,7 +1916,6 @@
             `;
         }
 
-        // 切換到群組聊天室
         window.switchToGroupChat = async function(groupId) {
             const user = auth.currentUser;
             if (!user) return;
@@ -1993,7 +1932,6 @@
             }
         };
 
-        // 監聽認證狀態
         auth.onAuthStateChanged((user) => {
             if (user) {
                 loadUserGroups();

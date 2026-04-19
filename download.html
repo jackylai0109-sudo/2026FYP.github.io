@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>TravelSync · 下載 Android App</title>
     
-    <!-- 使用穩定的 QR Code 庫 -->
     <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
     
     <style>
@@ -323,7 +322,6 @@
             }
         }
 
-        /* 手機版優化 */
         @media (max-width: 768px) {
             body {
                 padding: 10px;
@@ -600,10 +598,8 @@
     </div>
 
     <script>
-        // ================= 設定 APK 下載網址 =================
         const APK_DOWNLOAD_URL = 'https://firebasestorage.googleapis.com/v0/b/project-221c4.firebasestorage.app/o/APK%2FTravelSync.apk?alt=media&token=b893a55e-3534-43a4-bd9a-67ce0ff67d28';
         
-        // ================= 顯示提示訊息 =================
         function showToast(message, duration = 3000) {
             const existingToast = document.querySelector('.toast-message');
             if (existingToast) {
@@ -625,12 +621,10 @@
             }, duration);
         }
         
-        // ================= 顯示功能說明 =================
         function showFeatureInfo(message) {
             showToast(message, 4000);
         }
         
-        // ================= 下載 APK =================
         function downloadAPK() {
             const isAndroid = /Android/i.test(navigator.userAgent);
             
@@ -647,15 +641,12 @@
             }
         }
         
-        // ================= 生成 QR Code（直接使用 Canvas） =================
         function generateQRCode() {
             const qrcodeContainer = document.getElementById('qrcode');
             if (!qrcodeContainer) return;
             
-            // 清空容器
             qrcodeContainer.innerHTML = '';
             
-            // 顯示載入中
             const loadingDiv = document.createElement('div');
             loadingDiv.style.width = '150px';
             loadingDiv.style.height = '150px';
@@ -667,10 +658,8 @@
             loadingDiv.innerHTML = '<span>⏳ 載入中...</span>';
             qrcodeContainer.appendChild(loadingDiv);
             
-            // 使用 QRCode.js 庫生成
             if (typeof QRCode !== 'undefined') {
                 try {
-                    // 移除載入提示
                     qrcodeContainer.innerHTML = '';
                     
                     new QRCode(qrcodeContainer, {
@@ -682,7 +671,6 @@
                         correctLevel: QRCode.CorrectLevel.H
                     });
                     
-                    // 添加點擊事件
                     qrcodeContainer.style.cursor = 'pointer';
                     qrcodeContainer.onclick = () => downloadAPK();
                     console.log('QR Code 生成成功 (QRCode.js)');
@@ -692,14 +680,12 @@
                 }
             }
             
-            // 備用方案 1：使用 Canvas 手動生成
             try {
                 qrcodeContainer.innerHTML = '';
                 const canvas = document.createElement('canvas');
                 canvas.width = 150;
                 canvas.height = 150;
                 
-                // 簡單的 QR Code 模擬（顯示下載連結文字）
                 const ctx = canvas.getContext('2d');
                 ctx.fillStyle = '#ffffff';
                 ctx.fillRect(0, 0, 150, 150);
@@ -721,7 +707,6 @@
                 console.error('Canvas 備用方案失敗:', e);
             }
             
-            // 備用方案 2：顯示下載按鈕
             qrcodeContainer.innerHTML = '';
             const fallbackDiv = document.createElement('div');
             fallbackDiv.style.width = '150px';
@@ -739,7 +724,6 @@
             console.log('使用最終備用方案');
         }
         
-        // ================= 複製下載連結 =================
         function copyDownloadLink() {
             navigator.clipboard.writeText(APK_DOWNLOAD_URL).then(() => {
                 showToast('✅ 下載連結已複製到剪貼簿', 2000);
@@ -748,12 +732,9 @@
             });
         }
         
-        // ================= 頁面載入完成後執行 =================
         document.addEventListener('DOMContentLoaded', function() {
-            // 延遲生成 QR Code，確保 DOM 準備完成
             setTimeout(generateQRCode, 100);
             
-            // 長按 QR Code 複製連結（手機版）
             const qrContainer = document.getElementById('qrcode');
             if (qrContainer) {
                 let pressTimer;

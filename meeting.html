@@ -5,21 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>TravelSync · 建立會合點</title>
     
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     
-    <!-- Google Maps API 載入 - 移除 callback，我們自己控制載入時機 -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDXCOcFaB80u9FjnEkQf-DlMOPqAJyGngA&libraries=places&loading=async"></script>
     
-    <!-- Flatpickr 日期選擇器 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://npmcdn.com/flatpickr/dist/l10n/zh-tw.js"></script>
     
     <style>
-        /* 所有樣式保持不變 */
         * {
             margin: 0;
             padding: 0;
@@ -46,7 +42,6 @@
             transition: padding 0.3s ease;
         }
 
-        /* ==================== 側邊導航 - 電腦版 ==================== */
         .side-nav {
             position: fixed;
             left: 10px;
@@ -142,7 +137,6 @@
             opacity: 1;
         }
 
-        /* ==================== 底部導航 - 手機版 ==================== */
         .bottom-nav {
             display: none;
             position: fixed;
@@ -238,7 +232,6 @@
             height: calc(100vh - 120px);
         }
 
-        /* 左側面板 */
         .left-panel {
             background: var(--card);
             border-radius: var(--radius);
@@ -892,7 +885,6 @@
             background: #28b5b2;
         }
 
-        /* 手機版響應式 - 導航移到下方 */
         @media (max-width: 768px) {
             body {
                 padding: 10px 10px 70px 10px;
@@ -1160,7 +1152,6 @@
             }
         }
 
-        /* iOS 安全區域支援 */
         @supports (padding: max(0px)) {
             .bottom-nav {
                 padding-bottom: max(8px, env(safe-area-inset-bottom));
@@ -1169,7 +1160,6 @@
     </style>
 </head>
 <body>
-    <!-- 側邊導航 - 電腦版 -->
     <div class="side-nav">
         <div class="nav-items">
             <a href="index.html" class="nav-item">
@@ -1199,7 +1189,6 @@
         </div>
     </div>
 
-    <!-- 底部導航 - 手機版 -->
     <div class="bottom-nav">
         <a href="index.html" class="bottom-nav-item">
             <span class="bottom-nav-icon">🏠</span>
@@ -1232,18 +1221,15 @@
         <h1>建立會合點</h1>
     </div>
 
-    <!-- 位置載入提示 -->
     <div class="location-loading" id="locationLoading">
         <div class="spinner"></div>
         <p>正在獲取位置...</p>
     </div>
 
     <div class="container">
-        <!-- 左側面板 - 步驟 -->
         <div class="left-panel">
             <h2>🎯 建立會合點</h2>
             
-            <!-- 步驟指示器 -->
             <div class="step-indicator">
                 <div class="step-item active" id="step1Indicator">1. 選擇群組</div>
                 <div class="step-item" id="step2Indicator">2. 選擇地點</div>
@@ -1251,7 +1237,6 @@
                 <div class="step-item" id="step4Indicator">4. 確認發送</div>
             </div>
 
-            <!-- 步驟1：選擇群組 -->
             <div class="step-content" id="step1Content">
                 <div class="step-title">選擇要發送的群組</div>
                 <div class="group-list" id="groupList">
@@ -1262,7 +1247,6 @@
                 </div>
             </div>
 
-            <!-- 步驟2：選擇地點 -->
             <div class="step-content" id="step2Content" style="display: none;">
                 <div class="step-title">在地圖上選擇會合點</div>
                 <p style="color: var(--muted); margin-bottom: 15px;">🔍 使用上方搜尋欄找地點，或直接點擊地圖</p>
@@ -1274,7 +1258,6 @@
                 </div>
             </div>
 
-            <!-- 步驟3：設定日期時間 -->
             <div class="step-content" id="step3Content" style="display: none;">
                 <div class="step-title">設定會合時間</div>
                 
@@ -1315,13 +1298,11 @@
                 </div>
             </div>
 
-            <!-- 步驟4：確認發送 -->
             <div class="step-content" id="step4Content" style="display: none;">
                 <div class="step-title">確認會合點資訊</div>
                 <div class="meeting-details" id="meetingDetails"></div>
             </div>
 
-            <!-- 導航按鈕 -->
             <div style="margin-top: auto; padding-top: 20px;">
                 <div style="display: flex; gap: 10px;">
                     <button class="btn secondary" id="prevBtn" onclick="prevStep()" style="display: none;">上一步</button>
@@ -1331,9 +1312,7 @@
             </div>
         </div>
 
-        <!-- 右側面板 - 地圖 -->
         <div class="right-panel">
-            <!-- 搜尋欄 -->
             <div class="search-container">
                 <div class="search-box">
                     <input type="text" 
@@ -1366,7 +1345,6 @@
                 </div>
             </div>
             
-            <!-- 地點資訊面板 -->
             <div class="location-info-panel" id="locationInfoPanel">
                 <div class="location-detail" id="panelLocationDetail"></div>
                 <div class="action-buttons">
@@ -1378,7 +1356,6 @@
     </div>
 
     <script>
-
         const firebaseConfig = {
             apiKey: "AIzaSyCIwmeMV5XHSEPlneNN9vlRsI7feaoQm18",
             authDomain: "project-221c4.firebaseapp.com",
@@ -1417,7 +1394,6 @@
         let resizeTimer;
         let datePicker;
 
-        // 初始化地圖的函數
         function initMap() {
             console.log('Google Maps API 初始化成功');
             
@@ -1461,7 +1437,6 @@
             }
         }
 
-        // 等待 Google Maps API 載入
         function waitForGoogleMaps() {
             if (window.google && window.google.maps) {
                 initMap();
@@ -2178,7 +2153,6 @@
                 loadUserGroups();
                 initDateTimePicker();
                 
-                // 開始等待 Google Maps 載入
                 waitForGoogleMaps();
             } else {
                 window.location.href = 'loginPage.html';

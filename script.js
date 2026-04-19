@@ -1,4 +1,3 @@
-// ==================== Firebase 初始化 ====================
 const firebaseConfig = {
   apiKey: "AIzaSyBhvbTPl-hGv1MWtrua55LuvIUpdabqy4M",
   authDomain: "YOUR_AUTH_DOMAIN",
@@ -8,14 +7,12 @@ const firebaseConfig = {
   appId: "YOUR_APP_ID"
 };
 
-// 初始化 Firebase
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// ==================== Google 地圖初始化 ====================
 let map;
 
 async function initMap() {
@@ -91,22 +88,17 @@ async function initMap() {
 
 window.initMap = initMap;
 
-// 地圖初始化 - 不使用 DOMContentLoaded，直接執行
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initMap);
 } else {
   initMap();
 }
 
-// ==================== 用戶狀態管理 ====================
-
-// 監聽登入狀態變化
 auth.onAuthStateChanged(async (user) => {
   await updateUserButton(user);
   await updateProfileTabButton(user);
 });
 
-// 獲取用戶顯示名稱的輔助函數
 async function getUserDisplayName(user) {
   if (!user) return null;
   
@@ -133,7 +125,6 @@ async function getUserDisplayName(user) {
   return '用戶';
 }
 
-// 更新頂部按鈕顯示
 async function updateUserButton(user) {
   const authButton = document.getElementById('authButton');
   const logoutButton = document.getElementById('logoutButton');
@@ -158,7 +149,6 @@ async function updateUserButton(user) {
   }
 }
 
-// 更新底部帳號按鈕
 function updateProfileTabButton(user) {
   const profileTabBtn = document.getElementById('profileTabBtn');
   
@@ -171,7 +161,6 @@ function updateProfileTabButton(user) {
   }
 }
 
-// 處理底部帳號按鈕點擊
 function handleProfileTabClick() {
   console.log('點擊底部帳號按鈕');
   const user = auth.currentUser;
@@ -183,7 +172,6 @@ function handleProfileTabClick() {
   }
 }
 
-// 處理頂部按鈕點擊
 function handleAuthAction() {
   const user = auth.currentUser;
   if (user) {
@@ -193,7 +181,6 @@ function handleAuthAction() {
   }
 }
 
-// ==================== 登出確認對話框 ====================
 function showLogoutConfirm() {
   if (document.querySelector('.logout-confirm-overlay')) {
     return;
@@ -294,11 +281,6 @@ function showLogoutConfirm() {
   document.addEventListener('keydown', escHandler);
 }
 
-// ==================== 底部導航效果 ====================
-// 移除這個全域的 DOMContentLoaded 監聽器，因為它會與 index.html 中的衝突
-// 改為在 index.html 中處理
-
-// ==================== 浮層控制 ====================
 function hideAllOverlays() {
   const createJoin = document.getElementById('createJoin');
   const groupScreen = document.getElementById('groupScreen');
@@ -350,6 +332,3 @@ function hideAuth() {
   const auth = document.getElementById('auth');
   if (auth) auth.style.display = 'none'; 
 }
-
-// 初始化隱藏所有浮層 - 移除這個全域監聽器
-// 改為在 index.html 中處理

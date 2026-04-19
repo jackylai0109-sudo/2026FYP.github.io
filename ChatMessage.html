@@ -5,13 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>TravelSync 聊天室</title>
     
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
-    
-    <!-- Google Maps API -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDXCOcFaB80u9FjnEkQf-DlMOPqAJyGngA&libraries=places,geometry&v=weekly"></script>
     
     <style>
@@ -52,7 +49,6 @@
             transition: padding 0.3s ease;
         }
 
-        /* ==================== 側邊導航 - 電腦版 ==================== */
         .side-nav {
             position: fixed;
             left: 10px;
@@ -148,7 +144,6 @@
             opacity: 1;
         }
 
-        /* ==================== 底部導航 - 手機版 ==================== */
         .bottom-nav {
             display: none;
             position: fixed;
@@ -204,7 +199,6 @@
             font-weight: 500;
         }
 
-        /* 聊天容器 */
         .chat-container {
             max-width: 1000px;
             width: 100%;
@@ -218,7 +212,6 @@
             margin-left: 0;
         }
 
-        /* 聊天室標頭 */
         .chat-header {
             padding: 20px;
             background: linear-gradient(135deg, var(--primary), var(--primary-dark));
@@ -344,7 +337,6 @@
             }
         }
 
-        /* 訊息列表區域 */
         .messages-area {
             flex: 1;
             overflow-y: auto;
@@ -368,7 +360,6 @@
             flex-direction: row-reverse;
         }
 
-        /* 系統訊息樣式 */
         .system-message-wrapper {
             display: flex;
             justify-content: center;
@@ -451,7 +442,6 @@
             word-break: break-word;
         }
 
-        /* 圖片訊息樣式 */
         .message-image {
             max-width: 250px;
             border-radius: 12px;
@@ -487,7 +477,6 @@
             border-top-color: rgba(255, 255, 255, 0.2);
         }
 
-        /* 語音訊息新樣式 - 不使用麥克風圖示 */
         .message-voice {
             background: #f0f8f8;
             border-radius: 12px;
@@ -569,7 +558,6 @@
             50% { transform: scaleY(1); }
         }
 
-        /* 位置訊息樣式 */
         .message-location {
             background: #f0f9ff;
             padding: 12px;
@@ -701,7 +689,6 @@
             font-size: 12px;
         }
 
-        /* 發送區域 */
         .message-input-area {
             padding: 20px;
             background: white;
@@ -827,7 +814,6 @@
             }
         }
 
-        /* 投票相關樣式 - 修復版本 */
         .poll-button {
             background: var(--member-color);
             color: white;
@@ -1000,7 +986,6 @@
             box-shadow: 0 4px 12px rgba(44, 197, 194, 0.3);
         }
 
-        /* 投票訊息樣式 - 完全修復版本 */
         .poll-message {
             background: #f0f9ff;
             border-radius: 12px;
@@ -1071,7 +1056,6 @@
             color: white;
         }
 
-        /* 投票進度條容器 */
         .poll-option-bar-container {
             margin: 0 0 8px 0;
             padding: 0 4px;
@@ -1085,7 +1069,6 @@
             opacity: 0.7;
         }
 
-        /* 自己發送的投票訊息內的進度條 */
         .own-message .poll-option-bar {
             background: white;
             opacity: 0.9;
@@ -1147,7 +1130,6 @@
             border-top-color: rgba(255, 255, 255, 0.2);
         }
 
-        /* 上傳進度條 */
         .upload-progress {
             position: fixed;
             top: 20px;
@@ -1182,7 +1164,6 @@
             transition: width 0.3s ease;
         }
 
-        /* 圖片預覽浮層 */
         .image-preview-overlay {
             position: fixed;
             top: 0;
@@ -1232,7 +1213,6 @@
             transform: scale(1.1);
         }
 
-        /* 成員列表側邊欄 - 電腦版 */
         .members-sidebar {
             width: 250px;
             background: white;
@@ -1347,7 +1327,6 @@
             flex-shrink: 0;
         }
 
-        /* 手機版成員列表按鈕 */
         .mobile-members-toggle {
             display: none;
             position: fixed;
@@ -1394,7 +1373,6 @@
             border: 2px solid white;
         }
 
-        /* 手機版成員列表浮層 */
         .mobile-members-overlay {
             display: none;
             position: fixed;
@@ -1607,7 +1585,6 @@
             }
         }
 
-        /* 手機版優化 - 導航移到下方 */
         @media (max-width: 768px) {
             body {
                 padding: 10px 10px 70px 10px;
@@ -1896,7 +1873,6 @@
             }
         }
 
-        /* iOS 安全區域支援 */
         @supports (padding: max(0px)) {
             .bottom-nav {
                 padding-bottom: max(8px, env(safe-area-inset-bottom));
@@ -1909,7 +1885,6 @@
     </style>
 </head>
 <body>
-    <!-- 側邊導航 - 電腦版 -->
 <div class="side-nav">
     <div class="nav-items">
         <a href="index.html" class="nav-item">
@@ -1939,7 +1914,6 @@
     </div>
 </div>
 
-<!-- 底部導航 - 手機版 -->
 <div class="bottom-nav">
     <a href="index.html" class="bottom-nav-item">
         <span class="bottom-nav-icon">🏠</span>
@@ -1967,7 +1941,6 @@
     </a>
 </div>
 
-    <!-- 上傳進度條 -->
     <div class="upload-progress" id="uploadProgress">
         <span>📤 上傳中...</span>
         <div class="progress-bar">
@@ -1976,7 +1949,6 @@
     </div>
 
     <div class="chat-container">
-        <!-- 聊天室標頭 -->
         <div class="chat-header">
             <button class="back-button" onclick="goBack()" title="返回首頁">←</button>
             <div class="header-content">
@@ -1991,9 +1963,7 @@
             </div>
         </div>
 
-        <!-- 主要聊天區域 -->
         <div style="display: flex; flex: 1; overflow: hidden;">
-            <!-- 訊息列表 -->
             <div style="flex: 1; display: flex; flex-direction: column;">
                 <div class="messages-area" id="messagesArea">
                     <div class="loading" id="messageLoading">
@@ -2002,7 +1972,6 @@
                     </div>
                 </div>
 
-                <!-- 訊息輸入區域 -->
                 <div class="message-input-area">
                     <div class="input-wrapper">
                         <input type="text" id="messageInput" placeholder="輸入訊息..." disabled>
@@ -2018,7 +1987,6 @@
                         <button class="tool-btn" onclick="shareCurrentLocation()" id="shareLocationBtn" disabled>
                             <i>📍</i> 分享位置
                         </button>
-                        <!-- 投票按鈕 -->
                         <button class="poll-button" onclick="showPollForm()" id="pollButton" disabled>
                             <i>📊</i> 投票
                         </button>
@@ -2026,7 +1994,6 @@
                 </div>
             </div>
 
-            <!-- 成員列表 - 電腦版 -->
             <div class="members-sidebar">
                 <h3>
                     群組成員
@@ -2042,13 +2009,11 @@
         </div>
     </div>
 
-    <!-- 手機版成員列表按鈕 -->
     <button class="mobile-members-toggle" id="mobileMembersToggle" onclick="toggleMobileMembers()">
         👥
         <span class="online-badge" id="mobileOnlineBadge">0</span>
     </button>
 
-    <!-- 手機版成員列表浮層 -->
     <div class="mobile-members-overlay" id="mobileMembersOverlay" onclick="closeMobileMembers(event)">
         <div class="mobile-members-panel">
             <div class="mobile-members-header">
@@ -2067,10 +2032,8 @@
         </div>
     </div>
 
-    <!-- 隱藏的檔案選擇器 -->
     <input type="file" id="imagePicker" accept="image/*" style="display: none;">
 
-<!-- 投票表單浮層 - 修改這個部分 -->
 <div class="poll-form-modal" id="pollFormModal" onclick="closePollForm(event)">
     <div class="poll-form-panel" onclick="event.stopPropagation()">
         <div class="poll-form-header">
@@ -2131,17 +2094,13 @@
         let unsubscribeMembers = null;
         let unsubscribeLocations = null;
         let presenceInterval = null;
-        let previousMembers = new Map(); // 用於追蹤成員變化
-        let isFirstLoad = true; // 標記是否為第一次載入
-        
-        // 語音錄製相關變數
+        let previousMembers = new Map();
+        let isFirstLoad = true;
         let mediaRecorder = null;
         let audioChunks = [];
         let isRecording = false;
         let recordingStartTime = null;
         let recordingTimer = null;
-        
-        // 語音播放相關全域變數
         let currentAudio = null;
         let currentVoiceElement = null;
 
@@ -2246,7 +2205,6 @@
             window.location.href = 'map.html';
         }
 
-        // 顯示提示訊息
         function showToast(message) {
             const toast = document.createElement('div');
             toast.className = 'copy-feedback';
@@ -2258,7 +2216,6 @@
             }, 2000);
         }
 
-        // 格式化檔案大小
         function formatFileSize(bytes) {
             if (bytes === 0) return '0 Bytes';
             const k = 1024;
@@ -2267,14 +2224,12 @@
             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
 
-        // 格式化時間（秒轉為 mm:ss）
         function formatDuration(seconds) {
             const mins = Math.floor(seconds / 60);
             const secs = Math.floor(seconds % 60);
             return `${mins}:${secs.toString().padStart(2, '0')}`;
         }
 
-        // 格式化最後上線時間
         function formatLastSeen(timestamp) {
             if (!timestamp) return '從未上線';
             
@@ -2293,7 +2248,6 @@
             return lastSeen.toLocaleDateString('zh-TW');
         }
 
-        // 圖片預覽
         function previewImage(url, caption) {
             const overlay = document.createElement('div');
             overlay.className = 'image-preview-overlay';
@@ -2320,22 +2274,18 @@
             document.body.appendChild(overlay);
         }
 
-        // ========== 語音播放控制 ==========
         function toggleVoicePlayback(url, element, duration) {
             const playPauseIcon = element.querySelector('.play-pause-icon');
             const voiceWave = element.querySelector('.voice-wave');
             const voiceDuration = element.querySelector('.voice-duration');
             
-            // 如果正在播放同一個語音
             if (currentAudio && currentAudio.src === url) {
                 if (!currentAudio.paused) {
-                    // 暫停播放
                     currentAudio.pause();
                     playPauseIcon.textContent = '▶️';
                     if (voiceWave) voiceWave.style.display = 'none';
                     if (voiceDuration) voiceDuration.style.display = 'inline';
                 } else {
-                    // 繼續播放
                     currentAudio.play();
                     playPauseIcon.textContent = '⏸️';
                     if (voiceWave) voiceWave.style.display = 'flex';
@@ -2344,7 +2294,6 @@
                 return;
             }
             
-            // 停止當前播放的語音
             if (currentAudio) {
                 currentAudio.pause();
                 if (currentVoiceElement) {
@@ -2356,8 +2305,7 @@
                     if (oldDuration) oldDuration.style.display = 'inline';
                 }
             }
-            
-            // 播放新的語音
+
             const audio = new Audio(url);
             audio.play().catch(error => {
                 console.error('播放語音錯誤:', error);
@@ -2365,12 +2313,10 @@
                 return;
             });
             
-            // 更新 UI
             playPauseIcon.textContent = '⏸️';
             if (voiceWave) voiceWave.style.display = 'flex';
             if (voiceDuration) voiceDuration.style.display = 'none';
             
-            // 設定事件監聽
             audio.addEventListener('ended', () => {
                 playPauseIcon.textContent = '▶️';
                 if (voiceWave) voiceWave.style.display = 'none';
@@ -2401,7 +2347,6 @@
                 currentVoiceElement = null;
             });
             
-            // 更新全域變數
             currentAudio = audio;
             currentVoiceElement = element;
         }
@@ -2422,8 +2367,6 @@
             }
         }
 
-        // ========== 投票相關函數 ==========
-// ========== 投票相關函數 ==========
 function showPollForm() {
     if (!currentUser || !currentGroupId) {
         alert('請先加入群組');
@@ -2436,7 +2379,6 @@ function closePollForm(event) {
     if (event.target.classList.contains('poll-form-close') || 
         event.target.classList.contains('poll-form-modal')) {
         document.getElementById('pollFormModal').style.display = 'none';
-        // 重置表單 - 改為只有2個預設選項
         document.getElementById('pollQuestion').value = '';
         const optionsContainer = document.getElementById('pollOptions');
         optionsContainer.innerHTML = `
@@ -2461,7 +2403,6 @@ function addOption() {
         return;
     }
     
-    // 計算新的選項編號
     const newOptionNumber = optionCount + 1;
     
     const newOption = document.createElement('div');
@@ -2480,8 +2421,6 @@ function removeOption(button) {
         return;
     }
     button.parentElement.remove();
-    
-    // 重新編號剩餘選項的 placeholder
     const rows = optionsContainer.querySelectorAll('.poll-option-row');
     rows.forEach((row, index) => {
         const input = row.querySelector('.poll-option');
@@ -2515,7 +2454,6 @@ async function createPoll() {
         return;
     }
     
-    // 初始化投票結果
     const votes = {};
     options.forEach(option => {
         votes[option] = 0;
@@ -2538,7 +2476,7 @@ async function createPoll() {
                 question: question,
                 options: options,
                 votes: votes,
-                voters: {}, // 記錄誰投了哪個選項
+                voters: {},
                 totalVotes: 0
             }
         };
@@ -2548,11 +2486,9 @@ async function createPoll() {
             .collection('messages')
             .add(pollMessage);
         
-        // 關閉表單
         document.getElementById('pollFormModal').style.display = 'none';
         showToast('✅ 投票已發送');
         
-        // 重置表單
         document.getElementById('pollQuestion').value = '';
         const optionsContainer = document.getElementById('pollOptions');
         optionsContainer.innerHTML = `
@@ -2572,7 +2508,6 @@ async function createPoll() {
     }
 }
 
-        // 投票或修改投票
         async function vote(messageId, selectedOption) {
             if (!currentUser) {
                 alert('請先登入');
@@ -2580,7 +2515,6 @@ async function createPoll() {
             }
             
             try {
-                // 從 Firestore 獲取最新的訊息資料
                 const messageRef = db.collection('groups')
                     .doc(currentGroupId)
                     .collection('messages')
@@ -2597,39 +2531,31 @@ async function createPoll() {
                 let currentVotes = metadata.votes || {};
                 let currentVoters = metadata.voters || {};
                 
-                // 檢查是否已經投過票
                 if (currentVoters[currentUser.uid]) {
                     const oldOption = currentVoters[currentUser.uid];
                     
-                    // 如果點擊的是同一個選項，提示已經投過
                     if (oldOption === selectedOption) {
                         alert('你已經投過這個選項了');
                         return;
                     }
                     
-                    // 詢問是否要更改投票
                     if (!confirm(`你已經投給「${oldOption}」，要更改為「${selectedOption}」嗎？`)) {
                         return;
                     }
                     
-                    // 減少舊選項的票數
                     if (currentVotes[oldOption] > 0) {
                         currentVotes[oldOption]--;
                     }
                 }
                 
-                // 更新投票計數（增加新選項的票數）
                 const newVotes = {...currentVotes};
                 newVotes[selectedOption] = (newVotes[selectedOption] || 0) + 1;
                 
-                // 記錄投票者
                 const newVoters = {...(currentVoters || {})};
                 newVoters[currentUser.uid] = selectedOption;
                 
-                // 計算總投票數
                 const totalVotes = Object.values(newVotes).reduce((a, b) => a + b, 0);
                 
-                // 更新 Firestore
                 await messageRef.update({
                     'metadata.votes': newVotes,
                     'metadata.voters': newVoters,
@@ -2644,7 +2570,6 @@ async function createPoll() {
             }
         }
 
-        // 初始化圖片選擇器
         function initImagePicker() {
             const picker = document.getElementById('imagePicker');
             picker.addEventListener('change', async function(e) {
@@ -2655,12 +2580,10 @@ async function createPoll() {
                 
                 await uploadFile(file, 'image', caption);
                 
-                // 清空選擇器
                 picker.value = '';
             });
         }
 
-        // 更新用戶在線狀態
         async function updatePresence(status) {
             if (!currentUser || !currentGroupId) return;
             
@@ -2687,7 +2610,6 @@ async function createPoll() {
             }
         }
 
-        // 定期更新在線狀態
         function startPresenceUpdates() {
             updatePresence('online');
             
@@ -2701,7 +2623,6 @@ async function createPoll() {
             });
         }
 
-        // 發送系統訊息
         async function sendSystemMessage(type, memberName, memberId) {
             if (!currentGroupId) return;
 
@@ -2741,48 +2662,39 @@ async function createPoll() {
             }
         }
 
-        // 檢查成員變化
         function checkMemberChanges(newMembers) {
             const newMemberIds = new Set(newMembers.map(m => m.id));
             
-            // 檢查加入的成員
             for (const member of newMembers) {
                 if (!previousMembers.has(member.id)) {
-                    // 新成員加入
                     if (member.id !== currentUser?.uid) {
-                        // 檢查是否真的是新加入（可以根據 joinedAt 判斷）
                         if (member.joinedAt) {
                             const joinedTime = member.joinedAt.toDate ? member.joinedAt.toDate() : new Date(member.joinedAt);
                             const now = new Date();
                             const diffSeconds = (now - joinedTime) / 1000;
                             
-                            // 如果加入時間在 30 秒內，才發送加入訊息
                             if (diffSeconds < 30) {
                                 sendSystemMessage('join', member.name, member.id);
                             }
                         } else {
-                            // 如果沒有 joinedAt，就發送（較寬鬆）
                             sendSystemMessage('join', member.name, member.id);
                         }
                     }
                 }
             }
             
-            // 檢查離開的成員
             for (const [id, name] of previousMembers) {
                 if (!newMemberIds.has(id) && id !== currentUser?.uid) {
                     sendSystemMessage('leave', name, id);
                 }
             }
             
-            // 更新 previousMembers
             previousMembers.clear();
             newMembers.forEach(m => {
                 previousMembers.set(m.id, m.name);
             });
         }
 
-        // 上傳檔案
         async function uploadFile(file, type, caption = '') {
             if (!currentUser || !currentGroupId) {
                 alert('請先加入群組');
@@ -2854,7 +2766,6 @@ async function createPoll() {
             }
         }
 
-        // 上傳語音
         async function uploadVoice(audioBlob, duration) {
             if (!currentUser || !currentGroupId) {
                 alert('請先加入群組');
@@ -2926,7 +2837,6 @@ async function createPoll() {
             }
         }
 
-        // 切換語音錄製
         window.toggleVoiceRecording = async function() {
             if (!currentUser || !currentGroupId) {
                 alert('請先加入群組');
@@ -2936,7 +2846,6 @@ async function createPoll() {
             const voiceBtn = document.getElementById('voiceButton');
 
             if (!isRecording) {
-                // 開始錄製
                 try {
                     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                     
@@ -2953,13 +2862,10 @@ async function createPoll() {
                         const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
                         const duration = (Date.now() - recordingStartTime) / 1000;
                         
-                        // 停止所有音軌
                         stream.getTracks().forEach(track => track.stop());
                         
-                        // 上傳語音
                         await uploadVoice(audioBlob, duration);
                         
-                        // 重置按鈕狀態
                         voiceBtn.classList.remove('recording');
                         voiceBtn.innerHTML = '<i>🎤</i> 語音';
                         isRecording = false;
@@ -2974,18 +2880,15 @@ async function createPoll() {
                     isRecording = true;
                     recordingStartTime = Date.now();
                     
-                    // 更新按鈕樣式
                     voiceBtn.classList.add('recording');
                     voiceBtn.innerHTML = '<i>⏹️</i> 停止';
                     
-                    // 顯示錄製時間
                     let seconds = 0;
                     recordingTimer = setInterval(() => {
                         seconds++;
                         voiceBtn.innerHTML = `<i>⏹️</i> ${formatDuration(seconds)}`;
                     }, 1000);
                     
-                    // 30秒後自動停止
                     setTimeout(() => {
                         if (isRecording && mediaRecorder && mediaRecorder.state !== 'inactive') {
                             mediaRecorder.stop();
@@ -2997,19 +2900,16 @@ async function createPoll() {
                     showToast('無法存取麥克風，請檢查權限');
                 }
             } else {
-                // 停止錄製
                 if (mediaRecorder && mediaRecorder.state !== 'inactive') {
                     mediaRecorder.stop();
                 }
             }
         };
 
-        // 附加圖片
         window.attachImage = function() {
             document.getElementById('imagePicker').click();
         };
 
-        // 分享目前位置
         window.shareCurrentLocation = async function() {
             if (!currentUser || !currentGroupId) {
                 alert('請先加入群組');
@@ -3101,7 +3001,6 @@ async function createPoll() {
                 return;
             }
 
-            // 檢查是否為第一次載入
             const loadedFlag = sessionStorage.getItem(`members_loaded_${currentGroupId}`);
             isFirstLoad = !loadedFlag || loadedFlag === 'false';
             
@@ -3229,15 +3128,12 @@ async function createPoll() {
                 
                 await Promise.all(memberPromises);
                 
-                // 檢查成員變化（排除第一次載入）
                 if (!isFirstLoad && previousMembers.size > 0) {
                     checkMemberChanges(members);
                 } else {
-                    // 第一次載入，只記錄成員列表，不發送加入訊息
                     members.forEach(m => {
                         previousMembers.set(m.id, m.name);
                     });
-                    // 標記已經完成第一次載入
                     isFirstLoad = false;
                 }
                 
@@ -3316,7 +3212,6 @@ async function createPoll() {
                     lastDate = currentDate;
                 }
 
-                // 系統訊息
                 if (msg.content.type === 'system') {
                     const systemType = msg.content.metadata.systemType;
                     const systemClass = systemType === 'join' ? 'join' : 'leave';
@@ -3355,7 +3250,6 @@ async function createPoll() {
                         const voiceUrl = msg.content.metadata.url;
                         const duration = msg.content.metadata.duration || 0;
                         
-                        // 格式化時長
                         const durationText = formatDuration(duration);
                         
                         contentHtml = `
@@ -3401,7 +3295,6 @@ async function createPoll() {
                         const voters = msg.content.metadata.voters || {};
                         const totalVotes = msg.content.metadata.totalVotes || 0;
                         
-                        // 檢查當前用戶是否已經投票
                         const hasVoted = voters && voters[currentUser?.uid];
                         const userVote = hasVoted ? voters[currentUser?.uid] : null;
                         
@@ -3423,7 +3316,6 @@ async function createPoll() {
                             `;
                         });
                         
-                        // 顯示投票狀態提示
                         let voteStatus = '';
                         if (hasVoted) {
                             voteStatus = `
@@ -3701,10 +3593,8 @@ async function createPoll() {
             if (unsubscribeMembers) unsubscribeMembers();
             if (unsubscribeLocations) unsubscribeLocations();
             
-            // 停止所有語音播放
             stopAllVoicePlayback();
             
-            // 如果正在錄音，停止錄音
             if (isRecording && mediaRecorder && mediaRecorder.state !== 'inactive') {
                 mediaRecorder.stop();
             }
@@ -3744,10 +3634,8 @@ async function createPoll() {
             if (unsubscribeMembers) unsubscribeMembers();
             if (unsubscribeLocations) unsubscribeLocations();
             
-            // 停止所有語音播放
             stopAllVoicePlayback();
             
-            // 如果正在錄音，停止錄音
             if (isRecording && mediaRecorder && mediaRecorder.state !== 'inactive') {
                 mediaRecorder.stop();
             }

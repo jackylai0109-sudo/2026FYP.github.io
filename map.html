@@ -5,17 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>TravelSync · 地圖＋多元交通</title>
     
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
     
-    <!-- Google Maps API 直接載入 -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDXCOcFaB80u9FjnEkQf-DlMOPqAJyGngA&libraries=places,geometry,marker&callback=initMap&v=weekly" async defer></script>
     
     <style>
-        /* 原有的所有樣式保持不變 */
         * {
             margin: 0;
             padding: 0;
@@ -48,7 +45,6 @@
             padding: 0;
         }
 
-        /* ==================== 側邊導航 - 電腦版 ==================== */
         .side-nav {
             position: fixed;
             left: 10px;
@@ -144,7 +140,6 @@
             opacity: 1;
         }
 
-        /* ==================== 底部導航 - 手機版 ==================== */
         .bottom-nav {
             display: none;
             position: fixed;
@@ -303,7 +298,6 @@
             white-space: nowrap;
         }
 
-        /* ==================== 全螢幕控制按鈕 ==================== */
         .fullscreen-control {
             position: absolute;
             top: 15px;
@@ -339,7 +333,6 @@
             color: white;
         }
 
-        /* ==================== 群組選擇器 ==================== */
         .group-selector {
             display: flex;
             align-items: center;
@@ -500,7 +493,6 @@
             transform: scale(0.95);
         }
 
-        /* ==================== 附近設施按鈕組 ==================== */
         .nearby-buttons {
             display: flex;
             gap: 8px;
@@ -540,7 +532,6 @@
             font-size: 16px;
         }
 
-        /* ==================== 搜尋依據選擇器 ==================== */
         .search-location-selector {
             display: flex;
             align-items: center;
@@ -646,7 +637,6 @@
             background-color: #e8eef0;
         }
 
-        /* ==================== 定位按鈕容器 ==================== */
         .location-button-container {
             position: absolute;
             bottom: 20px;
@@ -805,7 +795,6 @@
             background: #FF8C00;
         }
 
-        /* ==================== 路線摘要卡片 ==================== */
         .route-summary {
             position: absolute;
             bottom: 120px;
@@ -990,7 +979,6 @@
             margin-left: 8px;
         }
 
-        /* 手機版響應式 */
         @media (max-width: 768px) {
             body {
                 padding: 8px 8px 70px 8px;
@@ -1038,7 +1026,6 @@
             .route-summary.fullscreen-mode { bottom: calc(140px + var(--safe-area-bottom)); }
         }
 
-        /* iOS 安全區域支援 */
         @supports (padding: max(0px)) {
             .route-summary.fullscreen-mode {
                 bottom: max(180px, calc(160px + env(safe-area-inset-bottom)));
@@ -1053,7 +1040,6 @@
     </style>
 </head>
 <body>
-    <!-- 側邊導航 - 電腦版 -->
     <div class="side-nav" id="sideNav">
         <div class="nav-items">
             <a href="index.html" class="nav-item">
@@ -1083,7 +1069,6 @@
         </div>
     </div>
 
-    <!-- 底部導航 - 手機版 -->
     <div class="bottom-nav" id="bottomNav">
         <a href="index.html" class="bottom-nav-item">
             <span class="bottom-nav-icon">🏠</span>
@@ -1116,14 +1101,12 @@
         <h1>地圖 · 多元交通</h1>
     </div>
 
-    <!-- 地理位置載入提示 -->
     <div class="location-loading" id="locationLoading">
         <div class="spinner"></div>
         <p>正在獲取您的位置...</p>
         <p style="font-size: 12px; color: var(--muted); margin-top: 10px;">請允許瀏覽器存取位置</p>
     </div>
 
-    <!-- 位置資訊顯示 -->
     <div class="location-info" id="locationInfo"></div>
 
     <div class="container" id="container">
@@ -1131,7 +1114,6 @@
             <div class="map-header" id="mapHeader">
                 <h2>🗺️ 即時地圖 <span id="memberCountBadge" class="member-count-badge" style="display: none;">0 人在線</span></h2>
                 
-                <!-- 搜尋列 -->
                 <div class="search-container">
                     <div class="search-box">
                         <input type="text" 
@@ -1144,7 +1126,6 @@
                 </div>
 
                 <div class="map-actions">
-                    <!-- 交通模式切換 -->
                     <div class="route-mode-group" id="routeModeGroup">
                         <button class="route-mode-btn active" data-mode="DRIVING" onclick="setTravelMode('DRIVING')"><i>🚗</i> 開車</button>
                         <button class="route-mode-btn" data-mode="TRANSIT" onclick="setTravelMode('TRANSIT')"><i>🚆</i> 大眾運輸</button>
@@ -1155,7 +1136,6 @@
                 </div>
             </div>
 
-            <!-- 群組選擇器 -->
             <div class="group-selector" id="groupSelector">
                 <span class="group-selector-label">我的群組：</span>
                 <div class="group-badges" id="groupBadges">
@@ -1166,14 +1146,12 @@
                 </div>
             </div>
 
-            <!-- 附近設施按鈕列 + 搜尋依據（同一行） -->
             <div class="button-row" id="buttonRow" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: white; border-bottom: 1px solid #eef2f2; flex-wrap: wrap; gap: 10px;">
-                <!-- 左側：附近設施按鈕 -->
                 <div class="nearby-buttons" style="display: flex; gap: 8px; flex-wrap: wrap; padding: 0; border-bottom: none; flex: 1;">
                     <button class="nearby-btn" onclick="searchNearby('restaurant')" id="btnRestaurant">
                         <i>🍽️</i> 餐廳
                     </button>
-                    <button class="nearby-btn" onclick="searchNearby('hotel')" id="btnHotel">
+                    <button class="nearby-btn" onclick="searchNearby('lodging')" id="btnHotel">
                         <i>🏨</i> 酒店
                     </button>
                     <button class="nearby-btn" onclick="searchNearby('convenience_store')" id="btnStore">
@@ -1196,7 +1174,6 @@
                     </button>
                 </div>
                 
-                <!-- 右側：搜尋依據 -->
                 <div class="search-location-selector" style="display: flex; align-items: center; gap: 15px; padding: 0; border-bottom: none;">
                     <span class="selector-label" style="font-size: 13px; color: var(--accent-dark); font-weight: 500; white-space: nowrap;">搜尋依據：</span>
                     <label class="selector-radio" style="display: flex; align-items: center; gap: 4px; cursor: pointer; font-size: 13px; color: var(--muted); white-space: nowrap;">
@@ -1210,9 +1187,7 @@
                 </div>
             </div>
             
-            <!-- 地圖容器 -->
             <div class="map-container" id="mapContainer">
-                <!-- 全螢幕控制按鈕 -->
                 <div class="fullscreen-control">
                     <button class="fullscreen-btn" id="fullscreenBtn" onclick="toggleFullscreen()" title="全螢幕顯示地圖">
                         <span>⛶</span>
@@ -1220,7 +1195,6 @@
                 </div>
                 <div id="google-map"></div>
                 
-                <!-- 路線摘要卡片 -->
                 <div class="route-summary" id="routeSummary">
                     <div class="route-summary-header" onclick="toggleRouteCollapse()">
                         <div class="route-summary-header-left">
@@ -1238,7 +1212,6 @@
                 </div>
             </div>
             
-            <!-- 定位按鈕容器 -->
             <div class="location-button-container" id="locationButtonContainer">
                 <button class="location-button" onclick="getCurrentLocationAndCenter()" title="顯示我的位置">
                     <span>📍</span>
@@ -1251,7 +1224,6 @@
     </div>
 
     <script>
-        // Firebase 配置
         const firebaseConfig = {
             apiKey: "AIzaSyCIwmeMV5XHSEPlneNN9vlRsI7feaoQm18",
             authDomain: "project-221c4.firebaseapp.com",
@@ -1268,7 +1240,6 @@
         const db = firebase.firestore();
         const storage = firebase.storage();
 
-        // 地圖變數
         let map;
         let geocoder;
         let placesService;
@@ -1288,7 +1259,6 @@
         let currentInfoWindow = null;
         let nearbyMarkers = [];
         
-        // 群組位置分享變數
         let searchLocationType = 'center';
         let currentUserLocation = null;
         let selectedGroupId = null;
@@ -1298,13 +1268,9 @@
         let groupMembersMarkers = [];
         let unsubscribeGroupLocations = null;
 
-        // 全螢幕狀態
         let isFullscreen = false;
-        
-        // 路線摘要折疊狀態
         let isRouteCollapsed = false;
 
-        // 顯示提示訊息
         function showToast(message) {
             const toast = document.createElement('div');
             toast.className = 'toast-message';
@@ -1340,7 +1306,6 @@
             }, duration);
         }
 
-        // 切換路線摘要折疊狀態
         window.toggleRouteCollapse = function() {
             const routeSummary = document.getElementById('routeSummary');
             const routeArrow = document.getElementById('routeArrow');
@@ -1358,7 +1323,6 @@
             }
         };
 
-        // 切換全螢幕模式
         window.toggleFullscreen = function() {
             isFullscreen = !isFullscreen;
             
@@ -1420,7 +1384,6 @@
             }
         };
 
-        // ========== 從行程頁面讀取地點 ==========
         function loadLocationFromItinerary() {
             try {
                 const savedLocation = localStorage.getItem('viewLocation');
@@ -1488,7 +1451,6 @@
             }
         }
 
-        // ========== 設為起點 ==========
         window.setAsStartPoint = function(lat, lng, title) {
             const position = { lat, lng };
             lastOriginPosition = position;
@@ -1556,7 +1518,6 @@
             }
         };
 
-        // ========== 設為目的地 ==========
         window.setAsDestination = function(lat, lng, title) {
             currentDestinationPosition = { lat, lng };
             
@@ -1591,7 +1552,6 @@
             }
         };
 
-        // Google 地圖初始化
         window.initMap = function() {
             console.log('initMap 開始執行');
             
@@ -1826,7 +1786,6 @@
             groupMembersMarkers = [];
         }
 
-        // ========== 修改後的 listenSelectedGroupLocation - 同時從三個來源讀取 ==========
         function listenSelectedGroupLocation() {
             const user = auth.currentUser;
             if (!user || !selectedGroupId) return;
@@ -1835,20 +1794,16 @@
                 unsubscribeGroupLocations();
             }
             
-            // 儲存所有成員位置
             let allMembers = new Map();
             
-            // 更新地圖標記的函數
             const updateMarkers = () => {
                 clearGroupMembersMarkers();
                 
                 let onlineCount = 0;
                 
                 allMembers.forEach((member, memberId) => {
-                    // 跳過自己
                     if (memberId === user.uid) return;
                     
-                    // 檢查是否有有效的位置
                     const lat = member.latitude || member.lat;
                     const lng = member.longitude || member.lng;
                     
@@ -1857,7 +1812,6 @@
                         
                         const position = { lat: lat, lng: lng };
                         
-                        // 檢查時間戳，如果超過2分鐘就不顯示
                         if (member.timestamp) {
                             const lastUpdate = member.timestamp.toDate ? member.timestamp.toDate() : new Date(member.timestamp);
                             const now = new Date();
@@ -1878,7 +1832,6 @@
                     }
                 });
                 
-                // 更新在線人數顯示
                 const badge = document.getElementById('memberCountBadge');
                 if (badge) {
                     if (onlineCount > 0) {
@@ -1889,7 +1842,6 @@
                     }
                 }
                 
-                // 更新群組徽章的在線人數
                 const groupIndex = userGroups.findIndex(g => g.groupId === selectedGroupId);
                 if (groupIndex !== -1) {
                     userGroups[groupIndex].onlineCount = onlineCount;
@@ -1897,7 +1849,6 @@
                 }
             };
             
-            // ===== 1. 監聽 groups/{groupId}/locations (App 寫入的資料) =====
             const locationsRef = db.collection('groups')
                 .doc(selectedGroupId)
                 .collection('locations');
@@ -1921,7 +1872,6 @@
                 console.error('監聽 locations 錯誤:', error);
             });
             
-            // ===== 2. 監聽 users collection (Android App 和網頁版都會寫入) =====
             const usersRef = db.collection('users')
                 .whereEqualTo('currentGroupId', selectedGroupId);
             
@@ -1958,7 +1908,6 @@
                 console.error('監聽 users 錯誤:', error);
             });
             
-            // ===== 3. 監聽 members collection 獲取成員名稱 =====
             const membersRef = db.collection('groups')
                 .doc(selectedGroupId)
                 .collection('members');
@@ -1981,7 +1930,6 @@
                 console.error('監聽 members 錯誤:', error);
             });
             
-            // 儲存取消監聽的函數
             unsubscribeGroupLocations = () => {
                 unsubscribe1();
                 unsubscribe2();
@@ -1989,7 +1937,6 @@
             };
         }
 
-        // ========== 更新成員標記 ==========
         function updateMemberMarker(memberId, locationData) {
             const lastUpdate = locationData.timestamp?.toDate?.() || new Date(locationData.timestamp);
             const now = new Date();
@@ -2042,7 +1989,6 @@
                 markerContent.appendChild(defaultIcon);
             }
             
-            // 添加脈衝動畫
             const pulse = document.createElement('div');
             pulse.style.position = 'absolute';
             pulse.style.top = '50%';
@@ -2102,7 +2048,6 @@
             });
         }
 
-        // ========== 位置分享功能 ==========
         window.toggleLocationSharing = function() {
             if (!currentUserLocation) {
                 showToast('請先獲取您的位置');

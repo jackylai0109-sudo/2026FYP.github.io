@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>TravelSync · 天氣查詢</title>
     
-    <!-- 使用較新的 Places API -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDXCOcFaB80u9FjnEkQf-DlMOPqAJyGngA&libraries=places&callback=initGooglePlaces&loading=async" defer></script>
     
     <style>
@@ -35,7 +34,6 @@
             transition: padding 0.3s ease;
         }
 
-        /* ==================== 側邊導航 - 電腦版 ==================== */
         .side-nav {
             position: fixed;
             left: 10px;
@@ -131,7 +129,6 @@
             opacity: 1;
         }
 
-        /* ==================== 底部導航 - 手機版 ==================== */
         .bottom-nav {
             display: none;
             position: fixed;
@@ -536,7 +533,6 @@
             color: var(--muted);
         }
 
-        /* 手機版優化 - 導航移到下方 */
         @media (max-width: 768px) {
             body {
                 padding: 15px 15px 70px 15px;
@@ -818,7 +814,6 @@
             }
         }
 
-        /* iOS 安全區域支援 */
         @supports (padding: max(0px)) {
             .bottom-nav {
                 padding-bottom: max(8px, env(safe-area-inset-bottom));
@@ -827,7 +822,6 @@
     </style>
 </head>
 <body>
-    <!-- 側邊導航 - 電腦版 -->
     <div class="side-nav">
         <div class="nav-items">
             <a href="index.html" class="nav-item">
@@ -853,7 +847,6 @@
         </div>
     </div>
 
-    <!-- 底部導航 - 手機版 -->
     <div class="bottom-nav">
         <a href="index.html" class="bottom-nav-item">
             <span class="bottom-nav-icon">🏠</span>
@@ -883,10 +876,8 @@
     </div>
 
     <div class="container">
-        <!-- API 狀態提示 -->
         <div class="api-status" id="apiStatus">⏳ 正在載入 Google Places API...</div>
 
-        <!-- 搜尋卡片 -->
         <div class="search-card">
             <h2>搜尋地點天氣</h2>
             <div class="search-box">
@@ -908,7 +899,6 @@
             <div class="recent-searches" id="recentSearches"></div>
         </div>
 
-        <!-- 天氣顯示卡片 -->
         <div class="weather-display" id="weatherDisplay">
             <div class="weather-header">
                 <div class="location-info">
@@ -928,13 +918,11 @@
     </div>
 
     <script>
-        // ==================== 全域變數 ====================
         let autocomplete;
         let geocoder;
         let mapsInitialized = false;
         let recentSearches = [];
 
-        // ==================== Google Places 初始化 ====================
         window.initGooglePlaces = function() {
             console.log('Google Places API 初始化成功');
             
