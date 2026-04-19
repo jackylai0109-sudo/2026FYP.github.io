@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>TravelSync · 下載 Android App</title>
     
+    <!-- 使用穩定的 QR Code 庫 -->
+    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+    
     <style>
         * {
             margin: 0;
@@ -239,8 +242,8 @@
             border-radius: 15px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             margin-bottom: 15px;
-            cursor: pointer;
             transition: all 0.3s ease;
+            cursor: pointer;
         }
 
         .qr-code:hover {
@@ -248,24 +251,9 @@
             box-shadow: 0 8px 20px rgba(0,0,0,0.15);
         }
 
-        .qr-code:active {
-            transform: scale(0.95);
-        }
-
-        .qr-placeholder {
-            width: 150px;
-            height: 150px;
-            background: linear-gradient(45deg, #f0f0f0 25%, #e0e0e0 25%, #e0e0e0 50%, #f0f0f0 50%, #f0f0f0 75%, #e0e0e0 75%);
-            background-size: 20px 20px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            color: var(--muted);
-            text-align: center;
-            word-break: break-word;
-            padding: 10px;
+        .qr-code canvas, .qr-code img {
+            display: block;
+            margin: 0 auto;
         }
 
         .qr-note {
@@ -307,6 +295,32 @@
 
         .version-info p {
             margin-bottom: 5px;
+        }
+
+        .toast-message {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent-dark);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 14px;
+            z-index: 10000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            animation: fadeInUp 0.3s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translate(-50%, 20px);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, 0);
+            }
         }
 
         /* 手機版優化 */
@@ -395,21 +409,6 @@
             .qr-code {
                 padding: 12px;
             }
-
-            .qr-placeholder {
-                width: 130px;
-                height: 130px;
-                font-size: 18px;
-            }
-
-            .qr-note {
-                font-size: 13px;
-            }
-
-            .back-btn {
-                padding: 10px 25px;
-                font-size: 14px;
-            }
         }
 
         @media (max-width: 480px) {
@@ -488,12 +487,6 @@
                 margin-top: 30px;
                 padding-top: 20px;
             }
-
-            .qr-placeholder {
-                width: 120px;
-                height: 120px;
-                font-size: 16px;
-            }
         }
 
         @media (max-width: 375px) {
@@ -528,16 +521,6 @@
                 font-size: 28px;
             }
 
-            .qr-placeholder {
-                width: 100px;
-                height: 100px;
-                font-size: 14px;
-            }
-
-            .qr-note {
-                font-size: 12px;
-            }
-
             .version-info {
                 font-size: 11px;
             }
@@ -561,28 +544,28 @@
             </div>
 
             <div class="features">
-                <div class="feature-item" onclick="alert('離線地圖功能說明：即使沒有網路，也能查看已下載的地圖和行程')">
+                <div class="feature-item" onclick="showFeatureInfo('離線地圖功能說明：即使沒有網路，也能查看已下載的地圖和行程')">
                     <div class="feature-icon">🗺️</div>
                     <div class="feature-text">
                         <div class="feature-title">離線地圖</div>
                         <div class="feature-desc">無網路也能查看行程</div>
                     </div>
                 </div>
-                <div class="feature-item" onclick="alert('即時同步功能說明：訊息和位置更新會即時推送給所有群組成員')">
+                <div class="feature-item" onclick="showFeatureInfo('即時同步功能說明：訊息和位置更新會即時推送給所有群組成員')">
                     <div class="feature-icon">⚡</div>
                     <div class="feature-text">
                         <div class="feature-title">即時同步</div>
                         <div class="feature-desc">訊息即時推送</div>
                     </div>
                 </div>
-                <div class="feature-item" onclick="alert('原生體驗功能說明：針對 Android 系統優化，操作更流暢')">
+                <div class="feature-item" onclick="showFeatureInfo('原生體驗功能說明：針對 Android 系統優化，操作更流暢')">
                     <div class="feature-icon">📱</div>
                     <div class="feature-text">
                         <div class="feature-title">原生體驗</div>
                         <div class="feature-desc">更流暢的操作</div>
                     </div>
                 </div>
-                <div class="feature-item" onclick="alert('推播通知功能說明：群組有新訊息時會即時通知')">
+                <div class="feature-item" onclick="showFeatureInfo('推播通知功能說明：群組有新訊息時會即時通知')">
                     <div class="feature-icon">🔔</div>
                     <div class="feature-text">
                         <div class="feature-title">推播通知</div>
@@ -592,28 +575,17 @@
             </div>
 
             <div class="download-options">
-                <a href="#" class="download-card" onclick="handleDownload('direct')">
+                <a href="#" class="download-card" onclick="downloadAPK()">
                     <div class="download-icon">📥</div>
-                    <h3>直接下載</h3>
-                    <p>APK 檔案 · 版本 1.0.0</p>
-                    <div class="download-badge">72 MB</div>
-                </a>
-
-                <a href="#" class="download-card" onclick="handleDownload('google')">
-                    <div class="download-icon">▶️</div>
-                    <h3>Google Play</h3>
-                    <p>從官方商店下載</p>
-                    <div class="download-badge">前往商店</div>
+                    <h3>直接下載 APK</h3>
+                    <p>版本 1.0.0 · 支援 Android 8.0+</p>
+                    <div class="download-badge">下載 (72 MB)</div>
                 </a>
             </div>
 
             <div class="qr-section">
-                <div class="qr-code" onclick="simulateQRDownload()">
-                    <div class="qr-placeholder">
-                        📱<br>掃描下載
-                    </div>
-                </div>
-                <div class="qr-note">點擊 QR Code 或使用手機相機掃描</div>
+                <div class="qr-code" id="qrcode"></div>
+                <div class="qr-note">使用手機相機掃描 QR Code 直接下載</div>
             </div>
 
             <div style="text-align: center;">
@@ -628,20 +600,176 @@
     </div>
 
     <script>
-        function handleDownload(type) {
-            if (type === 'direct') {
-                alert('📥 APK 下載功能準備中\n\n預計上線日期：2025年6月');
-            } else if (type === 'google') {
-                alert('▶️ Google Play 商店頁面準備中\n\n即將上架，敬請期待！');
+        // ================= 設定 APK 下載網址 =================
+        const APK_DOWNLOAD_URL = 'https://firebasestorage.googleapis.com/v0/b/project-221c4.firebasestorage.app/o/APK%2Fapp-debug.apk?alt=media&token=6f716511-76ee-437c-b343-5b5710c64dbe';
+        
+        // ================= 顯示提示訊息 =================
+        function showToast(message, duration = 3000) {
+            const existingToast = document.querySelector('.toast-message');
+            if (existingToast) {
+                existingToast.remove();
+            }
+            
+            const toast = document.createElement('div');
+            toast.className = 'toast-message';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'fadeInUp 0.3s ease reverse';
+                setTimeout(() => {
+                    if (document.body.contains(toast)) {
+                        document.body.removeChild(toast);
+                    }
+                }, 300);
+            }, duration);
+        }
+        
+        // ================= 顯示功能說明 =================
+        function showFeatureInfo(message) {
+            showToast(message, 4000);
+        }
+        
+        // ================= 下載 APK =================
+        function downloadAPK() {
+            const isAndroid = /Android/i.test(navigator.userAgent);
+            
+            if (isAndroid) {
+                showToast('📥 開始下載 TravelSync APK...', 2000);
+                window.location.href = APK_DOWNLOAD_URL;
+            } else {
+                showToast('⚠️ 請使用 Android 裝置下載 APK 檔案', 4000);
+                setTimeout(() => {
+                    if (confirm('您目前使用的不是 Android 裝置。\n\n仍要下載 APK 檔案嗎？')) {
+                        window.open(APK_DOWNLOAD_URL, '_blank');
+                    }
+                }, 1000);
             }
         }
-
-        function simulateQRDownload() {
-            alert('📱 請使用手機相機掃描 QR Code\n\n或點擊下方按鈕直接下載');
+        
+        // ================= 生成 QR Code（直接使用 Canvas） =================
+        function generateQRCode() {
+            const qrcodeContainer = document.getElementById('qrcode');
+            if (!qrcodeContainer) return;
+            
+            // 清空容器
+            qrcodeContainer.innerHTML = '';
+            
+            // 顯示載入中
+            const loadingDiv = document.createElement('div');
+            loadingDiv.style.width = '150px';
+            loadingDiv.style.height = '150px';
+            loadingDiv.style.display = 'flex';
+            loadingDiv.style.alignItems = 'center';
+            loadingDiv.style.justifyContent = 'center';
+            loadingDiv.style.background = '#f0f0f0';
+            loadingDiv.style.borderRadius = '10px';
+            loadingDiv.innerHTML = '<span>⏳ 載入中...</span>';
+            qrcodeContainer.appendChild(loadingDiv);
+            
+            // 使用 QRCode.js 庫生成
+            if (typeof QRCode !== 'undefined') {
+                try {
+                    // 移除載入提示
+                    qrcodeContainer.innerHTML = '';
+                    
+                    new QRCode(qrcodeContainer, {
+                        text: APK_DOWNLOAD_URL,
+                        width: 150,
+                        height: 150,
+                        colorDark: '#0C344E',
+                        colorLight: '#ffffff',
+                        correctLevel: QRCode.CorrectLevel.H
+                    });
+                    
+                    // 添加點擊事件
+                    qrcodeContainer.style.cursor = 'pointer';
+                    qrcodeContainer.onclick = () => downloadAPK();
+                    console.log('QR Code 生成成功 (QRCode.js)');
+                    return;
+                } catch(e) {
+                    console.error('QRCode.js 生成失敗:', e);
+                }
+            }
+            
+            // 備用方案 1：使用 Canvas 手動生成
+            try {
+                qrcodeContainer.innerHTML = '';
+                const canvas = document.createElement('canvas');
+                canvas.width = 150;
+                canvas.height = 150;
+                
+                // 簡單的 QR Code 模擬（顯示下載連結文字）
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, 150, 150);
+                ctx.fillStyle = '#0C344E';
+                ctx.font = 'bold 14px "Noto Sans"';
+                ctx.textAlign = 'center';
+                ctx.fillText('📱', 75, 60);
+                ctx.font = '12px "Noto Sans"';
+                ctx.fillText('掃描下載', 75, 90);
+                ctx.font = '10px "Noto Sans"';
+                ctx.fillText('TravelSync', 75, 115);
+                
+                canvas.style.cursor = 'pointer';
+                canvas.onclick = () => downloadAPK();
+                qrcodeContainer.appendChild(canvas);
+                console.log('QR Code 使用 Canvas 備用方案');
+                return;
+            } catch(e) {
+                console.error('Canvas 備用方案失敗:', e);
+            }
+            
+            // 備用方案 2：顯示下載按鈕
+            qrcodeContainer.innerHTML = '';
+            const fallbackDiv = document.createElement('div');
+            fallbackDiv.style.width = '150px';
+            fallbackDiv.style.height = '150px';
+            fallbackDiv.style.display = 'flex';
+            fallbackDiv.style.alignItems = 'center';
+            fallbackDiv.style.justifyContent = 'center';
+            fallbackDiv.style.flexDirection = 'column';
+            fallbackDiv.style.background = '#f0f0f0';
+            fallbackDiv.style.borderRadius = '10px';
+            fallbackDiv.style.cursor = 'pointer';
+            fallbackDiv.innerHTML = '<div style="font-size:40px;">📥</div><div style="font-size:12px;margin-top:8px;">點擊下載</div>';
+            fallbackDiv.onclick = () => downloadAPK();
+            qrcodeContainer.appendChild(fallbackDiv);
+            console.log('使用最終備用方案');
         }
-
-        document.addEventListener('touchstart', function(e) {
-        }, { passive: true });
+        
+        // ================= 複製下載連結 =================
+        function copyDownloadLink() {
+            navigator.clipboard.writeText(APK_DOWNLOAD_URL).then(() => {
+                showToast('✅ 下載連結已複製到剪貼簿', 2000);
+            }).catch(() => {
+                showToast('❌ 複製失敗，請手動複製', 2000);
+            });
+        }
+        
+        // ================= 頁面載入完成後執行 =================
+        document.addEventListener('DOMContentLoaded', function() {
+            // 延遲生成 QR Code，確保 DOM 準備完成
+            setTimeout(generateQRCode, 100);
+            
+            // 長按 QR Code 複製連結（手機版）
+            const qrContainer = document.getElementById('qrcode');
+            if (qrContainer) {
+                let pressTimer;
+                qrContainer.addEventListener('touchstart', function(e) {
+                    pressTimer = setTimeout(() => {
+                        copyDownloadLink();
+                    }, 500);
+                });
+                qrContainer.addEventListener('touchend', function() {
+                    clearTimeout(pressTimer);
+                });
+                qrContainer.addEventListener('touchmove', function() {
+                    clearTimeout(pressTimer);
+                });
+            }
+        });
     </script>
 </body>
 </html>
